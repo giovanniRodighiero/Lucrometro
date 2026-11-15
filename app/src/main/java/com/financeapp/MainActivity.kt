@@ -1,12 +1,14 @@
 package com.financeapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,14 +16,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.financeapp.data.CronetHttp
 import com.financeapp.data.QuoteSource
+import com.financeapp.data.SPIKE_TICKERS
 import com.financeapp.data.YahooQuoteSource
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -36,21 +40,31 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                QuoteScreen(fetch = { sym, done ->
+                QuoteScreen(runAll = { onLine, onDone ->
                     worker.execute {
+                        val fmt = SimpleDateFormat("MM-dd HH:mm", Locale.US)
                         val t0 = System.currentTimeMillis()
-                        val r = source.quote(sym)
-                        val ms = System.currentTimeMillis() - t0
-                        val text = r.fold(
-                            onSuccess = {
-                                val ts = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-                                    .format(Date(it.marketTimeEpoch * 1000))
-                                "${it.symbol}  ${it.price} ${it.currency ?: ""}\n" +
-                                    "exchange: ${it.exchange}\nquote time: $ts\n($ms ms)"
-                            },
-                            onFailure = { "ERROR: ${it::class.simpleName}: ${it.message}\n($ms ms)" },
-                        )
-                        runOnUiThread { done(text) }
+                        var ok = 0
+                        for (sym in SPIKE_TICKERS) {
+                            val s = System.currentTimeMillis()
+                            val r = source.quote(sym)
+                            val ms = System.currentTimeMillis() - s
+                            val line = r.fold(
+                                onSuccess = {
+                                    ok++
+                                    "OK   %-8s %9.3f %s  %s  %dms".format(
+                                        sym, it.price, it.currency ?: "", fmt.format(Date(it.marketTimeEpoch * 1000)), ms,
+                                    )
+                                },
+                                onFailure = { "FAIL %-8s %s  %dms".format(sym, it.message?.take(70), ms) },
+                            )
+                            Log.i("QuoteTest", line)
+                            runOnUiThread { onLine(line) }
+                        }
+                        val total = System.currentTimeMillis() - t0
+                        val summary = "DONE $ok/${SPIKE_TICKERS.size} ok in ${total}ms"
+                        Log.i("QuoteTest", summary)
+                        runOnUiThread { onDone(summary) }
                     }
                 })
             }
@@ -59,19 +73,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun QuoteScreen(fetch: (String, (String) -> Unit) -> Unit) {
-    var text by remember { mutableStateOf("Loading...") }
+fun QuoteScreen(runAll: (onLine: (String) -> Unit, onDone: (String) -> Unit) -> Unit) {
+    val lines = remember { mutableStateListOf<String>() }
+    var summary by remember { mutableStateOf("Running...") }
     var runs by remember { mutableIntStateOf(0) }
     LaunchedEffect(runs) {
-        text = "Loading..."
-        fetch("SMH.MI") { text = it }
+        lines.clear()
+        summary = "Running..."
+        runAll({ lines += it }, { summary = it })
     }
-    Column(
-        Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(text)
-        Button(onClick = { runs++ }, modifier = Modifier.padding(top = 24.dp)) { Text("Refetch SMH.MI") }
+    Column(Modifier.fillMaxSize().padding(12.dp)) {
+        Button(onClick = { runs++ }) { Text("Run again") }
+        Text(summary, Modifier.padding(vertical = 8.dp))
+        LazyColumn {
+            items(lines) { Text(it, fontSize = 10.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace) }
+        }
     }
 }

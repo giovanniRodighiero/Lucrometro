@@ -11,6 +11,13 @@
 - **Cronet result (emulator on this Mac's network):** the same flow works. SMH.MI 81.75 EUR,
   quote time 2026-11-13 17:36:05 (Friday close), 845 ms for the whole flow. Cookies must be
   handled manually (we read `Set-Cookie` and resend `Cookie`).
+- **Multi-ticker test (2026-11-15, emulator, no delay between calls):** 15 tickers in a row
+  (SMH, ENI, ISP, SWDA, VWCE, UCG, ENEL, RACE, G, LDO, MB, PRY, STMMI, CSSPX, EIMI, all `.MI`):
+  15/15 OK, EUR prices, ~70-150 ms per ticker, ~2.3 s for the first round (includes cookie+crumb).
+  Then 10 more rounds on the same session (150 more calls, ~1.5 s per round at most):
+  all OK, no 429, no re-authentication needed. One cookie+crumb session was enough.
+  Tickers that worked beyond the examples: see list above (all returned valid quotes).
+  This is a burst test of ~165 calls in a few minutes, not a day-long test.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes
@@ -24,6 +31,7 @@
 
 ## Open questions
 - Intraday delay for `.MI` (weekday 09:00-17:30 CET: compare quote time to the clock).
-- Repeated and multi-ticker fetch stability; does Yahoo throttle or block after a while?
+- Long-term stability: bursts are fine, but does the session/crumb expire, and does Yahoo throttle
+  at a few checks per day over weeks? (crumb refresh on HTTP 401/429 is implemented only as 'reset on any non-200')
 - Behaviour on a real phone and mobile networks.
 - Yahoo WebSocket for `.MI` symbols.
