@@ -18,6 +18,13 @@
   all OK, no 429, no re-authentication needed. One cookie+crumb session was enough.
   Tickers that worked beyond the examples: see list above (all returned valid quotes).
   This is a burst test of ~165 calls in a few minutes, not a day-long test.
+- **History (2026-11-15):** `/v8/finance/chart/{symbol}?range=5d|1mo|3mo&interval=1d&crumb=...`
+  returns daily OHLCV for SMH.MI: 5d = 5 bars (2026-11-09..13), 1mo = 24 bars (2026-10-13..11-13),
+  3mo = 67 bars (2026-08-13..11-13). Same session as quotes, 70-600 ms. Last close (81.75) equals the
+  quote price and the shorter ranges match the tail of the longer ones. `range=1mo` is a calendar
+  month (~22-24 trading days), not exactly 30 days; use `period1`/`period2` (epoch) if exact
+  windows are needed. Bars with a null close are dropped. Not yet checked: dividend/split
+  adjusted closes (`adjclose`), gaps for illiquid ETFs, longer ranges.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes

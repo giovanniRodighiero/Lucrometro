@@ -24,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.financeapp.data.CronetHttp
+import com.financeapp.data.HistoryRange
 import com.financeapp.data.QuoteSource
-import com.financeapp.data.SPIKE_TICKERS
 import com.financeapp.data.YahooQuoteSource
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -42,29 +42,40 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 QuoteScreen(runAll = { onLine, onDone ->
                     worker.execute {
-                        val fmt = SimpleDateFormat("MM-dd HH:mm", Locale.US)
-                        val t0 = System.currentTimeMillis()
-                        var ok = 0
-                        for (sym in SPIKE_TICKERS) {
+                        val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                        val sym = "SMH.MI"
+                        for (range in HistoryRange.entries) {
                             val s = System.currentTimeMillis()
-                            val r = source.quote(sym)
+                            val r = source.history(sym, range)
                             val ms = System.currentTimeMillis() - s
-                            val line = r.fold(
-                                onSuccess = {
-                                    ok++
-                                    "OK   %-8s %9.3f %s  %s  %dms".format(
-                                        sym, it.price, it.currency ?: "", fmt.format(Date(it.marketTimeEpoch * 1000)), ms,
+                            r.fold(
+                                onSuccess = { c ->
+                                    val head = "%s %s: %d bars  %s -> %s  %dms".format(
+                                        sym, range.yahoo, c.size,
+                                        day.format(Date(c.first().epochSeconds * 1000)),
+                                        day.format(Date(c.last().epochSeconds * 1000)), ms,
                                     )
+                                    Log.i("QuoteTest", head)
+                                    runOnUiThread { onLine(head) }
+                                    c.forEach {
+                                        val l = "  %s  o=%s h=%s l=%s c=%.2f v=%s".format(
+                                            day.format(Date(it.epochSeconds * 1000)),
+                                            it.open?.let { v -> "%.2f".format(v) }, it.high?.let { v -> "%.2f".format(v) },
+                                            it.low?.let { v -> "%.2f".format(v) }, it.close, it.volume,
+                                        )
+                                        Log.i("QuoteTest", l)
+                                        runOnUiThread { onLine(l) }
+                                    }
                                 },
-                                onFailure = { "FAIL %-8s %s  %dms".format(sym, it.message?.take(70), ms) },
+                                onFailure = {
+                                    val l = "FAIL $sym ${range.yahoo}: ${it.message?.take(80)}"
+                                    Log.i("QuoteTest", l)
+                                    runOnUiThread { onLine(l) }
+                                },
                             )
-                            Log.i("QuoteTest", line)
-                            runOnUiThread { onLine(line) }
                         }
-                        val total = System.currentTimeMillis() - t0
-                        val summary = "DONE $ok/${SPIKE_TICKERS.size} ok in ${total}ms"
-                        Log.i("QuoteTest", summary)
-                        runOnUiThread { onDone(summary) }
+                        Log.i("QuoteTest", "DONE")
+                        runOnUiThread { onDone("DONE") }
                     }
                 })
             }
