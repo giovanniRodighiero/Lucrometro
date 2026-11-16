@@ -7,7 +7,7 @@ Data must be 100% free. All development is done by agents.
 Example tickers: SMH.MI (ETF), ENI.MI, ISP.MI, SWDA.MI, VWCE.MI
 
 ## Stack
-- Kotlin, Jetpack Compose + Material 3, single `:app` module, package `com.financeapp`
+- Kotlin, Jetpack Compose + Material 3, single `:app` module, package, namespace and applicationId `com.lucrometro`
 - minSdk 26, targetSdk 36, compileSdk 37 (current Compose libs require 37)
 - AGP 9 (Kotlin is built in: do NOT add the `kotlin-android` plugin), Gradle wrapper, version catalog
   in `gradle/libs.versions.toml` (add dependencies there, never inline versions)
@@ -19,7 +19,7 @@ Example tickers: SMH.MI (ETF), ENI.MI, ISP.MI, SWDA.MI, VWCE.MI
 ./gradlew test                               # unit tests
 emulator -avd Pixel_7_Pro_API_33 &           # boot emulator (arm64, Play Store image)
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-adb shell am start -n com.financeapp/.MainActivity   # may fail if run right after install: retry
+adb shell am start -n com.lucrometro/.MainActivity   # may fail if run right after install: retry
 adb exec-out screencap -p > <scratchpad>/shot.png    # verify UI; keep screenshots out of the repo
 ```
 Environment: `ANDROID_HOME=~/Library/Android/sdk`, JDK 17. Gradle auto-downloads missing SDK

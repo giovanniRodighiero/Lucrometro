@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.financeapp"
+    namespace = "com.lucrometro"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.financeapp"
+        applicationId = "com.lucrometro"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.financeapp.data
+package com.lucrometro.data
 
 import org.json.JSONObject
 

@@ -1,4 +1,4 @@
-package com.financeapp.data
+package com.lucrometro.data
 
 import android.content.Context
 import org.chromium.net.CronetEngine

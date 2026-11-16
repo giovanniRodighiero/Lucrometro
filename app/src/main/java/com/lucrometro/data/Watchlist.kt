@@ -1,4 +1,4 @@
-package com.financeapp.data
+package com.lucrometro.data
 
 /** Spike list: the 5 example tickers from the notes plus 10 liquid Milan names/ETFs. */
 val SPIKE_TICKERS = listOf(
