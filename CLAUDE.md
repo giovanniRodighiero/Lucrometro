@@ -30,6 +30,7 @@ platforms. `PomoTimer` (other project) needs platform 34 and build-tools 34.0.0:
 - Data providers stay behind `QuoteSource`; nothing outside `data/` knows about Yahoo or Cronet.
 - Manifest needs `INTERNET` and `ACCESS_NETWORK_STATE` (Cronet crashes without the latter).
 - Never commit APKs, keys or `local.properties`.
+- UI is native Material 3: follow "Look and feel" in `docs/prd.md` (theme tokens, no hard-coded colors).
 
 ## Where knowledge lives (keep CLAUDE.md short)
 - `CLAUDE.md`: only what an agent needs on every task: stack, commands, conventions.

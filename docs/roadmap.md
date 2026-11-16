@@ -7,7 +7,7 @@ Done
 - [x] 15 tickers in sequence plus 10 repeat rounds on the emulator: 15/15 OK each time
 
 Next
-1. Weekday market-hours run: compare `.MI` quote time to the clock (intraday delay).
+1. Verify 1D intraday and long-range (5Y/Max) responses from Yahoo via Cronet.
 2. Test on a real phone.
-3. App proper: Room watchlist, ViewModel, WorkManager checks a few times per day, notifications.
-4. Check Alpha Vantage and Stooq as fallback `QuoteSource` implementations.
+3. App proper, per docs/prd.md: Room (watchlist + last quote), ViewModel, watchlist screen,
+   add/remove, details screen with range chips, 1D intraday and touch scrub, in-memory session cache.
