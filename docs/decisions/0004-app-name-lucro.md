@@ -1,6 +1,6 @@
 # 0004: App name is Lucro
 
-Status: accepted (2026-11-16)
+Status: superseded by 0005 (2026-11-16)
 
 ## Context
 The project was called "FinanceApp" only as a placeholder folder name. We wanted a short, made-up,
