@@ -1,4 +1,4 @@
-# FinanceApp
+# Lucro
 
 Native Android app (Kotlin, Jetpack Compose) to monitor 10-15 ETFs and Borsa Italiana (Milan)
 stocks, checked a few times per day. No own server: the app calls the data source directly.

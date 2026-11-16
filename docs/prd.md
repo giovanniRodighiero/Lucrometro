@@ -1,4 +1,4 @@
-# FinanceApp: Product Requirements (v1)
+# Lucro: Product Requirements (v1)
 
 Status: draft, 2026-11-16. Single user, personal tool.
 
