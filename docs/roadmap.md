@@ -24,7 +24,9 @@ Done
 Next
 0. On a real phone: check the themed icon (Android 13+, Settings > Wallpaper & style > Themed icons)
    and other launcher shapes (squircle, teardrop). The emulator cannot toggle themed icons.
-1. Verify 1D intraday and long-range (5Y/Max) responses from Yahoo via Cronet.
+1. Verify 1D intraday and long-range (5Y/Max) responses from Yahoo via Cronet. Also verify that the
+   chart endpoint returns `adjclose` for ETFs (VWCE.MI, SWDA.MI) and that the previous session close is
+   available for the 1D baseline (decision 0013). Until then, the UI must not say "adjusted".
 2. Test on a real phone.
 3. App proper, per docs/prd.md: Room (watchlist + last quote), ViewModel, watchlist screen,
    add/remove, details screen with range chips, 1D intraday and touch scrub, in-memory session cache.

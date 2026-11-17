@@ -43,8 +43,12 @@ up to ~50 without redesign).
 - Header: ticker, last price, day change (abs and %), last updated.
 - Price chart (line, area fill). Prices and scrub values are shown in the ticker's own currency.
 - If the fetch fails, the chart area shows "Couldn't fetch" with a retry action (no stale chart).
-- Range chips: 1D (intraday), 5D, 1M, 3M, 6M, 1Y, 5Y, Max. Default 1M. 1D shows the last trading
-  session when the market is closed or on weekends.
+- Range chips: 1D (intraday), 5D, 1M, 3M, 6M, 1Y, 5Y, Max. Default 1D. 1D shows the last trading
+  session when the market is closed or on weekends. 1D change is measured against the previous
+  day's close (decision 0013).
+- Ranges use adjusted closes (decision 0013; to be verified, see roadmap). 5Y and Max use coarser
+  points (weekly or monthly).
+- If the chart fails but a saved quote exists, the header shows that quote marked "stale since HH:mm".
 - Touch scrub: dragging a finger along the chart shows date and price at that point and the change
   (abs and %) from the start of the selected range. Releasing returns to the range summary.
 - Range summary: change % over the selected range.

@@ -24,7 +24,8 @@
   quote price and the shorter ranges match the tail of the longer ones. `range=1mo` is a calendar
   month (~22-24 trading days), not exactly 30 days; use `period1`/`period2` (epoch) if exact
   windows are needed. Bars with a null close are dropped. Not yet checked: dividend/split
-  adjusted closes (`adjclose`), gaps for illiquid ETFs, longer ranges.
+  adjusted closes (`adjclose`), gaps for illiquid ETFs, longer ranges. Adjusted closes are the
+  chosen basis for range changes (decision 0013) and still need to be checked.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes
