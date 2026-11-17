@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +28,7 @@ import com.lucrometro.data.CronetHttp
 import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.QuoteSource
 import com.lucrometro.data.YahooQuoteSource
+import com.lucrometro.ui.theme.LucrometroTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,7 +42,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            LucrometroTheme {
+                Surface(Modifier.fillMaxSize()) {
                 QuoteScreen(runAll = { onLine, onDone ->
                     worker.execute {
                         val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)
@@ -80,6 +82,7 @@ class MainActivity : ComponentActivity() {
                         runOnUiThread { onDone("DONE") }
                     }
                 })
+                }
             }
         }
     }

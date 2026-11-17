@@ -1,0 +1,16 @@
+<!--
+  Component: TextField (Doop id cwvvb91wsm, rev 2)
+  Material 3 outlined text field with floating label and supporting text. Sits on a surface-container-low ground.
+  Props: state default|focused = default; label; value; supporting
+-->
+<div class="tf" data-state="default" style="font-family:var(--font-sans);"><div class="box" style="position:relative;display:flex;align-items:center;height:56px;padding:0 var(--spacing-md);border-radius:var(--radius-xs);"><span class="lbl" data-doop-prop="label" style="position:absolute;left:12px;top:-9px;padding:0 4px;font-size:var(--text-body-small);line-height:var(--leading-body-small);background:var(--color-surface-container-low);">Ticker code</span><span class="val" data-doop-prop="value" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);color:var(--color-on-surface);">PRY.MI</span><span class="caret" style="width:2px;height:24px;margin-left:1px;background:var(--color-primary);"></span></div><span class="sup" data-doop-prop="supporting" style="display:block;padding:4px var(--spacing-md) 0;font-size:var(--text-body-small);line-height:var(--leading-body-small);">Borsa Italiana codes end in .MI</span></div>
+<style>
+@keyframes tf-blink{ 50% { opacity: 0; } }
+.tf .box { box-shadow: inset 0 0 0 1px var(--color-outline); }
+.tf .lbl { color: var(--color-on-surface-variant); }
+.tf .sup { color: var(--color-on-surface-variant); }
+.tf .caret { display: none; animation: tf-blink 1s steps(1) infinite; }
+.tf[data-state="focused"] .box { box-shadow: inset 0 0 0 2px var(--color-primary); }
+.tf[data-state="focused"] .lbl { color: var(--color-primary); }
+.tf[data-state="focused"] .caret { display: block; }
+</style>

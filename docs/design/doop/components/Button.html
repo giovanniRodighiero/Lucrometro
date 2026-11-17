@@ -1,0 +1,15 @@
+<!--
+  Component: Button (Doop id cakjwythrc, rev 1)
+  Material 3 button, 40px tall pill. tone=filled for the primary action (Add), tone=text for secondary (Cancel).
+  Props: tone filled|text = filled; state enabled|disabled = enabled; label
+-->
+<button class="btn" data-tone="filled" data-state="enabled" style="display:inline-flex;align-items:center;justify-content:center;height:40px;min-width:64px;padding:0 var(--spacing-lg);border:0;border-radius:var(--radius-full);font-family:var(--font-sans);font-size:var(--text-label-large);line-height:var(--leading-label-large);font-weight:var(--font-weight-medium);cursor:pointer;"><span data-doop-prop="label">Add</span></button>
+<style>
+.btn[data-tone="filled"] { background: var(--color-primary); color: var(--color-on-primary); }
+.btn[data-tone="text"] { background: transparent; color: var(--color-primary); padding: 0 var(--spacing-md); }
+.btn[data-tone="filled"]:hover { filter: brightness(1.1); }
+.btn[data-tone="text"]:hover { background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.btn[data-state="disabled"] { cursor: default; filter: none; }
+.btn[data-tone="filled"][data-state="disabled"] { background: color-mix(in srgb, var(--color-on-surface) 12%, transparent); color: color-mix(in srgb, var(--color-on-surface) 38%, transparent); }
+.btn[data-tone="text"][data-state="disabled"] { background: transparent; color: color-mix(in srgb, var(--color-on-surface) 38%, transparent); }
+</style>

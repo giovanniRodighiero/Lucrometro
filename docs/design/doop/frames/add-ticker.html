@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Add ticker" (qEXVp1o8Vm), 412x892. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }</style></head>
+<body style="width:412px;height:892px;position:relative;overflow:hidden;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);">
+<doop-use component="StatusBar"></doop-use>
+<doop-use component="TopAppBar"></doop-use>
+<main style="display:flex;flex-direction:column;">
+<doop-use component="QuoteRow" name="VanEck Semiconductor UCITS ETF" price="41.27 EUR" ticker="SMH.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+2.14%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" name="Vanguard FTSE All-World UCITS ETF" price="134.58 EUR" ticker="VWCE.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+0.42%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" name="iShares Core MSCI World UCITS ETF" price="108.92 EUR" ticker="SWDA.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+0.37%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow"><template slot="change"><doop-use component="ChangeBadge" direction="down" value="-0.83%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" name="Intesa Sanpaolo S.p.A." price="5.412 EUR" ticker="ISP.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+1.06%"></doop-use></template></doop-use>
+</main>
+<div data-doop-on="click" data-doop-action="navigate:watchlist" data-doop-transition="dissolve" data-doop-duration="200" style="position:absolute;inset:0;background:var(--color-scrim);opacity:0.32;"></div>
+<div style="position:absolute;left:0;right:0;bottom:296px;">
+<doop-use component="BottomSheet"><template slot="content">
+<h2 style="font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">Add ticker</h2>
+<p style="margin-top:var(--spacing-sm);font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">Paste a ticker code, like ENI.MI or VWCE.MI. We check it before saving.</p>
+<div style="margin-top:var(--spacing-lg);"><doop-use component="TextField" label="Ticker code" state="focused" supporting="Borsa Italiana codes end in .MI" value="PRY.MI"></doop-use></div>
+<div style="margin-top:var(--spacing-md);display:flex;justify-content:flex-end;gap:var(--spacing-sm);"><div data-doop-on="click" data-doop-action="navigate:watchlist" style="display:inline-flex;"><doop-use component="Button" label="Cancel" tone="text"></doop-use></div><div data-doop-on="click" data-doop-action="navigate:watchlist-ticker-added" style="display:inline-flex;"><doop-use component="Button" label="Add" tone="filled"></doop-use></div></div>
+</template></doop-use>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;"><doop-use component="Keyboard"></doop-use></div>
+</body>
+</html>

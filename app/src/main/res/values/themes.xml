@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Theme after the splash screen. Compose draws everything, so this only sets the window. -->
-    <style name="Theme.Lucrometro" parent="@android:style/Theme.Material.Light.NoActionBar" />
+    <!-- Theme after the splash screen. Compose draws everything; this only sets the window, which
+         follows the system light/dark setting (decisions 0003, 0011). The framework has no DayNight
+         Material theme below API 29, so light lives here and dark in values-night/themes.xml. -->
+    <style name="Theme.Lucrometro" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
 
-    <!-- Launch theme (decision 0010): cream ground with the launcher icon artwork, on every API level. -->
+    <!-- Launch theme: cream ground with the launcher icon artwork, on every API level (decision 0010).
+         Dark variant for API 31+: values-night-v31. -->
     <style name="Theme.Lucrometro.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>

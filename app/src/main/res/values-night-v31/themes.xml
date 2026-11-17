@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark mode, API 31+: the splash ground is the dark `surface` (same as the app window, no light
+         flash) and the cream icon background becomes a disc behind the artwork. Below API 31 the icon
+         background is not supported, so the base theme (cream ground) is used. A style in a qualified
+         folder replaces the base one entirely, so every item is repeated. -->
+    <style name="Theme.Lucrometro.Splash" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenBackground">@color/window_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.Lucrometro</item>
+    </style>
+</resources>

@@ -1,0 +1,14 @@
+<!--
+  Component: ChangeBadge (Doop id ccd4axt2t9, rev 3)
+  A price change as a filled tonal pill: arrow icon plus signed value on a gain/loss/neutral container.
+  Never show change by colour alone (decision 0007).
+  Props: direction up|down|flat = up; value (signed change, e.g. +1.24% or -0.38%)
+-->
+<span class="chg" data-direction="up" style="display:inline-flex;align-items:center;gap:var(--spacing-xs);font-family:var(--font-sans);font-size:var(--text-body-medium);line-height:var(--leading-body-medium);font-weight:var(--font-weight-medium);font-variant-numeric:tabular-nums;"><svg class="i-up" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"></path></svg><svg class="i-down" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"></path></svg><svg class="i-flat" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"></path></svg><span data-doop-prop="value">+1.24%</span></span>
+<style>
+.chg { padding: 2px 10px 2px 6px; border-radius: var(--radius-full); background: var(--color-surface-container-highest); color: var(--color-on-surface-variant); }
+.chg[data-direction="up"] { background: var(--color-gain-container); color: var(--color-on-gain-container); }
+.chg[data-direction="down"] { background: var(--color-loss-container); color: var(--color-on-loss-container); }
+.chg svg { display: none; }
+.chg[data-direction="up"] .i-up, .chg[data-direction="down"] .i-down, .chg[data-direction="flat"] .i-flat { display: block; }
+</style>

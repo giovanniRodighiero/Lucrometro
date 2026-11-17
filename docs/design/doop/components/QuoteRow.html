@@ -1,0 +1,17 @@
+<!--
+  Component: QuoteRow (Doop id c5b5wp6o8o, rev 1)
+  One watchlist row: ticker code and name on the left, last price and day change on the right.
+  Props: state fresh|stale|error = fresh; ticker; name; note (shown only when stale, e.g. "Stale since 09:12");
+         price (with currency code, or "Couldn't fetch" in the error state)
+  Slot: change (put a ChangeBadge in it; empty in the error state)
+-->
+<div class="row" data-state="fresh" style="display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-md);min-height:72px;padding:var(--spacing-sm) var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);"><div style="min-width:0;display:flex;flex-direction:column;"><span data-doop-prop="ticker" style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">ENI.MI</span><span data-doop-prop="name" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Eni S.p.A.</span><span class="note" data-doop-prop="note" style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-tertiary);font-variant-numeric:tabular-nums;">Stale since 09:12</span></div><div style="display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;"><span class="price" data-doop-prop="price" style="line-height:var(--leading-body-large);font-variant-numeric:tabular-nums;">14.86 EUR</span><div class="change" data-doop-slot="change"></div></div></div>
+<style>
+.row .price { font-size: var(--text-body-large); color: var(--color-on-surface); }
+.row .note { display: none; }
+.row .change { display: flex; }
+.row[data-state="stale"] .note { display: block; }
+.row[data-state="stale"] .price { color: var(--color-on-surface-variant); }
+.row[data-state="error"] .price { font-size: var(--text-body-medium); color: var(--color-error); }
+.row[data-state="error"] .change { display: none; }
+</style>

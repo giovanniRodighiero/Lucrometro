@@ -1,0 +1,13 @@
+<!--
+  Component: Keyboard (Doop id cw3y73b4nh, rev 3)
+  Gboard-style soft keyboard mock (412x296) with the gesture-navigation pill. System chrome, not app UI:
+  do NOT port; Android draws it. Kept only so the Add ticker frame renders.
+-->
+<div class="kb" style="width:412px;height:296px;display:flex;flex-direction:column;background:var(--color-surface-container-high);font-family:var(--font-sans);color:var(--color-on-surface);"><div class="sg" style="display:flex;align-items:center;height:44px;"><span style="flex:1;text-align:center;">PRY</span><span style="flex:1;text-align:center;font-weight:var(--font-weight-medium);">PRY.MI</span><span style="flex:1;text-align:center;">PRYS</span></div><div class="rows" style="display:flex;flex-direction:column;gap:8px;padding:4px 3px 0;"><div class="r"><i>Q</i><i>W</i><i>E</i><i>R</i><i>T</i><i>Y</i><i>U</i><i>I</i><i>O</i><i>P</i></div><div class="r" style="padding:0 18px;"><i>A</i><i>S</i><i>D</i><i>F</i><i>G</i><i>H</i><i>J</i><i>K</i><i>L</i></div><div class="r"><i class="sp" style="flex:1.5;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"></path></svg></i><i>Z</i><i>X</i><i>C</i><i>V</i><i>B</i><i>N</i><i>M</i><i class="sp" style="flex:1.5;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"></path></svg></i></div><div class="r"><i class="sp" style="flex:1.5;font-size:14px;">?123</i><i class="sp">,</i><i style="flex:5;"></i><i class="sp">.</i><i class="go" style="flex:1.5;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg></i></div></div><div style="flex:1;display:flex;align-items:center;justify-content:center;"><span style="width:108px;height:4px;border-radius:var(--radius-full);background:var(--color-on-surface);"></span></div></div>
+<style>
+.kb .sg { font-size: var(--text-body-large); }
+.kb .r { display: flex; gap: 6px; height: 48px; }
+.kb .r i { flex: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-style: normal; font-size: 20px; background: var(--color-surface-container-lowest); }
+.kb .r i.sp { background: var(--color-surface-container-highest); }
+.kb .r i.go { background: var(--color-primary-container); color: var(--color-on-primary-container); border-radius: var(--radius-full); }
+</style>
