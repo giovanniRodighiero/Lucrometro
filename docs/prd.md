@@ -1,6 +1,6 @@
 # Lucrometro: Product Requirements (v1)
 
-Status: draft, 2026-11-16. Single user, personal tool.
+Status: final (v1), 2026-11-17. Single user, personal tool.
 
 ## Purpose
 Check a short, dynamic list of ETFs and Borsa Italiana stocks a few times per day, quickly see how
