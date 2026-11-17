@@ -64,39 +64,8 @@ Reorder list, price alerts/notifications, background refresh (WorkManager), hold
 search/autocomplete, pinch-zoom and pan on the chart, multiple lists, widgets, currency conversion,
 fallback data providers.
 
-## Look and feel (native Android, Material 3)
-The app must feel like a first-class native Android app, not a web view or a cross-platform port.
-Rule: use standard Material 3 components and system behaviors first; custom drawing only where no
-component exists (the price chart). When in doubt, follow the guidelines below instead of inventing.
-
-References (source of truth for the design phase):
-- Material 3 spec, components and patterns: https://m3.material.io
-- Android design hub (layout, navigation, adaptive): https://developer.android.com/design/ui/mobile
-- Material 3 in Compose (theme, color, typography, shapes): https://developer.android.com/develop/ui/compose/designsystems/material3
-- Predictive back: https://developer.android.com/develop/ui/compose/system/predictive-back-setup
-- Core app quality checklist: https://developer.android.com/quality
-
-Requirements:
-- Theming: `MaterialTheme` with `colorScheme`, `typography`, `shapes`; no hard-coded colors or text
-  sizes in screens. Dynamic color (Material You) on Android 12+, with a static fallback scheme on
-  older devices. Follows system light/dark; no in-app theme switch in v1.
-- Gain/loss colors (green/red) come from theme-level semantic tokens that work in light, dark and
-  dynamic color, and never rely on color alone (also sign +/- and an arrow or text).
-- Components: Material 3 `Scaffold`, top app bar, `LazyColumn` list items, `FloatingActionButton`
-  or equivalent for add, `FilterChip`/`SegmentedButton` for ranges, `Snackbar` for undo, dialog or
-  bottom sheet for add-ticker, `PullToRefresh`, standard swipe-to-dismiss.
-- System behavior: edge-to-edge with correct insets, predictive back, system back from details
-  returns to the list, state survives rotation and process death, system font scaling respected.
-- Typography and layout: Material type scale, 8dp/4dp grid, touch targets of at least 48dp.
-- Accessibility: content descriptions (incl. a text summary of the chart), TalkBack-friendly order,
-  contrast per Material, scrub also reachable without precise touch (e.g. step buttons or
-  semantics actions).
-- Motion: default Material transitions (shared axis / container transform between list and
-  details), no custom web-like animations.
-- Tablets/foldables: not designed for in v1, but use window size classes and don't hard-code
-  widths so adaptive layouts can come later.
-- Fonts: system font (Roboto/device default) unless decided otherwise; numbers use tabular figures
-  so prices align.
+## Look and feel
+The app feels like a native Android app. Rules and references: [docs/design/native-look-and-feel.md](design/native-look-and-feel.md).
 
 ## Non-functional
 - Data provider only touched through `QuoteSource` (nothing outside `data/` knows Yahoo/Cronet).
@@ -104,12 +73,6 @@ Requirements:
   a "couldn't fetch" error state, never wrong data, never crash. No fallback provider.
 - Refresh fetches tickers sequentially (stress-tested in docs/research/data-sources.md).
 - Switching back to an already-loaded ticker+range is instant (session cache, see Persistence).
-
-## Needed from `QuoteSource` (gap vs. current code)
-Current: latest quote and daily history for 5d, 1mo, 3mo. v1 needs 1D intraday (minute-level
-candles), history for 6M, 1Y, 5Y, Max
-(daily for up to 1Y; weekly/monthly granularity acceptable for 5Y/Max) and a "does this ticker
-exist" check usable for add-validation. Quotes must carry the currency code.
 
 ## Open questions
 - 1D chart when the market is closed or on weekends: show the last trading session.

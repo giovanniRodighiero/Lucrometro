@@ -8,7 +8,7 @@ already the stack.
 
 ## Decision
 Follow Material 3 and the Android design guidelines (references and requirements in
-`docs/prd.md`, section "Look and feel"). Use standard components and system behaviors (dynamic
+`docs/design/native-look-and-feel.md`). Use standard components and system behaviors (dynamic
 color, edge-to-edge, predictive back, light/dark) and custom drawing only for the price chart.
 
 ## Consequences

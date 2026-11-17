@@ -30,15 +30,13 @@ platforms. `PomoTimer` (other project) needs platform 34 and build-tools 34.0.0:
 - Data providers stay behind `QuoteSource`; nothing outside `data/` knows about Yahoo or Cronet.
 - Manifest needs `INTERNET` and `ACCESS_NETWORK_STATE` (Cronet crashes without the latter).
 - Never commit APKs, keys or `local.properties`.
-- UI is native Material 3: follow "Look and feel" in `docs/prd.md` (theme tokens, no hard-coded colors).
+- UI is native Material 3: follow `docs/design/native-look-and-feel.md` (theme tokens, no hard-coded colors).
 
 ## Where knowledge lives (keep CLAUDE.md short)
 - `CLAUDE.md`: only what an agent needs on every task: stack, commands, conventions.
 - `docs/decisions/NNNN-title.md`: one decision per file (context, decision, consequences, status).
   Add one whenever a non-obvious choice is made. Do not edit accepted ones: supersede them.
 - `docs/research/`: findings and experiments (what was tested, results, dates, open questions).
+- `docs/design/`: design rules for the native UI (look and feel, tokens, Doop-to-Compose mapping).
+- `docs/brand/`: app icon artwork (source and store image).
 - `docs/roadmap.md`: next steps and untested items.
-
-## Current state (2026-11-15)
-Spike works: Cronet fetches SMH.MI from Yahoo on the emulator. UI is a single throwaway screen.
-See `docs/roadmap.md`.
