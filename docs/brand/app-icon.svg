@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 108 108">
   <title>Lucrometro app icon (master, full colour)</title>
   <rect width="108" height="108" fill="#F5E2BE"/>
+  <!-- Artwork scaled to 92% about the centre so it stays inside the 66dp adaptive-icon safe zone -->
+  <g transform="translate(54 54) scale(0.92) translate(-54 -54)">
   <path d="M29 76 L29 58 L38 49 L46 54 L56 40 L65 44 L76 31 L76 76 Z" fill="#17652E" fill-opacity="0.3"/>
   <path d="M29 58 L38 49 L46 54 L56 40 L65 44 L76 31" fill="none" stroke="#17652E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="76" cy="31" r="3.8" fill="#17652E"/>
@@ -15,5 +17,6 @@
       <path d="M42.8 64.2 A2.8 2.8 0 1 0 42.8 67.8 M38.4 65.2 H42.2 M38.4 66.8 H42.2"/>
       <path d="M68.8 64.2 A2.8 2.8 0 1 0 68.8 67.8 M64.4 65.2 H68.2 M64.4 66.8 H68.2"/>
     </g>
+  </g>
   </g>
 </svg>

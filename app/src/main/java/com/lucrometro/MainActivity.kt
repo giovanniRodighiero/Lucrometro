@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.lucrometro.data.CronetHttp
 import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.QuoteSource
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
     private val source: QuoteSource by lazy { YahooQuoteSource(CronetHttp(this)) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {

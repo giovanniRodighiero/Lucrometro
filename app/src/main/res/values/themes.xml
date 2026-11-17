@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme after the splash screen. Compose draws everything, so this only sets the window. -->
+    <style name="Theme.Lucrometro" parent="@android:style/Theme.Material.Light.NoActionBar" />
+
+    <!-- Launch theme (decision 0010): cream ground with the launcher icon artwork, on every API level. -->
+    <style name="Theme.Lucrometro.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Lucrometro</item>
+    </style>
+</resources>

@@ -6,12 +6,12 @@ Done
 
 - [x] 15 tickers in sequence plus 10 repeat rounds on the emulator: 15/15 OK each time
 
-- [x] App icon designed and added (decision 0008); not yet verified on a device or emulator
+- [x] App icon designed and added (decision 0008); checked on the API 33 emulator (launcher icon, monochrome
+      layer, clip gap). Artwork scaled to fit the safe zone and splash screen added (decision 0010).
 
 Next
-0. Check the app icon: normal launcher, themed icon (Android 13+, Settings > Wallpaper & style >
-   Themed icons), and a few launcher shapes. The monochrome layer uses a clip path: confirm the
-   gap around the note renders.
+0. On a real phone: check the themed icon (Android 13+, Settings > Wallpaper & style > Themed icons)
+   and other launcher shapes (squircle, teardrop). The emulator cannot toggle themed icons.
 1. Verify 1D intraday and long-range (5Y/Max) responses from Yahoo via Cronet.
 2. Test on a real phone.
 3. App proper, per docs/prd.md: Room (watchlist + last quote), ViewModel, watchlist screen,
