@@ -10,6 +10,7 @@ Done
 
 - [x] App icon designed and added (decision 0008); checked on the API 33 emulator (launcher icon, monochrome
       layer, clip gap). Artwork scaled to fit the safe zone and splash screen added (decision 0010).
+- [x] Details screen designed in Doop and snapshotted (`details-*` frames, decision 0014).
 
 - [x] Watchlist rows from the Doop QuoteRow/ChangeBadge: price, day change pill, stale mark, "Updated"
       stamp, pull-to-refresh and refresh on open (decision 0014). Checked on the emulator online, offline
@@ -27,10 +28,18 @@ Next
 1. Verify 1D intraday and long-range (5Y/Max) responses from Yahoo via Cronet. Also verify that the
    chart endpoint returns `adjclose` for ETFs (VWCE.MI, SWDA.MI) and that the previous session close is
    available for the 1D baseline (decision 0013). Until then, the UI must not say "adjusted".
+   For the details header and market status (decision 0014): the quote timestamp (`regularMarketTime`),
+   the trading period (`currentTradingPeriod`), how holidays show up, and the `.MI` intraday delay.
 2. Test on a real phone.
 3. App proper, per docs/prd.md: Room (watchlist + last quote), ViewModel, watchlist screen,
-   add/remove, details screen with range chips, 1D intraday and touch scrub, in-memory session cache.
+   add/remove, details screen with the range bar, 1D intraday and touch scrub, in-memory session cache.
 4. `QuoteSource` gaps for v1: 1D intraday (minute candles), history for 6M, 1Y, 5Y, Max (daily up to
    1Y; weekly/monthly acceptable for 5Y/Max), a "does this ticker exist" check for add-validation.
    Quotes must carry the currency code.
-5. Details screen (PRD 4): header, chart with range chips, scrub.
+5. Run `/doop-sync port details-1d` for the details screen (decision 0014); check the header at 130% and 200%
+   font scale. Not designed yet: loading state, 1D before the first trade of the day, 5Y/Max.
+
+Later (v2 candidates, not in v1 scope)
+- Personal position per ticker (quantity, average price, P&L), a private note per ticker.
+- More details info: 52-week and day range, distance from the all-time high, multi-period performance with YTD,
+  dividends on the chart, delay notice.

@@ -39,6 +39,9 @@
 
 ## Open questions
 - Intraday delay for `.MI` (weekday 09:00-17:30 CET: compare quote time to the clock).
+- Details screen needs (decision 0014): is `regularMarketTime` the quote's own time; does
+  `currentTradingPeriod` give the Milan session (for "closes 17:30" / "opens Mon 09:00"); how do exchange
+  holidays show up.
 - Long-term stability: bursts are fine, but does the session/crumb expire, and does Yahoo throttle
   at a few checks per day over weeks? (crumb refresh on HTTP 401/429 is implemented only as 'reset on any non-200')
 - Behaviour on a real phone and mobile networks.

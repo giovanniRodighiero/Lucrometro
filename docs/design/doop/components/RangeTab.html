@@ -1,0 +1,16 @@
+<!--
+  Component: RangeTab (Doop id ckp9udporq, rev 2; was RangeChip at rev 1)
+  One chart range in the details screen's full-width range bar (decision 0014). Equal-width 48dp-tall touch cell
+  with the label centred; the selected range gets a 32dp secondary-container pill, the others are plain text.
+  Props: state unselected|selected = unselected; label (1D, 5D, 1M, 3M, 6M, 1Y, 5Y, Max)
+  Layout: eight in a row, flex:1 each, no gaps, 12dp side padding: 388/8 = 48.5dp per cell, so the touch cells tile
+  the row with no dead gaps and the end pills line up with the 16dp screen margin. Not a stock M3 component: in
+  Compose a Row of selectable cells inside Modifier.selectableGroup(), Role.RadioButton (or Tab) for TalkBack.
+-->
+<span class="rt" data-state="unselected" style="display:flex;align-items:center;justify-content:center;flex:1;min-width:0;height:var(--spacing-touch);font-family:var(--font-sans);font-size:var(--text-label-large);line-height:var(--leading-label-large);font-weight:var(--font-weight-medium);font-variant-numeric:tabular-nums;"><span class="rt-pill" style="display:flex;align-items:center;justify-content:center;min-width:40px;height:32px;padding:0 var(--spacing-sm);border-radius:var(--radius-full);"><span data-doop-prop="label">1M</span></span></span>
+<style>
+.rt { color: var(--color-on-surface-variant); }
+.rt-pill { background: transparent; }
+.rt[data-state="selected"] { color: var(--color-on-secondary-container); }
+.rt[data-state="selected"] .rt-pill { background: var(--color-secondary-container); }
+</style>

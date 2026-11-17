@@ -40,10 +40,14 @@ up to ~50 without redesign).
 - Swipe-to-delete or action on the row, with undo (snackbar). Removes its cached data too.
 
 ### 4. Details screen
-- Header: ticker, last price, day change (abs and %), last updated.
+Layout: decision 0014; frames `details-*` in `docs/design/doop/`.
+- Header: ticker, last price, day change (abs and %), and the quote's own time ("Today, 14:32", or the session
+  day when the market is closed: "Fri 14 Nov, 17:35").
+- Market status in the top bar ("Open · closes 17:30", "Closed · opens Mon 09:00"); hidden when it can't be
+  known reliably.
 - Price chart (line, area fill). Prices and scrub values are shown in the ticker's own currency.
 - If the fetch fails, the chart area shows "Couldn't fetch" with a retry action (no stale chart).
-- Range chips: 1D (intraday), 5D, 1M, 3M, 6M, 1Y, 5Y, Max. Default 1D. 1D shows the last trading
+- Range bar: 1D (intraday), 5D, 1M, 3M, 6M, 1Y, 5Y, Max, each at least 48 x 48dp. Default 1D. 1D shows the last trading
   session when the market is closed or on weekends. 1D change is measured against the previous
   day's close (decision 0013).
 - Ranges use adjusted closes (decision 0013; to be verified, see roadmap). 5Y and Max use coarser
@@ -51,7 +55,8 @@ up to ~50 without redesign).
 - If the chart fails but a saved quote exists, the header shows that quote marked "stale since HH:mm".
 - Touch scrub: dragging a finger along the chart shows date and price at that point and the change
   (abs and %) from the start of the selected range. Releasing returns to the range summary.
-- Range summary: change % over the selected range.
+- Range summary: change % over the selected range. For 1D it shows the previous close instead, since the
+  header already shows the day change.
 
 ### 5. Persistence
 - Room stores only: the watchlist (ticker codes, order of addition) and the last successful quote

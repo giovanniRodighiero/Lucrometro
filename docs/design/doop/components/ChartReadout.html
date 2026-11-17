@@ -1,0 +1,17 @@
+<!--
+  Component: ChartReadout (Doop id cb0cts2d42, rev 1)
+  The line above the chart. Same two-line shape in both modes, so nothing moves when a scrub starts or ends.
+  Props: mode summary|scrub = summary; label; value.
+    summary, 1D:  label "Previous close", value "40.41 EUR", empty slot (the day change is already in the header).
+    summary, 5D+: label "Past month" (etc.), value "From 42.60 EUR", ChangeBadge with the range change in the slot.
+    scrub:        label = date/time at the finger ("Today, 11:45"), value = price there, ChangeBadge with the change
+                  from the range start (1D: from the previous close). Label turns primary.
+  Slot: change
+-->
+<div class="ro" data-mode="summary" style="display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-md);min-height:56px;padding:var(--spacing-sm) var(--spacing-md);font-family:var(--font-sans);"><div style="display:flex;flex-direction:column;min-width:0;"><span class="ro-label" data-doop-prop="label" style="font-size:var(--text-label-medium);line-height:var(--leading-label-medium);font-weight:var(--font-weight-medium);letter-spacing:0.5px;font-variant-numeric:tabular-nums;">Past month</span><span class="ro-value" data-doop-prop="value" style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-variant-numeric:tabular-nums;">From 42.60 EUR</span></div><span data-doop-slot="change"></span></div>
+<style>
+.ro-label { color: var(--color-on-surface-variant); }
+.ro-value { color: var(--color-on-surface); font-weight: var(--font-weight-regular); }
+.ro[data-mode="scrub"] .ro-label { color: var(--color-primary); }
+.ro[data-mode="scrub"] .ro-value { font-weight: var(--font-weight-medium); }
+</style>
