@@ -19,5 +19,6 @@ Next
 4. `QuoteSource` gaps for v1: 1D intraday (minute candles), history for 6M, 1Y, 5Y, Max (daily up to
    1Y; weekly/monthly acceptable for 5Y/Max), a "does this ticker exist" check for add-validation.
    Quotes must carry the currency code.
-5. Skill to export Doop designs (tokens, guidelines, frames) into `docs/design/` and port them to Compose.
+5. Run `/doop-sync export` on the Lucrometro canvas, then `/doop-sync port <frame>` for the watchlist.
+   The skill is written (`.claude/skills/doop-sync`) but has not been run yet.
 6. Build the watchlist screen from Doop decision 0007 (minimal rows with tonal pills).
