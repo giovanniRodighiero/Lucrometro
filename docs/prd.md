@@ -22,9 +22,10 @@ up to ~50 without redesign).
 - Shows all saved tickers, one row each: ticker code (name if available), last price, day change %
   (green up / red down / neutral flat).
 - No sparkline or multi-period % on the row (deliberately minimal).
-- Pull-to-refresh. Auto-refresh on app open.
+- Pull-to-refresh. Auto-refresh on app open. Tickers are fetched one at a time.
 - Tapping a row opens the details screen.
-- Shows an "updated HH:mm" stamp. Price is shown in the ticker's own currency (EUR, USD, ...).
+- Shows an "updated HH:mm" stamp. Price is shown in the ticker's own currency (EUR, USD, ...), with
+  no conversion or totals across currencies.
 - If a fetch fails, the row keeps its last saved quote, clearly marked stale with its timestamp
   ("stale since HH:mm"). If there is no saved quote yet, the row shows "Couldn't fetch". Never show
   wrong or substitute data.
@@ -41,9 +42,9 @@ up to ~50 without redesign).
 ### 4. Details screen
 - Header: ticker, last price, day change (abs and %), last updated.
 - Price chart (line, area fill). Prices and scrub values are shown in the ticker's own currency.
-- Chart data is never persisted. If the fetch fails, the chart area shows "Couldn't fetch" with a
-  retry action (no stale chart).
-- Range chips: 1D (intraday), 5D, 1M, 3M, 6M, 1Y, 5Y, Max. Default 1M.
+- If the fetch fails, the chart area shows "Couldn't fetch" with a retry action (no stale chart).
+- Range chips: 1D (intraday), 5D, 1M, 3M, 6M, 1Y, 5Y, Max. Default 1M. 1D shows the last trading
+  session when the market is closed or on weekends.
 - Touch scrub: dragging a finger along the chart shows date and price at that point and the change
   (abs and %) from the start of the selected range. Releasing returns to the range summary.
 - Range summary: change % over the selected range.
@@ -66,17 +67,6 @@ fallback data providers.
 
 ## Look and feel
 The app feels like a native Android app. Rules and references: [docs/design/native-look-and-feel.md](design/native-look-and-feel.md).
-
-## Non-functional
-- Data provider only touched through `QuoteSource` (nothing outside `data/` knows Yahoo/Cronet).
-- Must tolerate provider failures (the unofficial Yahoo endpoint can change or rate-limit): show
-  a "couldn't fetch" error state, never wrong data, never crash. No fallback provider.
-- Refresh fetches tickers sequentially (stress-tested in docs/research/data-sources.md).
-- Switching back to an already-loaded ticker+range is instant (session cache, see Persistence).
-
-## Open questions
-- 1D chart when the market is closed or on weekends: show the last trading session.
-- Mixed currencies on the list: shown per ticker, no conversion or totals (decided).
 
 ## Success criteria
 - Add a pasted code, see it on the list with price and day % within a few seconds.
