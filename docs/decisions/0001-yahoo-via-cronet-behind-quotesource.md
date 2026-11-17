@@ -14,6 +14,7 @@ fingerprints (plain OkHttp/curl got 429).
 
 ## Consequences
 - Verified on the emulator for SMH.MI. Not yet verified on a real phone, intraday, or at volume.
-- Unofficial API: may break or block at any time; keep a fallback candidate (Stooq/Alpha Vantage).
+- Unofficial API: may break or block at any time. No fallback provider in v1 (see docs/prd.md); Stooq
+  and Alpha Vantage are candidates to evaluate if it does.
 - APK grows by a few MB (native library).
 - Rejected for now: OkHttp with tuned TLS (brittle), curl-impersonate build (last resort).

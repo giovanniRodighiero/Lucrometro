@@ -12,6 +12,7 @@ Example tickers: SMH.MI (ETF), ENI.MI, ISP.MI, SWDA.MI, VWCE.MI
 - AGP 9 (Kotlin is built in: do NOT add the `kotlin-android` plugin), Gradle wrapper, version catalog
   in `gradle/libs.versions.toml` (add dependencies there, never inline versions)
 - Network: Cronet (`cronet-embedded`) behind the `QuoteSource` interface in `data/`
+- Packages: `data/`, `ui/theme/`, `ui/<screen>/`; strings in `res/values/strings.xml` (decision 0009)
 
 ## Commands
 ```
