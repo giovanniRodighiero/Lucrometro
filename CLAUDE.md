@@ -14,7 +14,8 @@ Example tickers: SMH.MI (ETF), ENI.MI, ISP.MI, SWDA.MI, VWCE.MI
 - Network: Cronet (`cronet-embedded`) behind the `QuoteSource` interface in `data/`
 - Storage: Room 3 (package `androidx.room3`, not `androidx.room`) via KSP, in `data/db/`; schemas exported
   to `app/schemas/` and committed. Bump the version and add a migration on any schema change.
-- Packages: `data/`, `ui/theme/`, `ui/<screen>/`; strings in `res/values/strings.xml` (decision 0009)
+- Packages: `data/`, `ui/theme/`, `ui/<screen>/`; strings in `res/values/strings.xml` (decision 0009),
+  translated in `res/values-it/strings.xml`: add every new string to both (decision 0017)
 
 ## Commands
 ```

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Lucrometro</string>
+    <string name="app_name" translatable="false">Lucrometro</string>
 
     <!-- Watchlist -->
     <string name="watchlist_empty_title">No tickers yet</string>
@@ -8,10 +8,10 @@
     <string name="watchlist_updated">Updated %1$s</string>
     <string name="quote_stale_since">Stale since %1$s</string>
     <string name="quote_fetch_failed">Couldn\'t fetch</string>
-    <string name="quote_pending">—</string>
+    <string name="quote_pending" translatable="false">—</string>
     <!-- Price and currency code, e.g. "14.86 EUR". -->
     <string name="quote_price">%1$s %2$s</string>
-    <!-- Day change: %1$s is the unsigned value, e.g. "1.24". Italian would be "+%1$s %%". -->
+    <!-- Day change: %1$s is the unsigned value, e.g. "1.24". Some languages space the sign (French: "+%1$s %%"). -->
     <string name="change_up">+%1$s%%</string>
     <string name="change_down">-%1$s%%</string>
     <string name="change_flat">%1$s%%</string>

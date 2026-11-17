@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Watchlist -->
+    <string name="watchlist_empty_title">Nessun titolo</string>
+    <string name="watchlist_empty_body">Tocca + per aggiungere un ETF o un\'azione tramite il suo codice.</string>
+    <string name="watchlist_updated">Aggiornato: %1$s</string>
+    <string name="quote_stale_since">Ultimo dato: %1$s</string>
+    <string name="quote_fetch_failed">Impossibile caricare</string>
+    <string name="quote_price">%1$s %2$s</string>
+    <!-- Italian writes the percent sign without a space: "+1,24%". -->
+    <string name="change_up">+%1$s%%</string>
+    <string name="change_down">-%1$s%%</string>
+    <string name="change_flat">%1$s%%</string>
+
+    <!-- Add ticker sheet -->
+    <string name="add_ticker">Aggiungi titolo</string>
+    <string name="add_ticker_body">Incolla un codice, come ENI.MI o VWCE.MI. Lo verifichiamo prima di salvarlo.</string>
+    <string name="add_ticker_label">Codice del titolo</string>
+    <string name="add_ticker_hint">I codici di Borsa Italiana finiscono con .MI</string>
+    <string name="add_ticker_error_empty">Inserisci un codice</string>
+    <string name="add_ticker_error_format">Usa solo lettere, cifre e . - ^ =, come ENI.MI</string>
+    <string name="add_ticker_error_duplicate">%1$s è già nella tua lista</string>
+    <string name="add_ticker_error_not_found">%1$s non trovato. Controlla il codice e il suffisso del mercato.</string>
+    <string name="add_ticker_error_no_price">%1$s non ha un prezzo al momento, quindi non si può aggiungere</string>
+    <string name="add_ticker_error_check_failed">Impossibile verificare %1$s. Controlla la connessione e riprova.</string>
+    <string name="add_ticker_error_save_failed">Impossibile salvare %1$s. Riprova.</string>
+    <string name="add">Aggiungi</string>
+    <string name="cancel">Annulla</string>
+</resources>

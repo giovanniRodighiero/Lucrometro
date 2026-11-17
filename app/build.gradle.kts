@@ -20,6 +20,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Per-app language (Android 13+ Settings > Apps > Lucrometro > Language): the list is generated
+    // from the values-* folders, with English as the default (res/resources.properties).
+    androidResources {
+        generateLocaleConfig = true
+    }
 }
 
 // Exported schemas are committed: they are the base for future migrations.
