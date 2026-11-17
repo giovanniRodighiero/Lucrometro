@@ -2,42 +2,37 @@ package com.lucrometro.data.db
 
 import androidx.room3.Dao
 import androidx.room3.Insert
-import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WatchlistDao {
-    @Query("SELECT * FROM watchlist ORDER BY addedAt")
+    @Query("SELECT * FROM watchlist ORDER BY position")
     fun observeAll(): Flow<List<TickerEntity>>
 
-    @Query("SELECT code FROM watchlist ORDER BY addedAt")
+    @Query("SELECT code FROM watchlist ORDER BY position")
     suspend fun codes(): List<String>
 
     @Query("SELECT EXISTS(SELECT 1 FROM watchlist WHERE code = :code)")
     suspend fun contains(code: String): Boolean
 
-    /** Returns the new row id, or -1 if [ticker]'s code is already stored. */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(ticker: TickerEntity): Long
+    @Query("SELECT IFNULL(MAX(position), 0) FROM watchlist")
+    suspend fun lastPosition(): Long
 
-    @Query(
-        """
-        UPDATE watchlist SET price = :price, currency = :currency, exchange = :exchange, name = :name,
-            previousClose = :previousClose, priceDecimals = :priceDecimals, marketTime = :marketTime,
-            fetchedAt = :fetchedAt
-        WHERE code = :code
-        """,
-    )
-    suspend fun saveQuote(
-        code: String,
-        price: Double,
-        currency: String?,
-        exchange: String?,
-        name: String?,
-        previousClose: Double?,
-        priceDecimals: Int?,
-        marketTime: Long,
-        fetchedAt: Long,
-    )
+    @Insert
+    suspend fun insert(ticker: TickerEntity)
+
+    /** Adds [code] after the last row, in one transaction. False if it is already stored. */
+    @Transaction
+    suspend fun insertLast(code: String, addedAt: Long, quote: QuoteColumns): Boolean {
+        if (contains(code)) return false
+        insert(TickerEntity(code, position = lastPosition() + 1, addedAt = addedAt, quote = quote))
+        return true
+    }
+
+    /** Replaces the quote columns of an existing row; a missing code is ignored. */
+    @Update(entity = TickerEntity::class)
+    suspend fun saveQuote(update: QuoteUpdate)
 }

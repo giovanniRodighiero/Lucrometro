@@ -1,5 +1,6 @@
 package com.lucrometro.data.db
 
+import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import com.lucrometro.data.Quote
@@ -7,55 +8,65 @@ import com.lucrometro.data.SavedQuote
 import com.lucrometro.data.StoredTicker
 
 /**
- * One watchlist row: the code, when it was added (the list order) and its last successful quote.
- * The quote columns are null until a quote is saved; [price] being null means "no quote".
+ * One watchlist row: the code, its place in the list, when it was added and its last successful quote.
+ * [quote] is null when no quote is saved (all its columns null).
  */
 @Entity(tableName = "watchlist")
 data class TickerEntity(
     @PrimaryKey val code: String,
+    /** List order: 1, 2, 3... in order of addition. Not the clock, which can go backwards. */
+    val position: Long,
+    /** Epoch millis when the ticker was added. Informational; not used for ordering. */
     val addedAt: Long,
-    val price: Double? = null,
-    val currency: String? = null,
-    val exchange: String? = null,
-    val name: String? = null,
-    val previousClose: Double? = null,
-    val priceDecimals: Int? = null,
-    /** Epoch seconds of the last trade, as the source reported it. */
-    val marketTime: Long? = null,
-    /** Epoch millis when the quote was fetched. */
-    val fetchedAt: Long? = null,
+    @Embedded val quote: QuoteColumns?,
 )
 
-internal fun TickerEntity.toStored(): StoredTicker {
-    val saved = if (price != null && fetchedAt != null) {
+/**
+ * The last successful quote, as stored. The one place that maps [SavedQuote] to columns: add and
+ * refresh both write through it, so a new field cannot be saved by one and dropped by the other.
+ */
+data class QuoteColumns(
+    val price: Double,
+    val currency: String?,
+    val exchange: String?,
+    val name: String?,
+    val previousClose: Double?,
+    val priceDecimals: Int?,
+    /** Epoch seconds of the last trade, as the source reported it. */
+    val marketTime: Long,
+    /** Epoch millis when the quote was fetched. */
+    val fetchedAt: Long,
+)
+
+/** Partial update of a row's quote columns (Room `@Update(entity = TickerEntity::class)`). */
+data class QuoteUpdate(val code: String, @Embedded val quote: QuoteColumns)
+
+internal fun SavedQuote.toColumns() = QuoteColumns(
+    price = quote.price,
+    currency = quote.currency,
+    exchange = quote.exchange,
+    name = quote.name,
+    previousClose = quote.previousClose,
+    priceDecimals = quote.priceDecimals,
+    marketTime = quote.marketTimeEpoch,
+    fetchedAt = fetchedAt,
+)
+
+internal fun TickerEntity.toStored() = StoredTicker(
+    code = code,
+    saved = quote?.let {
         SavedQuote(
             Quote(
                 symbol = code,
-                price = price,
-                currency = currency,
-                exchange = exchange,
-                marketTimeEpoch = marketTime ?: 0,
-                name = name,
-                previousClose = previousClose,
-                priceDecimals = priceDecimals,
+                price = it.price,
+                currency = it.currency,
+                exchange = it.exchange,
+                marketTimeEpoch = it.marketTime,
+                name = it.name,
+                previousClose = it.previousClose,
+                priceDecimals = it.priceDecimals,
             ),
-            fetchedAt,
+            it.fetchedAt,
         )
-    } else {
-        null
-    }
-    return StoredTicker(code, saved)
-}
-
-internal fun newTickerEntity(code: String, addedAt: Long, saved: SavedQuote) = TickerEntity(
-    code = code,
-    addedAt = addedAt,
-    price = saved.quote.price,
-    currency = saved.quote.currency,
-    exchange = saved.quote.exchange,
-    name = saved.quote.name,
-    previousClose = saved.quote.previousClose,
-    priceDecimals = saved.quote.priceDecimals,
-    marketTime = saved.quote.marketTimeEpoch,
-    fetchedAt = saved.fetchedAt,
+    },
 )

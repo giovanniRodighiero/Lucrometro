@@ -16,6 +16,7 @@ Done
       (stale) and back online, in light and dark.
 - [x] Room 3 storage for the watchlist and last quotes (decision 0015). Force-stop and reopen offline:
       saved quotes shown, marked stale.
+- [x] Code review fixes (decision 0016): cancellable source lock, session staleness, schema v2 `position`.
 
 Next
 0. On a real phone: check the themed icon (Android 13+, Settings > Wallpaper & style > Themed icons)

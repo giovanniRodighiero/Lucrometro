@@ -62,7 +62,6 @@ import kotlinx.coroutines.launch
 fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = WatchlistViewModel.Factory)) {
     val entries by viewModel.entries.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
-    val refreshedAt by viewModel.refreshedAt.collectAsStateWithLifecycle()
     val addSheet by viewModel.addSheet.collectAsStateWithLifecycle()
 
     // PRD: auto-refresh when the app is opened (the ViewModel skips it if it refreshed a moment ago).
@@ -74,7 +73,6 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
     WatchlistContent(
         entries = entries,
         refreshing = refreshing,
-        refreshedAt = refreshedAt,
         onRefresh = viewModel::refresh,
         onAddClick = viewModel::openAddSheet,
     )
@@ -94,7 +92,6 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
 private fun WatchlistContent(
     entries: List<WatchlistEntry>?,
     refreshing: Boolean,
-    refreshedAt: Long?,
     onRefresh: () -> Unit,
     onAddClick: () -> Unit,
 ) {
@@ -104,7 +101,8 @@ private fun WatchlistContent(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
                     // Doop TopAppBar: "Updated 14:32" stamp at the end of the bar.
-                    refreshedAt?.let {
+                    // The newest saved quote: what "updated" means even after a restart or a failed refresh.
+                    entries?.mapNotNull { it.saved?.fetchedAt }?.maxOrNull()?.let {
                         Text(
                             stringResource(R.string.watchlist_updated, formatTime(LocalContext.current, it)),
                             modifier = Modifier.padding(end = 12.dp),
@@ -126,6 +124,7 @@ private fun WatchlistContent(
         } else if (entries.isEmpty()) {
             EmptyWatchlist(Modifier.padding(padding))
         } else {
+            val formats = rememberQuoteFormats()
             PullToRefreshBox(
                 isRefreshing = refreshing,
                 onRefresh = onRefresh,
@@ -136,7 +135,7 @@ private fun WatchlistContent(
                     // Room below the last row for the FAB (56dp + its 16dp margin + 16dp air).
                     contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 88.dp),
                 ) {
-                    items(entries, key = { it.code }) { entry -> QuoteRow(entry) }
+                    items(entries, key = { it.code }) { entry -> QuoteRow(entry, formats) }
                 }
             }
         }
@@ -246,4 +245,5 @@ private fun AddTickerError.message(): String = when (kind) {
     AddTickerError.Kind.NotFound -> stringResource(R.string.add_ticker_error_not_found, code)
     AddTickerError.Kind.NoPrice -> stringResource(R.string.add_ticker_error_no_price, code)
     AddTickerError.Kind.CheckFailed -> stringResource(R.string.add_ticker_error_check_failed, code)
+    AddTickerError.Kind.SaveFailed -> stringResource(R.string.add_ticker_error_save_failed, code)
 }

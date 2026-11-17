@@ -9,6 +9,12 @@
     <string name="quote_stale_since">Stale since %1$s</string>
     <string name="quote_fetch_failed">Couldn\'t fetch</string>
     <string name="quote_pending">—</string>
+    <!-- Price and currency code, e.g. "14.86 EUR". -->
+    <string name="quote_price">%1$s %2$s</string>
+    <!-- Day change: %1$s is the unsigned value, e.g. "1.24". Italian would be "+%1$s %%". -->
+    <string name="change_up">+%1$s%%</string>
+    <string name="change_down">-%1$s%%</string>
+    <string name="change_flat">%1$s%%</string>
 
     <!-- Add ticker sheet -->
     <string name="add_ticker">Add ticker</string>
@@ -21,6 +27,7 @@
     <string name="add_ticker_error_not_found">%1$s was not found. Check the code and the market suffix.</string>
     <string name="add_ticker_error_no_price">%1$s has no price right now, so it can\'t be added</string>
     <string name="add_ticker_error_check_failed">Couldn\'t check %1$s. Check your connection and try again.</string>
+    <string name="add_ticker_error_save_failed">Couldn\'t save %1$s. Try again.</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
 </resources>

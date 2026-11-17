@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 /** Why the add-ticker sheet refused the input. [code] is the normalized code, when there is one. */
 data class AddTickerError(val kind: Kind, val code: String = "") {
-    enum class Kind { Empty, InvalidFormat, Duplicate, NotFound, NoPrice, CheckFailed }
+    enum class Kind { Empty, InvalidFormat, Duplicate, NotFound, NoPrice, CheckFailed, SaveFailed }
 }
 
 /** The add-ticker sheet. The typed text lives in the sheet's TextFieldState, not here. */
@@ -36,24 +36,15 @@ class WatchlistViewModel(private val repository: WatchlistRepository) : ViewMode
     val entries: StateFlow<List<WatchlistEntry>?> =
         repository.entries.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
     val refreshing: StateFlow<Boolean> = repository.refreshing
-    val refreshedAt: StateFlow<Long?> = repository.refreshedAt
-
-    private var lastAutoRefresh = 0L
 
     /** Pull-to-refresh: always fetches. */
     fun refresh() {
         viewModelScope.launch { repository.refresh() }
     }
 
-    /**
-     * The screen became visible (app opened or brought back). Refreshes, unless it did so in the last
-     * minute: rotation or a quick switch away and back should not refetch the whole list.
-     */
+    /** The screen became visible (app opened or brought back): refresh unless one finished in the last minute. */
     fun onScreenStarted() {
-        val now = System.currentTimeMillis()
-        if (now - lastAutoRefresh < AUTO_REFRESH_MIN_GAP_MS) return
-        lastAutoRefresh = now
-        refresh()
+        viewModelScope.launch { repository.refreshUnlessRecent(AUTO_REFRESH_MIN_GAP_MS) }
     }
 
     private val _addSheet = MutableStateFlow<AddTickerState?>(null)
@@ -97,6 +88,7 @@ class WatchlistViewModel(private val repository: WatchlistRepository) : ViewMode
         is AddTickerResult.NotFound -> AddTickerError(AddTickerError.Kind.NotFound, code)
         is AddTickerResult.NoPrice -> AddTickerError(AddTickerError.Kind.NoPrice, code)
         is AddTickerResult.CheckFailed -> AddTickerError(AddTickerError.Kind.CheckFailed, code)
+        is AddTickerResult.SaveFailed -> AddTickerError(AddTickerError.Kind.SaveFailed, code)
     }
 
     companion object {

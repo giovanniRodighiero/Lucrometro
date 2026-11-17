@@ -19,6 +19,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,19 +34,22 @@ import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.ui.theme.gainLoss
 import java.text.NumberFormat
 import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.round
 
 /**
  * One watchlist row (Doop component QuoteRow): code and name on the left, price and day change on
- * the right. Three states: fresh, stale (last fetch failed, saved quote shown with its time) and
- * error (failed with no saved quote: "Couldn't fetch", no change pill).
+ * the right. States: fresh; stale (saved quote shown with its fetch time: the last fetch failed, or it
+ * predates this session); error (failed with no saved quote: "Couldn't fetch", no pill); pending (no
+ * quote yet, not failed). Error and pending can't happen while add always saves a quote; they are kept
+ * for tickers stored without one (planned import and holdings flows).
  */
 @Composable
-fun QuoteRow(entry: WatchlistEntry, modifier: Modifier = Modifier) {
+fun QuoteRow(entry: WatchlistEntry, formats: QuoteFormats, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val quote = entry.saved?.quote
-    val stale = entry.failed && entry.saved != null
+    val stale = entry.stale && entry.saved != null
     // A plain Row, not ListItem: ListItem keeps its three-line height after the stale note goes away.
     // Layout per the Doop QuoteRow: min 72dp, 8dp/16dp padding, 16dp gap, both columns centred.
     Row(
@@ -79,11 +84,11 @@ fun QuoteRow(entry: WatchlistEntry, modifier: Modifier = Modifier) {
             when {
                 quote != null -> {
                     Text(
-                        formatPrice(quote),
+                        formats.price(quote),
                         style = MaterialTheme.typography.bodyLarge,
                         color = if (stale) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     )
-                    quote.dayChangePercent?.let { ChangeBadge(it) }
+                    quote.dayChangePercent?.let { ChangeBadge(it, formats) }
                 }
                 entry.failed -> Text(
                     stringResource(R.string.quote_fetch_failed),
@@ -107,9 +112,10 @@ fun QuoteRow(entry: WatchlistEntry, modifier: Modifier = Modifier) {
  * the colour alone. Direction follows the value as shown, so a rounded 0.00% is flat.
  */
 @Composable
-fun ChangeBadge(percent: Double, modifier: Modifier = Modifier) {
+fun ChangeBadge(percent: Double, formats: QuoteFormats, modifier: Modifier = Modifier) {
     val rounded = round(percent * 100) / 100
     val colors = MaterialTheme.gainLoss
+    val magnitude = formats.changeMagnitude(rounded)
     val (container, content, icon) = when {
         rounded > 0 -> Triple(colors.gainContainer, colors.onGainContainer, R.drawable.ic_change_up)
         rounded < 0 -> Triple(colors.lossContainer, colors.onLossContainer, R.drawable.ic_change_down)
@@ -119,6 +125,11 @@ fun ChangeBadge(percent: Double, modifier: Modifier = Modifier) {
             R.drawable.ic_change_flat,
         )
     }
+    val text = when {
+        rounded > 0 -> stringResource(R.string.change_up, magnitude)
+        rounded < 0 -> stringResource(R.string.change_down, magnitude)
+        else -> stringResource(R.string.change_flat, magnitude)
+    }
     Surface(modifier = modifier, shape = CircleShape, color = container, contentColor = content) {
         Row(
             modifier = Modifier.padding(PaddingValues(start = 6.dp, end = 10.dp, top = 2.dp, bottom = 2.dp)),
@@ -127,33 +138,41 @@ fun ChangeBadge(percent: Double, modifier: Modifier = Modifier) {
         ) {
             Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(16.dp))
             // Doop: body-medium size, medium weight, tabular figures.
-            Text(formatChange(rounded), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Text(text, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
         }
     }
 }
 
-/** "14.86 EUR": the source's decimals (2 if unknown), in the device locale, in the ticker's own currency. */
-private fun formatPrice(quote: Quote): String {
-    val decimals = quote.priceDecimals ?: 2
-    val number = NumberFormat.getNumberInstance().apply {
+/**
+ * Number formats for the list, in one locale, created once per list (not per row and recomposition).
+ * The text around the numbers (currency position, sign, percent) comes from strings.xml.
+ * NumberFormat is not thread-safe: use from composition only.
+ */
+class QuoteFormats(private val locale: Locale) {
+    private val prices = HashMap<Int, NumberFormat>()
+    private val change = fixed(2)
+
+    private fun fixed(decimals: Int) = NumberFormat.getNumberInstance(locale).apply {
         minimumFractionDigits = decimals
         maximumFractionDigits = decimals
-    }.format(quote.price)
-    return quote.currency?.let { "$number $it" } ?: number
+    }
+
+    /** The price with the source's decimals (2 if unknown), followed by its currency when known. */
+    @Composable
+    fun price(quote: Quote): String {
+        val decimals = quote.priceDecimals ?: 2
+        val number = prices.getOrPut(decimals) { fixed(decimals) }.format(quote.price)
+        return quote.currency?.let { stringResource(R.string.quote_price, number, it) } ?: number
+    }
+
+    /** The size of a change in percent, unsigned, 2 decimals: the sign comes from the string. */
+    fun changeMagnitude(rounded: Double): String = change.format(abs(rounded))
 }
 
-/** "+1.24%", "-0.38%", "0.00%". */
-private fun formatChange(rounded: Double): String {
-    val number = NumberFormat.getNumberInstance().apply {
-        minimumFractionDigits = 2
-        maximumFractionDigits = 2
-    }.format(abs(rounded))
-    val sign = when {
-        rounded > 0 -> "+"
-        rounded < 0 -> "-"
-        else -> ""
-    }
-    return "$sign$number%"
+@Composable
+fun rememberQuoteFormats(): QuoteFormats {
+    val locale = LocalConfiguration.current.locales[0]
+    return remember(locale) { QuoteFormats(locale) }
 }
 
 /** Time of day in the user's 12/24h setting; with the date too when it is not today. */
