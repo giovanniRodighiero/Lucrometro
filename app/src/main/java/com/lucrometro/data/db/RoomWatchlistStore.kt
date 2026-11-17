@@ -18,4 +18,10 @@ class RoomWatchlistStore(private val dao: WatchlistDao) : WatchlistStore {
         dao.insertLast(code, addedAt = saved.fetchedAt, quote = saved.toColumns())
 
     override suspend fun saveQuote(code: String, saved: SavedQuote) = dao.saveQuote(QuoteUpdate(code, saved.toColumns()))
+
+    override suspend fun remove(code: String): StoredTicker? = dao.take(code)?.toStored()
+
+    override suspend fun restore(ticker: StoredTicker): Boolean = dao.putBack(
+        TickerEntity(ticker.code, ticker.position, ticker.addedAt, ticker.saved?.toColumns()),
+    )
 }

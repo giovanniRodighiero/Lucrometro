@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.lucrometro.data.AddTickerResult
 import com.lucrometro.data.DataGraph
+import com.lucrometro.data.StoredTicker
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import kotlinx.coroutines.Job
@@ -36,6 +37,31 @@ class WatchlistViewModel(private val repository: WatchlistRepository) : ViewMode
     val entries: StateFlow<List<WatchlistEntry>?> =
         repository.entries.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
     val refreshing: StateFlow<Boolean> = repository.refreshing
+
+    private val _undo = MutableStateFlow<StoredTicker?>(null)
+
+    /** The last removed ticker while its undo snackbar is up; null otherwise. */
+    val undo: StateFlow<StoredTicker?> = _undo.asStateFlow()
+
+    /**
+     * Removes [code] (swipe or accessibility action) and offers undo. False if storage failed, so the
+     * screen can put the swiped row back.
+     */
+    suspend fun remove(code: String): Boolean {
+        val removed = repository.remove(code) ?: return false
+        _undo.value = removed // replaces an older pending undo: only the latest removal can be undone
+        return true
+    }
+
+    fun undoRemove(ticker: StoredTicker) {
+        _undo.compareAndSet(ticker, null)
+        viewModelScope.launch { repository.restore(ticker) }
+    }
+
+    /** The snackbar went away without undo: the removal stands. */
+    fun undoDismissed(ticker: StoredTicker) {
+        _undo.compareAndSet(ticker, null)
+    }
 
     /** Pull-to-refresh: always fetches. */
     fun refresh() {

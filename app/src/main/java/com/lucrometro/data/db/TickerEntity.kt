@@ -54,6 +54,8 @@ internal fun SavedQuote.toColumns() = QuoteColumns(
 
 internal fun TickerEntity.toStored() = StoredTicker(
     code = code,
+    position = position,
+    addedAt = addedAt,
     saved = quote?.let {
         SavedQuote(
             Quote(

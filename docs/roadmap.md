@@ -16,6 +16,7 @@ Done
       (stale) and back online, in light and dark.
 - [x] Room 3 storage for the watchlist and last quotes (decision 0015). Force-stop and reopen offline:
       saved quotes shown, marked stale.
+- [x] Swipe to remove with undo snackbar, TalkBack remove action (decision 0018).
 - [x] Italian translation and per-app language on Android 13+ (decision 0017).
 - [x] Code review fixes (decision 0016): cancellable source lock, session staleness, schema v2 `position`.
 
@@ -29,4 +30,4 @@ Next
 4. `QuoteSource` gaps for v1: 1D intraday (minute candles), history for 6M, 1Y, 5Y, Max (daily up to
    1Y; weekly/monthly acceptable for 5Y/Max), a "does this ticker exist" check for add-validation.
    Quotes must carry the currency code.
-5. Remove with undo (swipe or row action, snackbar), then the details screen.
+5. Details screen (PRD 4): header, chart with range chips, scrub.

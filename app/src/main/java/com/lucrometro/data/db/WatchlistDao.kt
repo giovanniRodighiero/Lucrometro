@@ -32,6 +32,24 @@ interface WatchlistDao {
         return true
     }
 
+    @Query("SELECT * FROM watchlist WHERE code = :code")
+    suspend fun get(code: String): TickerEntity?
+
+    @Query("DELETE FROM watchlist WHERE code = :code")
+    suspend fun delete(code: String)
+
+    /** Deletes [code] and returns the deleted row, in one transaction; null if it wasn't stored. */
+    @Transaction
+    suspend fun take(code: String): TickerEntity? = get(code)?.also { delete(code) }
+
+    /** Re-inserts a removed row as it was (same position). False if its code is stored again. */
+    @Transaction
+    suspend fun putBack(ticker: TickerEntity): Boolean {
+        if (contains(ticker.code)) return false
+        insert(ticker)
+        return true
+    }
+
     /** Replaces the quote columns of an existing row; a missing code is ignored. */
     @Update(entity = TickerEntity::class)
     suspend fun saveQuote(update: QuoteUpdate)

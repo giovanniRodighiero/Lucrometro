@@ -120,6 +120,19 @@ class WatchlistRepository(
     }
 
     /**
+     * Removes [code] and its saved quote (PRD 3). Returns the removed ticker so it can be [restore]d
+     * (undo); null if it wasn't stored or storage failed.
+     */
+    suspend fun remove(code: String): StoredTicker? {
+        val removed = storeCall { store.remove(code) } ?: return null
+        failed.update { it - code }
+        return removed
+    }
+
+    /** Undoes [remove]: the ticker comes back at its old place with its saved quote. */
+    suspend fun restore(ticker: StoredTicker): Boolean = storeCall { store.restore(ticker) } ?: false
+
+    /**
      * Fetches a fresh quote for every ticker, one at a time (PRD). A failed fetch (or a failed save)
      * keeps the last saved quote and marks the entry failed, so the UI shows it as stale; it never
      * substitutes data. Does nothing if a refresh is already running.

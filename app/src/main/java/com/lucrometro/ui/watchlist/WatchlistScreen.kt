@@ -1,5 +1,18 @@
 package com.lucrometro.ui.watchlist
 
+import androidx.compose.foundation.background
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxDefaults
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,6 +76,20 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
     val entries by viewModel.entries.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     val addSheet by viewModel.addSheet.collectAsStateWithLifecycle()
+    val undo by viewModel.undo.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+
+    // Undo snackbar for the latest removal (PRD 3). A newer removal replaces it; rotation shows it again.
+    LaunchedEffect(undo) {
+        val removed = undo ?: return@LaunchedEffect
+        val result = snackbar.showSnackbar(
+            message = resources.getString(R.string.ticker_removed, removed.code),
+            actionLabel = resources.getString(R.string.undo),
+            duration = SnackbarDuration.Long,
+        )
+        if (result == SnackbarResult.ActionPerformed) viewModel.undoRemove(removed) else viewModel.undoDismissed(removed)
+    }
 
     // PRD: auto-refresh when the app is opened (the ViewModel skips it if it refreshed a moment ago).
     LifecycleStartEffect(viewModel) {
@@ -73,7 +100,9 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
     WatchlistContent(
         entries = entries,
         refreshing = refreshing,
+        snackbar = snackbar,
         onRefresh = viewModel::refresh,
+        onRemove = viewModel::remove,
         onAddClick = viewModel::openAddSheet,
     )
 
@@ -92,10 +121,13 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
 private fun WatchlistContent(
     entries: List<WatchlistEntry>?,
     refreshing: Boolean,
+    snackbar: SnackbarHostState,
     onRefresh: () -> Unit,
+    onRemove: suspend (String) -> Boolean,
     onAddClick: () -> Unit,
 ) {
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
@@ -135,10 +167,63 @@ private fun WatchlistContent(
                     // Room below the last row for the FAB (56dp + its 16dp margin + 16dp air).
                     contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 88.dp),
                 ) {
-                    items(entries, key = { it.code }) { entry -> QuoteRow(entry, formats) }
+                    items(entries, key = { it.code }) { entry ->
+                        // No fade-out: the swiped row has already left the screen, so it just goes.
+                        RemovableQuoteRow(entry, formats, onRemove, Modifier.animateItem(fadeOutSpec = null))
+                    }
                 }
             }
         }
+    }
+}
+
+/**
+ * A row that can be swiped from the end to remove it (PRD 3), with a "Remove" accessibility action for
+ * TalkBack, where swiping is not available. If storage fails, the row slides back.
+ */
+@Composable
+private fun RemovableQuoteRow(
+    entry: WatchlistEntry,
+    formats: QuoteFormats,
+    onRemove: suspend (String) -> Boolean,
+    modifier: Modifier = Modifier,
+) {
+    // Plain remember, not rememberSwipeToDismissBoxState: that one is saveable, and LazyColumn restores
+    // saved item state by key. An undo brings the same code back, which would get its "dismissed"
+    // state back and be removed again at once (seen on the emulator).
+    val threshold = SwipeToDismissBoxDefaults.positionalThreshold
+    val state = remember { SwipeToDismissBoxState(SwipeToDismissBoxValue.Settled, threshold) }
+    val scope = rememberCoroutineScope()
+    val remove: () -> Unit = { scope.launch { if (!onRemove(entry.code)) state.reset() } }
+    val removeLabel = stringResource(R.string.remove_ticker)
+    SwipeToDismissBox(
+        state = state,
+        modifier = modifier,
+        enableDismissFromStartToEnd = false,
+        onDismiss = { remove() },
+        backgroundContent = {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_delete),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        },
+    ) {
+        QuoteRow(
+            entry,
+            formats,
+            Modifier
+                .background(MaterialTheme.colorScheme.surface) // covers the red background at rest
+                .semantics { customActions = listOf(CustomAccessibilityAction(removeLabel) { remove(); true }) },
+        )
     }
 }
 

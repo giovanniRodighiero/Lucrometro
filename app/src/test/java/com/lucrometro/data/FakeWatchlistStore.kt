@@ -14,7 +14,19 @@ class FakeWatchlistStore : WatchlistStore {
 
     override suspend fun add(code: String, saved: SavedQuote): Boolean {
         if (contains(code)) return false
-        rows.update { it + StoredTicker(code, saved) }
+        rows.update { it + StoredTicker(code, saved, position = (it.maxOfOrNull { r -> r.position } ?: 0) + 1) }
+        return true
+    }
+
+    override suspend fun remove(code: String): StoredTicker? {
+        val row = rows.value.firstOrNull { it.code == code } ?: return null
+        rows.update { list -> list - row }
+        return row
+    }
+
+    override suspend fun restore(ticker: StoredTicker): Boolean {
+        if (contains(ticker.code)) return false
+        rows.update { list -> (list + ticker).sortedBy { it.position } }
         return true
     }
 
