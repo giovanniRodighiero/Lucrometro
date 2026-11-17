@@ -11,7 +11,9 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 
-private val LocalGainLossColors = staticCompositionLocalOf { LightGainLossColors }
+private val LocalGainLossColors = staticCompositionLocalOf<GainLossColors> {
+    error("GainLossColors not provided: wrap the content in LucrometroTheme")
+}
 
 /** Semantic gain/loss colors for the current theme: `MaterialTheme.gainLoss.gain` and so on. */
 val MaterialTheme.gainLoss: GainLossColors

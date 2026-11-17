@@ -2,4 +2,6 @@
 <resources>
     <!-- Window background shown before Compose draws: the Doop `surface` token (light). -->
     <color name="window_background">#FAF8F4</color>
+    <!-- Splash ground: the launcher cream in light mode (dark `surface` in values-night). -->
+    <color name="splash_background">@color/ic_launcher_background</color>
 </resources>

@@ -2,4 +2,6 @@
 <resources>
     <!-- Doop `surface` token, dark theme. -->
     <color name="window_background">#121416</color>
+    <!-- Splash ground in dark mode: same as the window, so there is no light flash. -->
+    <color name="splash_background">@color/window_background</color>
 </resources>

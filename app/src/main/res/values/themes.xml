@@ -7,11 +7,14 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
-    <!-- Launch theme: cream ground with the launcher icon artwork, on every API level (decision 0010).
-         Dark variant for API 31+: values-night-v31. -->
-    <style name="Theme.Lucrometro.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+    <!-- Launch theme (decisions 0010, 0012): the launcher icon artwork on a cream disc, over the cream
+         ground in light mode and the dark `surface` in dark mode (`splash_background` in
+         values/colors.xml and values-night/colors.xml). Theme.SplashScreen.IconBackground draws the disc
+         on every API level, including below 31, so one style covers all of them. -->
+    <style name="Theme.Lucrometro.Splash" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
         <item name="postSplashScreenTheme">@style/Theme.Lucrometro</item>
     </style>
 </resources>
