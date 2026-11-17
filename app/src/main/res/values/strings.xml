@@ -5,6 +5,10 @@
     <!-- Watchlist -->
     <string name="watchlist_empty_title">No tickers yet</string>
     <string name="watchlist_empty_body">Tap + to add an ETF or a stock by its ticker code.</string>
+    <string name="watchlist_updated">Updated %1$s</string>
+    <string name="quote_stale_since">Stale since %1$s</string>
+    <string name="quote_fetch_failed">Couldn\'t fetch</string>
+    <string name="quote_pending">—</string>
 
     <!-- Add ticker sheet -->
     <string name="add_ticker">Add ticker</string>

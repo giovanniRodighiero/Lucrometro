@@ -11,6 +11,10 @@ Done
 - [x] App icon designed and added (decision 0008); checked on the API 33 emulator (launcher icon, monochrome
       layer, clip gap). Artwork scaled to fit the safe zone and splash screen added (decision 0010).
 
+- [x] Watchlist rows from the Doop QuoteRow/ChangeBadge: price, day change pill, stale mark, "Updated"
+      stamp, pull-to-refresh and refresh on open (decision 0014). Checked on the emulator online, offline
+      (stale) and back online, in light and dark.
+
 Next
 0. On a real phone: check the themed icon (Android 13+, Settings > Wallpaper & style > Themed icons)
    and other launcher shapes (squircle, teardrop). The emulator cannot toggle themed icons.
@@ -21,6 +25,4 @@ Next
 4. `QuoteSource` gaps for v1: 1D intraday (minute candles), history for 6M, 1Y, 5Y, Max (daily up to
    1Y; weekly/monthly acceptable for 5Y/Max), a "does this ticker exist" check for add-validation.
    Quotes must carry the currency code.
-5. Run `/doop-sync port <frame>` for the watchlist (the export and the theme are done; the theme is not yet
-   used by a real screen). Edge-to-edge and system bars come with it.
-6. Build the watchlist screen from Doop decision 0007 (minimal rows with tonal pills).
+5. Room storage behind `WatchlistRepository` (codes + last quote), then remove with undo, then details.

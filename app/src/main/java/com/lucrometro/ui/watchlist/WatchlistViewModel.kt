@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.lucrometro.data.AddTickerResult
 import com.lucrometro.data.DataGraph
+import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,27 @@ data class AddTickerState(
 )
 
 class WatchlistViewModel(private val repository: WatchlistRepository) : ViewModel() {
-    val tickers: StateFlow<List<String>> = repository.tickers
+    val entries: StateFlow<List<WatchlistEntry>> = repository.entries
+    val refreshing: StateFlow<Boolean> = repository.refreshing
+    val refreshedAt: StateFlow<Long?> = repository.refreshedAt
+
+    private var lastAutoRefresh = 0L
+
+    /** Pull-to-refresh: always fetches. */
+    fun refresh() {
+        viewModelScope.launch { repository.refresh() }
+    }
+
+    /**
+     * The screen became visible (app opened or brought back). Refreshes, unless it did so in the last
+     * minute: rotation or a quick switch away and back should not refetch the whole list.
+     */
+    fun onScreenStarted() {
+        val now = System.currentTimeMillis()
+        if (now - lastAutoRefresh < AUTO_REFRESH_MIN_GAP_MS) return
+        lastAutoRefresh = now
+        refresh()
+    }
 
     private val _addSheet = MutableStateFlow<AddTickerState?>(null)
 
@@ -75,6 +96,8 @@ class WatchlistViewModel(private val repository: WatchlistRepository) : ViewMode
     }
 
     companion object {
+        private const val AUTO_REFRESH_MIN_GAP_MS = 60_000L
+
         val Factory = viewModelFactory {
             initializer { WatchlistViewModel(DataGraph.watchlist(this[APPLICATION_KEY]!!)) }
         }

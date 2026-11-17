@@ -25,6 +25,10 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             currency = meta.optString("currency").ifEmpty { null },
             exchange = meta.optString("exchangeName").ifEmpty { null },
             marketTimeEpoch = meta.getLong("regularMarketTime"),
+            name = meta.optString("longName").ifEmpty { meta.optString("shortName") }.ifEmpty { null },
+            // With range=1d this is the close of the session before the last one.
+            previousClose = meta.optDouble("chartPreviousClose").takeIf { !it.isNaN() },
+            priceDecimals = meta.optInt("priceHint", -1).takeIf { it in 0..6 },
         )
     }
 

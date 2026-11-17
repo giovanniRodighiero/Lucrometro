@@ -7,7 +7,17 @@ data class Quote(
     val exchange: String?,
     /** Epoch seconds of the last trade as reported by the source. */
     val marketTimeEpoch: Long,
-)
+    /** Display name (e.g. "Eni S.p.A."), when the source has one. */
+    val name: String? = null,
+    /** Close of the previous session: the base of the day change. */
+    val previousClose: Double? = null,
+    /** Decimals the source uses for this price (e.g. 3 for 5.412), when it says. */
+    val priceDecimals: Int? = null,
+) {
+    /** Change since the previous close, in percent; null when the source gave no previous close. */
+    val dayChangePercent: Double?
+        get() = previousClose?.takeIf { it > 0 }?.let { (price - it) / it * 100 }
+}
 
 /** One daily bar. Prices are null-free: bars with a missing close are dropped by the source. */
 data class Candle(

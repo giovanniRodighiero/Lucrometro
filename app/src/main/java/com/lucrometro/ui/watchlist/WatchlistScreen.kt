@@ -23,7 +23,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -31,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -49,18 +50,34 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
+import com.lucrometro.data.WatchlistEntry
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 @Composable
 fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = WatchlistViewModel.Factory)) {
-    val tickers by viewModel.tickers.collectAsStateWithLifecycle()
+    val entries by viewModel.entries.collectAsStateWithLifecycle()
+    val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
+    val refreshedAt by viewModel.refreshedAt.collectAsStateWithLifecycle()
     val addSheet by viewModel.addSheet.collectAsStateWithLifecycle()
 
-    WatchlistContent(tickers = tickers, onAddClick = viewModel::openAddSheet)
+    // PRD: auto-refresh when the app is opened (the ViewModel skips it if it refreshed a moment ago).
+    LifecycleStartEffect(viewModel) {
+        viewModel.onScreenStarted()
+        onStopOrDispose {}
+    }
+
+    WatchlistContent(
+        entries = entries,
+        refreshing = refreshing,
+        refreshedAt = refreshedAt,
+        onRefresh = viewModel::refresh,
+        onAddClick = viewModel::openAddSheet,
+    )
 
     addSheet?.let { sheet ->
         AddTickerSheet(
@@ -74,21 +91,51 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WatchlistContent(tickers: List<String>, onAddClick: () -> Unit) {
+private fun WatchlistContent(
+    entries: List<WatchlistEntry>,
+    refreshing: Boolean,
+    refreshedAt: Long?,
+    onRefresh: () -> Unit,
+    onAddClick: () -> Unit,
+) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.app_name)) },
+                actions = {
+                    // Doop TopAppBar: "Updated 14:32" stamp at the end of the bar.
+                    refreshedAt?.let {
+                        Text(
+                            stringResource(R.string.watchlist_updated, formatTime(LocalContext.current, it)),
+                            modifier = Modifier.padding(end = 12.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClick) {
                 Icon(painterResource(R.drawable.ic_add), contentDescription = stringResource(R.string.add_ticker))
             }
         },
     ) { padding ->
-        if (tickers.isEmpty()) {
+        if (entries.isEmpty()) {
             EmptyWatchlist(Modifier.padding(padding))
         } else {
-            // Placeholder rows: the real row (price, change pill, stale mark) is decision 0007's QuoteRow.
-            LazyColumn(contentPadding = padding) {
-                items(tickers, key = { it }) { code -> ListItem(headlineContent = { Text(code) }) }
+            PullToRefreshBox(
+                isRefreshing = refreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.padding(top = padding.calculateTopPadding()),
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    // Room below the last row for the FAB (56dp + its 16dp margin + 16dp air).
+                    contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 88.dp),
+                ) {
+                    items(entries, key = { it.code }) { entry -> QuoteRow(entry) }
+                }
             }
         }
     }
