@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Themed-icon layer (Android 13+). The system tints the alpha channel, so colour here is irrelevant:
+  details are transparent cut-outs. The chart is clipped by a halo around the note (outer rectangle
+  wound clockwise, halo wound counter-clockwise, so the halo is a hole under the non-zero rule).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:pivotX="54"
+        android:pivotY="66"
+        android:rotation="-5">
+        <clip-path android:pathData="M-20,-20 H128 V128 H-20 Z M38,49 A8,8 0 0 0 30,57 V75 A8,8 0 0 0 38,83 H70 A8,8 0 0 0 78,75 V57 A8,8 0 0 0 70,49 Z" />
+        <!-- Undo the rotation so the chart sits in the normal 108 grid -->
+        <group
+            android:pivotX="54"
+            android:pivotY="66"
+            android:rotation="5">
+            <path
+                android:fillColor="#000000"
+                android:fillAlpha="0.35"
+                android:pathData="M29,76 L29,58 L38,49 L46,54 L56,40 L65,44 L76,31 L76,76 Z" />
+            <path
+                android:pathData="M29,58 L38,49 L46,54 L56,40 L65,44 L76,31"
+                android:strokeColor="#000000"
+                android:strokeWidth="3.5"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M72.2,31 a3.8,3.8 0 1,0 7.6,0 a3.8,3.8 0 1,0 -7.6,0 Z" />
+        </group>
+    </group>
+
+    <group
+        android:pivotX="54"
+        android:pivotY="66"
+        android:rotation="-5">
+        <!-- Note with the medallion and two corner marks cut out -->
+        <path
+            android:fillColor="#000000"
+            android:fillType="evenOdd"
+            android:pathData="M38,52 H70 A5,5 0 0 1 75,57 V75 A5,5 0 0 1 70,80 H38 A5,5 0 0 1 33,75 V57 A5,5 0 0 1 38,52 Z M44,66 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0 Z M38.7,66 a2.3,2.3 0 1,0 4.6,0 a2.3,2.3 0 1,0 -4.6,0 Z M64.7,66 a2.3,2.3 0 1,0 4.6,0 a2.3,2.3 0 1,0 -4.6,0 Z" />
+        <!-- Face inside the medallion -->
+        <path
+            android:pathData="M46,66 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0 Z"
+            android:strokeColor="#000000"
+            android:strokeWidth="1.5" />
+        <path
+            android:fillColor="#000000"
+            android:pathData="M49.6,64.5 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0 Z" />
+        <path
+            android:fillColor="#000000"
+            android:pathData="M55.6,64.5 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0 Z" />
+        <path
+            android:pathData="M50.5,68.5 Q54,72 57.5,68.5"
+            android:strokeColor="#000000"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round" />
+    </group>
+</vector>
