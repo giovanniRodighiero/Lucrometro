@@ -13,8 +13,13 @@ import java.util.concurrent.TimeUnit
 
 data class HttpResult(val status: Int, val body: String, val setCookies: List<String>)
 
+/** Blocking HTTP GET. Interrupting the calling thread aborts the request with [InterruptedException]. */
+interface HttpClient {
+    fun get(url: String, headers: Map<String, String> = emptyMap()): HttpResult
+}
+
 /** Minimal blocking GET on top of Cronet (Chrome's network stack). */
-class CronetHttp(context: Context) {
+class CronetHttp(context: Context) : HttpClient {
     private val engine: CronetEngine = CronetEngine.Builder(context.applicationContext)
         .enableHttp2(true)
         .enableQuic(true)
@@ -22,7 +27,7 @@ class CronetHttp(context: Context) {
         .build()
     private val executor = Executors.newFixedThreadPool(2)
 
-    fun get(url: String, headers: Map<String, String> = emptyMap()): HttpResult {
+    override fun get(url: String, headers: Map<String, String>): HttpResult {
         val latch = CountDownLatch(1)
         val out = ByteArrayOutputStream()
         val cookies = mutableListOf<String>()
@@ -65,9 +70,19 @@ class CronetHttp(context: Context) {
 
         val builder = engine.newUrlRequestBuilder(url, callback, executor)
         headers.forEach { (k, v) -> builder.addHeader(k, v) }
-        builder.build().start()
+        val request = builder.build()
+        request.start()
 
-        if (!latch.await(20, TimeUnit.SECONDS)) error("Timeout fetching $url")
+        val done = try {
+            latch.await(20, TimeUnit.SECONDS)
+        } catch (e: InterruptedException) {
+            request.cancel() // the caller gave up (e.g. coroutine cancelled): free the connection
+            throw e
+        }
+        if (!done) {
+            request.cancel()
+            error("Timeout fetching $url")
+        }
         error?.let { throw it }
         return HttpResult(status, out.toString("UTF-8"), cookies)
     }

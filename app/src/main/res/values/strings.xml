@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lucrometro</string>
+
+    <!-- Watchlist -->
+    <string name="watchlist_empty_title">No tickers yet</string>
+    <string name="watchlist_empty_body">Tap + to add an ETF or a stock by its ticker code.</string>
+
+    <!-- Add ticker sheet -->
+    <string name="add_ticker">Add ticker</string>
+    <string name="add_ticker_body">Paste a ticker code, like ENI.MI or VWCE.MI. We check it before saving.</string>
+    <string name="add_ticker_label">Ticker code</string>
+    <string name="add_ticker_hint">Borsa Italiana codes end in .MI</string>
+    <string name="add_ticker_error_empty">Enter a ticker code</string>
+    <string name="add_ticker_error_format">Use letters, digits and . - ^ = only, like ENI.MI</string>
+    <string name="add_ticker_error_duplicate">%1$s is already in your list</string>
+    <string name="add_ticker_error_not_found">%1$s was not found. Check the code and the market suffix.</string>
+    <string name="add_ticker_error_no_price">%1$s has no price right now, so it can\'t be added</string>
+    <string name="add_ticker_error_check_failed">Couldn\'t check %1$s. Check your connection and try again.</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
 </resources>

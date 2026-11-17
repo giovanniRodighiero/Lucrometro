@@ -28,6 +28,9 @@ platforms. `PomoTimer` (other project) needs platform 34 and build-tools 34.0.0:
 
 ## Conventions
 - Verify every change: build, install on the emulator, screenshot. Do not report done without it.
+- Automated tests (unit, instrumented): write one only when it guards something important that the
+  emulator can't easily show (e.g. provider error mapping, retry, cancellation). No coverage targets,
+  no TDD, no tests for trivial code. To try something out, use the emulator instead.
 - Data providers stay behind `QuoteSource`; nothing outside `data/` knows about Yahoo or Cronet.
 - Manifest needs `INTERNET` and `ACCESS_NETWORK_STATE` (Cronet crashes without the latter).
 - Never commit APKs, keys or `local.properties`.

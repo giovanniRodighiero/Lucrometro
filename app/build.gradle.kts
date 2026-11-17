@@ -27,6 +27,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.cronet.embedded)
+    testImplementation(libs.junit)
+    testImplementation(libs.org.json)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
