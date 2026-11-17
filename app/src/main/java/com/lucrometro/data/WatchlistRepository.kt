@@ -2,7 +2,9 @@ package com.lucrometro.data
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -42,16 +44,21 @@ data class WatchlistEntry(
 )
 
 /**
- * The tracked tickers, in order of addition, with their last successful quote. In memory for now:
- * Room comes next (roadmap, PRD section 5), behind this same API.
+ * The tracked tickers, in order of addition, with their last successful quote. Codes and quotes are
+ * persisted in [store]; which tickers failed their latest fetch is kept in memory only, so after a
+ * restart a ticker shows its saved quote until the first refresh says otherwise.
  */
 class WatchlistRepository(
     private val source: QuoteSource,
+    private val store: WatchlistStore,
     private val io: CoroutineDispatcher = Dispatchers.IO,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
-    private val _entries = MutableStateFlow<List<WatchlistEntry>>(emptyList())
-    val entries: StateFlow<List<WatchlistEntry>> = _entries.asStateFlow()
+    private val failed = MutableStateFlow<Set<String>>(emptySet())
+
+    val entries: Flow<List<WatchlistEntry>> = combine(store.observe(), failed) { stored, failedCodes ->
+        stored.map { WatchlistEntry(it.code, it.saved, failed = it.code in failedCodes) }
+    }
 
     private val _refreshing = MutableStateFlow(false)
     val refreshing: StateFlow<Boolean> = _refreshing.asStateFlow()
@@ -61,14 +68,12 @@ class WatchlistRepository(
     /** When the last refresh finished with at least one ticker updated (epoch millis); null before that. */
     val refreshedAt: StateFlow<Long?> = _refreshedAt.asStateFlow()
 
-    private fun has(code: String) = _entries.value.any { it.code == code }
-
     /** Normalizes [input], validates it with a live quote and saves it only if the quote resolves. */
     suspend fun add(input: String): AddTickerResult {
         val code = normalizeTicker(input)
         if (code.isEmpty()) return AddTickerResult.Empty
         if (!TICKER_FORMAT.matches(code)) return AddTickerResult.InvalidFormat(code)
-        if (has(code)) return AddTickerResult.Duplicate(code)
+        if (store.contains(code)) return AddTickerResult.Duplicate(code)
 
         // Interruptible: cancelling the caller (sheet closed) aborts the blocking request instead of
         // leaving it to hold the source until it times out.
@@ -81,11 +86,8 @@ class WatchlistRepository(
             }
         }, clock())
 
-        var duplicate = false
-        _entries.update { list ->
-            if (list.any { it.code == code }) list.also { duplicate = true } else list + WatchlistEntry(code, saved)
-        }
-        return if (duplicate) AddTickerResult.Duplicate(code) else AddTickerResult.Added(code)
+        // The store rejects a code added meanwhile (e.g. twice in a row), so this stays a duplicate.
+        return if (store.add(code, saved)) AddTickerResult.Added(code) else AddTickerResult.Duplicate(code)
     }
 
     /**
@@ -97,15 +99,15 @@ class WatchlistRepository(
         if (!_refreshing.compareAndSet(expect = false, update = true)) return
         try {
             var updated = false
-            for (code in _entries.value.map { it.code }) {
+            for (code in store.codes()) {
                 val result = runInterruptible(io) { source.quote(code) }
-                val fetchedAt = clock()
-                result.onSuccess { updated = true }
-                _entries.update { list ->
-                    list.map { e ->
-                        if (e.code != code) e
-                        else result.fold({ e.copy(saved = SavedQuote(it, fetchedAt), failed = false) }, { e.copy(failed = true) })
-                    }
+                val quote = result.getOrNull()
+                if (quote != null) {
+                    store.saveQuote(code, SavedQuote(quote, clock()))
+                    failed.update { it - code }
+                    updated = true
+                } else {
+                    failed.update { it + code }
                 }
             }
             if (updated) _refreshedAt.value = clock()

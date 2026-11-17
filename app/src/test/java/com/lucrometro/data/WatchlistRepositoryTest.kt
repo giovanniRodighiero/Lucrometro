@@ -1,6 +1,7 @@
 package com.lucrometro.data
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -29,12 +30,13 @@ class WatchlistRepositoryTest {
             }
             override fun history(symbol: String, range: HistoryRange) = Result.success(emptyList<Candle>())
         }
-        val repo = WatchlistRepository(hanging, Dispatchers.IO)
+        val store = FakeWatchlistStore()
+        val repo = WatchlistRepository(hanging, store, Dispatchers.IO)
         val job = launch(Dispatchers.Default) { repo.add("ENI.MI") }
         assertTrue(started.await(5, TimeUnit.SECONDS))
         job.cancel()
         assertTrue("request was not interrupted", interrupted.await(5, TimeUnit.SECONDS))
-        assertEquals(emptyList<WatchlistEntry>(), repo.entries.value)
+        assertEquals(emptyList<StoredTicker>(), store.rows.value)
     }
 
     // PRD: a failed fetch keeps the last good quote, marked stale; it never replaces or drops it.
@@ -48,12 +50,12 @@ class WatchlistRepositoryTest {
                 else Result.success(Quote(symbol, price, "EUR", null, 0))
             override fun history(symbol: String, range: HistoryRange) = Result.success(emptyList<Candle>())
         }
-        val repo = WatchlistRepository(source, Dispatchers.Unconfined) { now }
+        val repo = WatchlistRepository(source, FakeWatchlistStore(), Dispatchers.Unconfined) { now }
         repo.add("ENI.MI")
 
         fail = true; now = 2_000L
         repo.refresh()
-        val stale = repo.entries.value.single()
+        val stale = repo.entries.first().single()
         assertTrue(stale.failed)
         assertEquals(10.0, stale.saved!!.quote.price, 0.0)
         assertEquals(1_000L, stale.saved.fetchedAt)
@@ -61,7 +63,7 @@ class WatchlistRepositoryTest {
 
         fail = false; price = 11.0; now = 3_000L
         repo.refresh()
-        val fresh = repo.entries.value.single()
+        val fresh = repo.entries.first().single()
         assertFalse(fresh.failed)
         assertEquals(11.0, fresh.saved!!.quote.price, 0.0)
         assertEquals(3_000L, repo.refreshedAt.value)

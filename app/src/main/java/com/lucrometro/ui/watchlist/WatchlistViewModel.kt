@@ -11,8 +11,10 @@ import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -30,7 +32,9 @@ data class AddTickerState(
 )
 
 class WatchlistViewModel(private val repository: WatchlistRepository) : ViewModel() {
-    val entries: StateFlow<List<WatchlistEntry>> = repository.entries
+    /** The list, or null while it is still loading from storage (so the empty state does not flash). */
+    val entries: StateFlow<List<WatchlistEntry>?> =
+        repository.entries.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
     val refreshing: StateFlow<Boolean> = repository.refreshing
     val refreshedAt: StateFlow<Long?> = repository.refreshedAt
 

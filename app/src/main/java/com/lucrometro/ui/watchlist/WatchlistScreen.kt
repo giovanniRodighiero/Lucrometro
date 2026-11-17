@@ -92,7 +92,7 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WatchlistContent(
-    entries: List<WatchlistEntry>,
+    entries: List<WatchlistEntry>?,
     refreshing: Boolean,
     refreshedAt: Long?,
     onRefresh: () -> Unit,
@@ -121,7 +121,9 @@ private fun WatchlistContent(
             }
         },
     ) { padding ->
-        if (entries.isEmpty()) {
+        if (entries == null) {
+            // Still loading from storage: a blank frame for a moment beats a flash of the empty state.
+        } else if (entries.isEmpty()) {
             EmptyWatchlist(Modifier.padding(padding))
         } else {
             PullToRefreshBox(
