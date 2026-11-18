@@ -56,6 +56,13 @@
     <string name="readout_from">Da %1$s</string>
     <!-- TalkBack text of the chart: ticker, range, first and last price, signed change in percent. -->
     <string name="chart_description">%1$s, %2$s: da %3$s a %4$s, %5$s</string>
+    <!-- TalkBack actions on the chart: the scrub as steps (a drag cannot be done with TalkBack). -->
+    <string name="chart_action_previous">Punto precedente</string>
+    <string name="chart_action_next">Punto successivo</string>
+    <string name="chart_action_latest">Torna all\'ultimo</string>
+    <!-- TalkBack: the scrubbed point. %1$s date and time, %2$s price, %3$s change in percent. -->
+    <string name="chart_scrub_description">%1$s, %2$s, %3$s</string>
+    <string name="chart_scrub_description_no_change">%1$s, %2$s</string>
     <string name="chart_failed_title">Impossibile caricare</string>
     <string name="chart_failed_body">Il grafico richiede una connessione. Controllala e riprova.</string>
     <string name="refresh">Aggiorna</string>

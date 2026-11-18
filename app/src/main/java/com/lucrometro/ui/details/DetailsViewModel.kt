@@ -71,7 +71,7 @@ class DetailsViewModel(private val repository: WatchlistRepository, private val 
         .map { list -> list.firstOrNull { it.code == code } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    private val _range = MutableStateFlow(HistoryRange.DAY_1)
+    private val _range = MutableStateFlow(DEFAULT_RANGE)
     val range: StateFlow<HistoryRange> = _range.asStateFlow()
 
     private val _chart = MutableStateFlow<ChartState>(ChartState.Loading)
@@ -87,6 +87,22 @@ class DetailsViewModel(private val repository: WatchlistRepository, private val 
 
     init {
         load(bypassCache = false)
+    }
+
+    /**
+     * The screen was opened (not rotated, see `DetailsScreen`). The ViewModel outlives the screen (it is kept per ticker
+     * for the activity), so a reopened ticker starts again on the default range. On that range it reloads only what needs
+     * it: nothing while a load is running or the chart is fresh in the session cache, otherwise (failed, or expired) it
+     * loads again.
+     */
+    fun onOpened() {
+        if (_range.value != DEFAULT_RANGE) {
+            _range.value = DEFAULT_RANGE
+            load(bypassCache = false)
+            return
+        }
+        val fresh = repository.cachedHistory(code, DEFAULT_RANGE) != null
+        if (_chart.value !is ChartState.Loading && !fresh) load(bypassCache = false)
     }
 
     fun selectRange(range: HistoryRange) {
@@ -129,6 +145,7 @@ class DetailsViewModel(private val repository: WatchlistRepository, private val 
 
     companion object {
         private const val SWITCH_DEBOUNCE_MILLIS = 250L
+        private val DEFAULT_RANGE = HistoryRange.DAY_1
 
         fun factory(code: String) = viewModelFactory {
             initializer {

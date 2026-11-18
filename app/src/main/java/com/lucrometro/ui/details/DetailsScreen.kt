@@ -25,7 +25,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
@@ -70,6 +72,14 @@ fun DetailsScreen(
     val chart by viewModel.chart.collectAsStateWithLifecycle()
     val range by viewModel.range.collectAsStateWithLifecycle()
     val market by viewModel.market.collectAsStateWithLifecycle()
+    // Once per opening of the screen: saved with the composition, so a rotation does not count as opening it again.
+    var opened by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!opened) {
+            opened = true
+            viewModel.onOpened()
+        }
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -124,12 +134,14 @@ private fun ChartSection(
     val scrubbed = if (data != null) scrub?.let { data.points.getOrNull(it) } else null
     // 1D: the previous close, no pill (the header already has the day change). Other ranges: where they start, and the change.
     val previousClose = data?.baseline
-    if (data != null && scrubbed != null) {
+    val scrubDate = if (data != null && scrubbed != null) scrubLabel(data, scrubbed) else null
+    val scrubValue = if (scrubbed != null) formats.price(quote, scrubbed.price) else null
+    val scrubDiff = if (data != null && scrubbed != null) scrubbed.price - data.startPrice else null
+    val scrubPercent = if (data != null && scrubDiff != null) data.startPrice.takeIf { it > 0 }?.let { scrubDiff / it * 100 } else null
+    if (data != null && scrubDate != null && scrubValue != null && scrubDiff != null) {
         // Scrub mode: the date and price at the finger, and the change from the range start (1D: the previous close).
-        val diff = scrubbed.price - data.startPrice
-        val scrubPercent = data.startPrice.takeIf { it > 0 }?.let { diff / it * 100 }
-        ChartReadout(label = scrubLabel(data, scrubbed), value = formats.price(quote, scrubbed.price), scrubbing = true) {
-            if (scrubPercent != null) ChangeBadge(scrubPercent, formats, absolute = formats.amountChange(quote, diff))
+        ChartReadout(label = scrubDate, value = scrubValue, scrubbing = true) {
+            if (scrubPercent != null) ChangeBadge(scrubPercent, formats, absolute = formats.amountChange(quote, scrubDiff))
         }
     } else ChartReadout(
         label = stringResource(if (previousClose != null) R.string.readout_previous_close else range.readoutLabel),
@@ -174,6 +186,19 @@ private fun ChartSection(
                 formatPrice = { formats.number(quote, it) },
                 scrubIndex = scrub,
                 onScrub = { scrub = it },
+                scrubDescription = scrubDate?.let { date ->
+                    val change = changeText(scrubPercent, formats)
+                    if (change.isEmpty()) {
+                        stringResource(R.string.chart_scrub_description_no_change, date, scrubValue.orEmpty())
+                    } else {
+                        stringResource(R.string.chart_scrub_description, date, scrubValue.orEmpty(), change)
+                    }
+                },
+                stepLabels = StepLabels(
+                    stringResource(R.string.chart_action_previous),
+                    stringResource(R.string.chart_action_next),
+                    stringResource(R.string.chart_action_latest),
+                ),
                 minTickStep = 10.0.pow(-(quote.priceDecimals ?: 2).toDouble()),
                 description = stringResource(
                     R.string.chart_description,
@@ -181,17 +206,24 @@ private fun ChartSection(
                     stringResource(range.readoutLabel),
                     formats.price(quote, chart.data.baseline ?: first),
                     formats.price(quote, last),
-                    when {
-                        rounded == null -> ""
-                        rounded > 0 -> stringResource(R.string.change_up, formats.changeMagnitude(rounded))
-                        rounded < 0 -> stringResource(R.string.change_down, formats.changeMagnitude(rounded))
-                        else -> stringResource(R.string.change_flat, formats.changeMagnitude(rounded))
-                    },
+                    changeText(percent, formats),
                 ),
             )
         }
     }
     RangeBar(DETAILS_RANGES, range, onSelectRange, Modifier.padding(top = 8.dp))
+}
+
+/** A change in percent as text with its sign ("+4.03%"), for TalkBack; empty when there is none. */
+@Composable
+private fun changeText(percent: Double?, formats: QuoteFormats): String {
+    val rounded = percent?.let { round(it * 100) / 100 } ?: return ""
+    val magnitude = formats.changeMagnitude(rounded)
+    return when {
+        rounded > 0 -> stringResource(R.string.change_up, magnitude)
+        rounded < 0 -> stringResource(R.string.change_down, magnitude)
+        else -> stringResource(R.string.change_flat, magnitude)
+    }
 }
 
 /** "Open · closes 17:30" / "Closed · opens Mon 09:00" with a filled (open) or hollow (closed) dot (Doop DetailsTopBar). */

@@ -66,6 +66,8 @@ data class History(
     val currentSession: TradingPeriod? = null,
     /** IANA zone of the exchange (Europe/Rome), for times shown as the exchange sees them. */
     val exchangeZone: String? = null,
+    /** The current quote from the same response, for the 1D range only (the other ranges' previous close differs). */
+    val quote: Quote? = null,
 )
 
 /** The source answered, and the symbol does not exist there (as opposed to a network or server failure). */

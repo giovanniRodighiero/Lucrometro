@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -117,17 +118,35 @@ class WatchlistRepository(
      */
     suspend fun history(code: String, range: HistoryRange, bypassCache: Boolean = false): Result<History> {
         if (!bypassCache) cachedHistory(code, range)?.let { return Result.success(it) }
-        val result = sourceLock.withLock {
+        val (result, fetchedNow) = sourceLock.withLock {
             // The request before this one may have fetched the same range while this one waited.
-            val fetched = if (bypassCache) null else cachedHistory(code, range)
-            if (fetched != null) Result.success(fetched) else runInterruptible(io) { source.history(code, range) }
+            val cached = if (bypassCache) null else cachedHistory(code, range)
+            if (cached != null) {
+                Result.success(cached) to false
+            } else {
+                runInterruptible(io) { source.history(code, range) } to true
+            }
         }
         val history = result.getOrNull()
         // Not if the ticker was removed while the request ran: that would bring its data back (PRD 3).
         if (history != null && history.isCacheable(range) && storeCall { store.contains(code) } != false) {
             historyCache[code to range] = CachedHistory(history, clock())
         }
+        // A 1D response carries the current quote: keep the saved one in step, so the header agrees with the chart's
+        // last bar at no extra request. Only a response fetched just now (a cached one is old).
+        val fresh = history?.quote
+        if (fetchedNow && range == HistoryRange.DAY_1 && fresh != null) saveIfNewer(code, fresh)
         return result
+    }
+
+    /**
+     * Saves [fresh] as the quote of [code] unless the saved one is from a later trade (a refresh that finished first), and
+     * clears the failed mark. Not for a ticker that is not stored (removed meanwhile); `saveQuote` ignores that too.
+     */
+    private suspend fun saveIfNewer(code: String, fresh: Quote) {
+        val current = storeCall { store.observe().first().firstOrNull { it.code == code } } ?: return
+        if (current.saved != null && current.saved.quote.marketTimeEpoch > fresh.marketTimeEpoch) return
+        if (storeCall { store.saveQuote(code, SavedQuote(fresh, clock())) } != null) failed.update { it - code }
     }
 
     /** Normalizes [input], validates it with a live quote and saves it only if the quote resolves. */

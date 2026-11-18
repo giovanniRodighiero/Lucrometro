@@ -141,4 +141,46 @@ class WatchlistRepositoryTest {
         assertEquals(null, repo.cachedHistory("ENI.MI", HistoryRange.MONTH_1))
         assertEquals(null, repo.cachedHistory("ENI.MI", HistoryRange.YEAR_1))
     }
+
+    // The 1D chart response carries the current quote: the header's saved quote follows it, without another request.
+    @Test fun aFetched1DChartUpdatesTheSavedQuote() = runBlocking {
+        val newer = Quote("ENI.MI", 12.5, "EUR", null, marketTimeEpoch = 200)
+        val source = object : QuoteSource {
+            override fun quote(symbol: String) = Result.success(newer)
+            override fun history(symbol: String, range: HistoryRange) = Result.success(
+                History(listOf(Candle(1, null, null, null, 12.0, null), Candle(2, null, null, null, 12.5, null)), quote = newer),
+            )
+        }
+        val store = FakeWatchlistStore().apply { add("ENI.MI", SavedQuote(Quote("ENI.MI", 10.0, "EUR", null, 100), fetchedAt = 500)) }
+        var now = 1_000L
+        val repo = WatchlistRepository(source, store, Dispatchers.Unconfined) { now }
+
+        repo.history("ENI.MI", HistoryRange.MONTH_1) // another range: the saved quote is left alone
+        assertEquals(10.0, repo.entries.first().single().saved!!.quote.price, 0.0)
+
+        repo.history("ENI.MI", HistoryRange.DAY_1)
+        val entry = repo.entries.first().single()
+        assertEquals(12.5, entry.saved!!.quote.price, 0.0)
+        assertEquals(1_000L, entry.saved.fetchedAt)
+        assertFalse(entry.stale)
+
+        now = 2_000L
+        repo.history("ENI.MI", HistoryRange.DAY_1) // served from the cache: not saved again
+        assertEquals(1_000L, repo.entries.first().single().saved!!.fetchedAt)
+    }
+
+    // A slow chart response must not put an older price over a newer one saved by a refresh meanwhile.
+    @Test fun anOlderChartQuoteDoesNotOverwriteANewerSavedOne() = runBlocking {
+        val older = Quote("ENI.MI", 11.0, "EUR", null, marketTimeEpoch = 200)
+        val source = object : QuoteSource {
+            override fun quote(symbol: String) = Result.success(older)
+            override fun history(symbol: String, range: HistoryRange) = Result.success(
+                History(listOf(Candle(1, null, null, null, 11.0, null), Candle(2, null, null, null, 11.0, null)), quote = older),
+            )
+        }
+        val store = FakeWatchlistStore().apply { add("ENI.MI", SavedQuote(Quote("ENI.MI", 12.0, "EUR", null, 300), fetchedAt = 500)) }
+        val repo = WatchlistRepository(source, store, Dispatchers.Unconfined) { 1_000L }
+        repo.history("ENI.MI", HistoryRange.DAY_1)
+        assertEquals(12.0, repo.entries.first().single().saved!!.quote.price, 0.0)
+    }
 }

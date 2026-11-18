@@ -22,7 +22,10 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
@@ -34,6 +37,9 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.pow
+
+/** Labels of the TalkBack actions that step the scrub through the points. */
+class StepLabels(val previous: String, val next: String, val latest: String)
 
 /**
  * Doop component PriceChart, ready state (decision 0023), drawn on a Canvas: a line with an area fill
@@ -58,6 +64,9 @@ fun PriceChart(
     /** The point under the finger while scrubbing (a horizontal drag on the chart), or null. */
     scrubIndex: Int? = null,
     onScrub: (Int?) -> Unit = {},
+    /** TalkBack: what the scrubbed point says (date, price, change), and the labels of the actions that step through points. */
+    scrubDescription: String? = null,
+    stepLabels: StepLabels? = null,
 ) {
     val onScrubState by rememberUpdatedState(onScrub)
     val measurer = rememberTextMeasurer()
@@ -76,7 +85,22 @@ fun PriceChart(
         modifier
             .fillMaxWidth()
             .height(324.dp)
-            .semantics { contentDescription = description }
+            .semantics {
+                contentDescription = description
+                scrubDescription?.let { stateDescription = it }
+                // A drag cannot be done with TalkBack: the same scrub as three actions.
+                if (stepLabels != null && points.size > 1) {
+                    customActions = listOf(
+                        CustomAccessibilityAction(stepLabels.previous) {
+                            onScrubState(((scrubIndex ?: points.lastIndex) - 1).coerceAtLeast(0)); true
+                        },
+                        CustomAccessibilityAction(stepLabels.next) {
+                            onScrubState(((scrubIndex ?: -1) + 1).coerceAtMost(points.lastIndex)); true
+                        },
+                        CustomAccessibilityAction(stepLabels.latest) { onScrubState(null); true },
+                    )
+                }
+            }
             .pointerInput(layout) {
                 // The plot bounds are read per event: the width changes on rotation while the layout does not.
                 fun indexAt(px: Float): Int {

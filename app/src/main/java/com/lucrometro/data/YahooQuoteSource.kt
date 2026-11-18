@@ -17,17 +17,19 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
         // A known symbol can still come back without a price (suspended, delisted, no trades yet).
         val meta = chart(symbol, "1d").optJSONArray("result")?.optJSONObject(0)?.optJSONObject("meta")
             ?: throw NoPriceException(symbol)
-        if (!meta.has("regularMarketPrice") || meta.isNull("regularMarketPrice") || !meta.has("regularMarketTime")) {
-            throw NoPriceException(symbol)
-        }
-        Quote(
+        quoteFrom(symbol, meta) ?: throw NoPriceException(symbol)
+    }
+
+    /** The quote in a chart response's `meta`, or null when it has no price. For range=1d the previous close is the session before. */
+    private fun quoteFrom(symbol: String, meta: JSONObject): Quote? {
+        if (!meta.has("regularMarketPrice") || meta.isNull("regularMarketPrice") || !meta.has("regularMarketTime")) return null
+        return Quote(
             symbol = meta.optString("symbol").ifEmpty { symbol },
             price = meta.getDouble("regularMarketPrice"),
             currency = meta.optString("currency").ifEmpty { null },
             exchange = meta.optString("exchangeName").ifEmpty { null },
             marketTimeEpoch = meta.getLong("regularMarketTime"),
             name = meta.optString("longName").ifEmpty { meta.optString("shortName") }.ifEmpty { null },
-            // With range=1d this is the close of the session before the last one.
             previousClose = meta.optDouble("chartPreviousClose").takeIf { !it.isNaN() },
             priceDecimals = meta.optInt("priceHint", -1).takeIf { it in 0..6 },
         )
@@ -61,6 +63,8 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             sessions = regularSessions(meta.opt("tradingPeriods")),
             currentSession = meta.optJSONObject("currentTradingPeriod")?.optJSONObject("regular")?.let(::period),
             exchangeZone = meta.optString("exchangeTimezoneName").ifEmpty { null },
+            // Best effort: a malformed quote field must not fail a chart whose bars are fine.
+            quote = if (range == HistoryRange.DAY_1) runCatching { quoteFrom(symbol, meta) }.getOrNull() else null,
         )
     }
 
