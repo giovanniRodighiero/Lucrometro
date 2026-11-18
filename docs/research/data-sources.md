@@ -25,7 +25,39 @@
   month (~22-24 trading days), not exactly 30 days; use `period1`/`period2` (epoch) if exact
   windows are needed. Bars with a null close are dropped. Not yet checked: dividend/split
   adjusted closes (`adjclose`), gaps for illiquid ETFs, longer ranges. Adjusted closes are the
-  chosen basis for range changes (decision 0022) and still need to be checked.
+  chosen basis for range changes (decision 0022); checked on 2026-11-18, see below.
+- **Details screen data (2026-11-18, Cronet on the emulator, Wed 12:30 CET, market open):** 5 chart calls
+  (VWCE.MI 1d/1m, 5y/1wk, max/1mo; SWDA.MI 1y/1d; ENI.MI 1y/1d, `events=div,splits`) plus SMH.MI 1d/1m, one
+  at a time, 10 s apart, all HTTP 200. Findings:
+  - **1D intraday:** `range=1d&interval=1m` returns one session of 1-minute bars from 09:04 (SMH.MI 188 bars,
+    VWCE.MI 190). Many bars are null: SMH.MI 100 of 188, VWCE.MI 76 of 190. The line must skip nulls.
+  - **Previous close:** `meta.chartPreviousClose` (equal to `previousClose`) is the previous session's close
+    (SMH.MI 76.70 against a price of 80.31). It is in the same 1d response, so no extra request is needed
+    for the 1D baseline (decision 0022).
+  - **Quote time:** `meta.regularMarketTime` is the last trade, and it equals the last bar's timestamp.
+  - **Trading period:** `meta.currentTradingPeriod.regular` is the Milan session (09:00-17:30 CET, epoch
+    start/end plus `gmtoffset`); `pre` and `post` are present but not useful. Also `exchangeTimezoneName`
+    (Europe/Rome), `priceHint` (decimals) and `validRanges`. It describes today only, so "opens Mon 09:00"
+    has to be computed from it (weekends, holidays: not tested).
+  - **Delay:** VWCE.MI is liquid (114 bars with a trade in the session). Its last trade was 12:12:59 when it was
+    fetched at 12:30:08, so Yahoo's `.MI` data is about 15 minutes behind (SMH.MI: 12:10:07 at 12:29, consistent).
+    The details screen must say so (decision 0023 consequences).
+  - **`adjclose`:** present in `indicators.adjclose` for ETFs and stocks, daily and weekly. For the accumulating
+    ETFs (VWCE.MI, SWDA.MI) it equals `close` everywhere. For ENI.MI (4 dividends in the year) 211 of 254 bars differ:
+    2025-11-18 close 16.33, adjclose 15.53. So `close` is raw and `adjclose` adjusted, and decision 0022's range changes
+    work as designed. Dividend events are in `events.dividends` (not needed for v1). A distributing ETF was not
+    tested, but it should behave like ENI.MI.
+  - **Long ranges:** `range=5y&interval=1wk` gives 263 weekly points, 29 KB. `range=max&interval=1mo` for
+    VWCE.MI (listed 2020-01-14) came back as 359 **weekly** points (`dataGranularity: 1wk`), not monthly:
+    Yahoo returns a finer granularity for short histories, so do not assume the interval asked for. ENI.MI 1y/1d:
+    254 points. Sizes are 12-38 KB, so no payload concern.
+  - **Last point:** the long ranges end with a bar at the live price and time (VWCE.MI 5y: 166.88 at 12:12:59,
+    equal to `regularMarketPrice`), as for the daily ranges.
+  - **Method:** curl failed first: the crumb call already returned "Too Many Requests" (a 17-character body, where a
+    real crumb is 11) before any chart request, and every later curl call got HTTP 429, still 15 minutes
+    later. Cronet from the emulator, on the same Wi-Fi and IP, worked minutes afterwards. Most likely cause:
+    Yahoo refuses non-browser TLS fingerprints (as `YahooQuoteSource` assumes), not request frequency. Not proven.
+    Use only the app's Cronet path for Yahoo calls, and keep them spaced (CLAUDE.md conventions).
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes
@@ -38,10 +70,9 @@
 - Why: exchanges license their data; free tiers focus on cheaper US data.
 
 ## Open questions
-- Intraday delay for `.MI` (weekday 09:00-17:30 CET: compare quote time to the clock).
-- Details screen needs (decision 0023): is `regularMarketTime` the quote's own time; does
-  `currentTradingPeriod` give the Milan session (for "closes 17:30" / "opens Mon 09:00"); how do exchange
-  holidays show up.
+- Exchange holidays and weekends for the details screen: `currentTradingPeriod` was only checked on an open
+  weekday. Check one request on a weekend (what the 1D range returns, the period dates, the previous close).
+- Whether the ~15 minute `.MI` delay is constant (checked once, on 2026-11-18).
 - Long-term stability: bursts are fine, but does the session/crumb expire, and does Yahoo throttle
   at a few checks per day over weeks? (crumb refresh on HTTP 401/429 is implemented only as 'reset on any non-200')
 - Behaviour on a real phone and mobile networks.

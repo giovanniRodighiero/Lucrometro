@@ -36,6 +36,11 @@ platforms. `PomoTimer` (other project) needs platform 34 and build-tools 34.0.0:
 - Automated tests (unit, instrumented): write one only when it guards something important that the
   emulator can't easily show (e.g. provider error mapping, retry, cancellation). No coverage targets,
   no TDD, no tests for trivial code. To try something out, use the emulator instead.
+- Yahoo is unofficial and answers HTTP 429 even on the crumb call: it happened on 2026-11-18 with curl (probably the
+  TLS fingerprint, not frequency; Cronet worked from the same IP). Do not use curl for Yahoo: go through the app's
+  Cronet path. Be very careful with live requests, by hand or in code: only what the task needs, one at a time,
+  at least 5-10 s apart, never in loops or parallel, reuse saved responses instead of re-fetching, and stop at
+  the first 429 (no retries; wait). Slow is fine.
 - Data providers stay behind `QuoteSource`; nothing outside `data/` knows about Yahoo or Cronet.
 - Manifest needs `INTERNET` and `ACCESS_NETWORK_STATE` (Cronet crashes without the latter).
 - Never commit APKs, keys or `local.properties`.

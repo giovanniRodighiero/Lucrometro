@@ -25,11 +25,10 @@ Done
 Next
 0. On a real phone: check the themed icon (Android 13+, Settings > Wallpaper & style > Themed icons)
    and other launcher shapes (squircle, teardrop). The emulator cannot toggle themed icons.
-1. Verify 1D intraday and long-range (5Y/Max) responses from Yahoo via Cronet. Also verify that the
-   chart endpoint returns `adjclose` for ETFs (VWCE.MI, SWDA.MI) and that the previous session close is
-   available for the 1D baseline (decision 0022). Until then, the UI must not say "adjusted".
-   For the details header and market status (decision 0023): the quote timestamp (`regularMarketTime`),
-   the trading period (`currentTradingPeriod`), how holidays show up, and the `.MI` intraday delay.
+1. Remaining Yahoo checks for the details screen: what the 1D range and `currentTradingPeriod` return on a weekend
+   and an exchange holiday, and whether the ~15 minute `.MI` delay is constant. One request at a time (CLAUDE.md).
+   Done 2026-11-18: 1D intraday, long ranges, `adjclose`, previous close, quote time, trading period, delay
+   (docs/research/data-sources.md).
 2. Test on a real phone.
 3. App proper, per docs/prd.md: Room (watchlist + last quote), ViewModel, watchlist screen,
    add/remove, details screen with the range bar, 1D intraday and touch scrub, in-memory session cache.
