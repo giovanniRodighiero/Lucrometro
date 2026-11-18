@@ -25,7 +25,7 @@
   month (~22-24 trading days), not exactly 30 days; use `period1`/`period2` (epoch) if exact
   windows are needed. Bars with a null close are dropped. Not yet checked: dividend/split
   adjusted closes (`adjclose`), gaps for illiquid ETFs, longer ranges. Adjusted closes are the
-  chosen basis for range changes (decision 0013) and still need to be checked.
+  chosen basis for range changes (decision 0022) and still need to be checked.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes
@@ -39,7 +39,7 @@
 
 ## Open questions
 - Intraday delay for `.MI` (weekday 09:00-17:30 CET: compare quote time to the clock).
-- Details screen needs (decision 0014): is `regularMarketTime` the quote's own time; does
+- Details screen needs (decision 0023): is `regularMarketTime` the quote's own time; does
   `currentTradingPeriod` give the Milan session (for "closes 17:30" / "opens Mon 09:00"); how do exchange
   holidays show up.
 - Long-term stability: bursts are fine, but does the session/crumb expire, and does Yahoo throttle

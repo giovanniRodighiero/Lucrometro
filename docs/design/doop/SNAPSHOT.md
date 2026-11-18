@@ -18,7 +18,7 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `details-1d-dark` | Details · 1D (dark) | `2FJ3ZK7LCY` | `frames/details-1d-dark.html`, `.png` |
 | `details-worst-case` | Details · worst case (stress values) | `iJVgK2AL0n` | `frames/details-worst-case.html`, `.png` |
 
-The details frames (added 2026-11-17, decision 0014) use made-up prices. `details-worst-case` uses stress values
+The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
 
 ## Tokens and components

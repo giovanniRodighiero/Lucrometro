@@ -19,7 +19,7 @@ Requirements:
 - Gain/loss colors (green/red) come from theme-level semantic tokens that work in light, dark and
   dynamic color, and never rely on color alone (also sign +/- and an arrow or text).
 - Components: Material 3 `Scaffold`, top app bar, `LazyColumn` list items, `FloatingActionButton`
-  or equivalent for add, a full-width range bar for chart ranges (decision 0014), `Snackbar` for undo, dialog or
+  or equivalent for add, a full-width range bar for chart ranges (decision 0023), `Snackbar` for undo, dialog or
   bottom sheet for add-ticker, `PullToRefresh`, standard swipe-to-dismiss.
 - System behavior: edge-to-edge with correct insets, predictive back, system back from details
   returns to the list, state survives rotation and process death, system font scaling respected.

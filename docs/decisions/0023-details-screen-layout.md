@@ -1,9 +1,9 @@
-# 0014: Details screen layout
+# 0023: Details screen layout
 
 Status: accepted (2026-11-17)
 
 ## Context
-Decision 0013 set the details screen's defaults and baselines and said the screen would be designed in Doop
+Decision 0022 set the details screen's defaults and baselines and said the screen would be designed in Doop
 first. It was designed on the canvas "Lucrometro" on 2026-11-17 (frames `details-*` in `docs/design/doop/`),
 with several alternatives tried and dropped along the way.
 
@@ -36,7 +36,7 @@ Top to bottom, the screen is:
   below the 48dp minimum. Segmented buttons (8 is over Material's 2-5 guidance, cramped), M3 tabs (read as
   navigation), a picker sheet (two taps per switch) and fewer ranges were considered and not chosen.
 - **Chart failed**: the header keeps the last saved quote marked "Stale since HH:mm"; no market status; the chart
-  area shows "Couldn't fetch" with Retry (decision 0013).
+  area shows "Couldn't fetch" with Retry (decision 0022).
 
 ## Consequences
 - The range bar is not a stock Material component: a `Row` of selectable cells inside

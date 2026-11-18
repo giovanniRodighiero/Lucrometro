@@ -1,4 +1,4 @@
-# 0013: Details screen defaults, baselines and stale header
+# 0022: Details screen defaults, baselines and stale header
 
 Status: accepted (2026-11-17)
 
