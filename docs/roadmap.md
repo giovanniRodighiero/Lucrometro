@@ -13,6 +13,8 @@ Done
 - [x] Details screen designed in Doop and snapshotted (`details-*` frames, decision 0023).
 - [x] Details screen built (decisions 0024-0029): top bar with the market status, quote header, readout, chart
       (1D and 5D intraday, 1M to Max), range bar, touch scrub, session cache, failed/empty/loading states.
+- [x] Market times in the exchange's clock, fetch times in the phone's clock; exchange zone saved with the
+      quote, Room schema v3 (decision 0031).
 
 - [x] Watchlist rows from the Doop QuoteRow/ChangeBadge: price, day change pill, stale mark, "Updated"
       stamp, pull-to-refresh and refresh on open (decision 0014). Checked on the emulator online, offline
@@ -41,8 +43,3 @@ Later (v2 candidates, not in v1 scope)
 - Personal position per ticker (quantity, average price, P&L), a private note per ticker.
 - More details info: 52-week and day range, distance from the all-time high, multi-period performance with YTD,
   dividends on the chart, delay notice.
-- Quote stamp in the exchange's timezone: "Today, 14:32" and the session weekday use the device timezone today, so
-  a user outside Italy can see a day that differs from the Milan session (a 17:35 close can read as the next or
-  previous day). Needs the exchange timezone (Yahoo `meta.exchangeTimezoneName`, Europe/Rome for `.MI`) saved
-  with the quote (a Room schema change and migration), then the stamp and "Today" computed in that zone. The chart's date labels and the scrub label already use the exchange zone (from `exchangeTimezoneName`, kept in the
-  history, not in Room).
