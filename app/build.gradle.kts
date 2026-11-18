@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.androidx.room3)
 }
 
+// Release signing keys live outside the repo, in ~/.gradle/gradle.properties (see docs/decisions/0020).
+// Without them the release build is left unsigned instead of failing.
+val releaseStoreFile = providers.gradleProperty("lucrometro.releaseStoreFile").orNull
+
 android {
     namespace = "com.lucrometro"
     compileSdk = 37
@@ -15,6 +19,22 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1"
+    }
+
+    if (releaseStoreFile != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(releaseStoreFile)
+                storePassword = providers.gradleProperty("lucrometro.releaseStorePassword").get()
+                keyAlias = providers.gradleProperty("lucrometro.releaseKeyAlias").get()
+                keyPassword = providers.gradleProperty("lucrometro.releaseKeyPassword").get()
+            }
+        }
+        buildTypes {
+            release {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
     }
 
     buildFeatures {
