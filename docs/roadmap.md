@@ -17,6 +17,7 @@ Done
 - [x] Room 3 storage for the watchlist and last quotes (decision 0015). Force-stop and reopen offline:
       saved quotes shown, marked stale.
 - [x] Swipe to remove with undo snackbar, TalkBack remove action (decision 0018).
+- [x] Swipe-to-remove review fixes: undo order, failed-undo message, removal scope (decision 0019).
 - [x] Italian translation and per-app language on Android 13+ (decision 0017).
 - [x] Code review fixes (decision 0016): cancellable source lock, session staleness, schema v2 `position`.
 

@@ -26,7 +26,10 @@ class FakeWatchlistStore : WatchlistStore {
 
     override suspend fun restore(ticker: StoredTicker): Boolean {
         if (contains(ticker.code)) return false
-        rows.update { list -> (list + ticker).sortedBy { it.position } }
+        rows.update { list ->
+            (list.map { if (it.position >= ticker.position) it.copy(position = it.position + 1) else it } + ticker)
+                .sortedBy { it.position }
+        }
         return true
     }
 

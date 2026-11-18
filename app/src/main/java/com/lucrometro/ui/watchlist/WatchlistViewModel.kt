@@ -11,6 +11,7 @@ import com.lucrometro.data.StoredTicker
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -47,18 +48,18 @@ class WatchlistViewModel(private val repository: WatchlistRepository) : ViewMode
      * Removes [code] (swipe or accessibility action) and offers undo. False if storage failed, so the
      * screen can put the swiped row back.
      */
-    suspend fun remove(code: String): Boolean {
-        val removed = repository.remove(code) ?: return false
+    suspend fun remove(code: String): Boolean = viewModelScope.async {
+        // In the ViewModel's scope, not the caller's: once the row is deleted the list drops it, which
+        // cancels the row's own scope, and the undo must still be set.
+        val removed = repository.remove(code) ?: return@async false
         _undo.value = removed // replaces an older pending undo: only the latest removal can be undone
-        return true
-    }
+        true
+    }.await()
 
-    fun undoRemove(ticker: StoredTicker) {
-        _undo.compareAndSet(ticker, null)
-        viewModelScope.launch { repository.restore(ticker) }
-    }
+    /** Puts [ticker] back. False if that failed (e.g. its code was added again meanwhile). */
+    suspend fun undoRemove(ticker: StoredTicker): Boolean = viewModelScope.async { repository.restore(ticker) }.await()
 
-    /** The snackbar went away without undo: the removal stands. */
+    /** The undo is over, used or not: forget it. */
     fun undoDismissed(ticker: StoredTicker) {
         _undo.compareAndSet(ticker, null)
     }

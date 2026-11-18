@@ -143,6 +143,9 @@ class WatchlistRepository(
             val codes = storeCall { store.codes() } ?: return
             for (code in codes) {
                 val saved = fetch(code).getOrNull()?.let { SavedQuote(it, clock()) }
+                // Removed while the request was running: don't mark it failed (an undo would bring it
+                // back looking stale). A storage error here is not "removed", so it carries on.
+                if (storeCall { store.contains(code) } == false) continue
                 val ok = saved != null && storeCall { store.saveQuote(code, saved) } != null
                 failed.update { if (ok) it - code else it + code }
             }

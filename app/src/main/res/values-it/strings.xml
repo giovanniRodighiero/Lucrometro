@@ -13,6 +13,7 @@
     <string name="change_flat">%1$s%%</string>
 
     <string name="ticker_removed">%1$s rimosso</string>
+    <string name="undo_failed">Impossibile ripristinare %1$s</string>
     <string name="undo">Annulla</string>
     <string name="remove_ticker">Rimuovi</string>
 
