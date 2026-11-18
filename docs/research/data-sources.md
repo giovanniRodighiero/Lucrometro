@@ -58,6 +58,13 @@
     later. Cronet from the emulator, on the same Wi-Fi and IP, worked minutes afterwards. Most likely cause:
     Yahoo refuses non-browser TLS fingerprints (as `YahooQuoteSource` assumes), not request frequency. Not proven.
     Use only the app's Cronet path for Yahoo calls, and keep them spaced (CLAUDE.md conventions).
+- **5D with intraday bars (2026-11-18, Cronet, Wed 13:57):** `range=5d&interval=30m` for VWCE.MI and SMH.MI, 2 calls
+  10 s apart, HTTP 200, 8 KB each. Both returned 79 bars with no null closes: 5 sessions (Thu 12 to Wed 18) of 17 half-hour
+  bars (09:00-17:30) and 11 for today. So 5D can be a real line instead of the 5 daily points. There is **no `adjclose`**
+  on intraday bars, so a dividend inside the 5 days would show as a drop (acceptable: it is rare and small, but the 5D
+  change is then on plain closes). `meta.chartPreviousClose` is the close before the first bar of the range (VWCE.MI 170.92),
+  not the previous session's. The overnight and weekend gaps are large in time (a time-proportional axis would leave
+  holes), so the 5D chart should place bars by index.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes

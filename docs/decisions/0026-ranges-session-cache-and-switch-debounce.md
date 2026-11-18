@@ -7,8 +7,9 @@ Iteration 4 of the details screen adds the range bar (decision 0023) on top of t
 
 ## Decision
 - **Ranges and bars**: 5D, 1M, 3M, 6M and 1Y use daily bars; 5Y weekly; Max monthly (decision 0022). Yahoo can answer a finer
-  interval for a short history, so the chart draws whatever comes back. 5D with daily bars is only 5 points: an intraday
-  interval would look better but is not verified for `.MI` and has no `adjclose` (to check, see the roadmap).
+  interval for a short history, so the chart draws whatever comes back. 5D with daily bars is only 5 points. Checked on 2026-11-18:
+  `5d` with `30m` gives 79 clean bars (no adjclose), see `docs/research/data-sources.md`; 5D moves to that with the
+  intraday chart (iteration 5).
 - **Bar**: 7 cells for now (the 1D tab joins with the intraday chart, which also becomes the default range); the open
   range is the ViewModel's state, so it survives rotation but not a restart. Default stays 1M until then.
 - **Session cache** (PRD 5), in the repository: candles per ticker and range, in memory. Entries expire after 1 hour
