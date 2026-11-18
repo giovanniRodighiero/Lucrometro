@@ -49,8 +49,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
@@ -264,13 +262,11 @@ private fun AddTickerSheet(
     val submit = { onSubmit(input.text.toString()) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val focusRequester = remember { FocusRequester() }
     // Animate the sheet away, then drop it from the state.
     val hideThenClose: () -> Unit = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onClose() }
     }
 
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
     // Skip the initial (empty) value: only real edits clear the error.
     LaunchedEffect(input) { snapshotFlow { input.text.toString() }.drop(1).collect { onInputEdited() } }
     LaunchedEffect(state.added) { if (state.added) hideThenClose() }
@@ -287,7 +283,7 @@ private fun AddTickerSheet(
             Spacer(Modifier.height(24.dp))
             OutlinedTextField(
                 state = input,
-                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                modifier = Modifier.fillMaxWidth(),
                 readOnly = state.checking,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 inputTransformation = TickerInput,
