@@ -42,3 +42,7 @@ Later (v2 candidates, not in v1 scope)
 - Personal position per ticker (quantity, average price, P&L), a private note per ticker.
 - More details info: 52-week and day range, distance from the all-time high, multi-period performance with YTD,
   dividends on the chart, delay notice.
+- Quote stamp in the exchange's timezone: "Today, 14:32" and the session weekday use the device timezone today, so
+  a user outside Italy can see a day that differs from the Milan session (a 17:35 close can read as the next or
+  previous day). Needs the exchange timezone (Yahoo `meta.exchangeTimezoneName`, Europe/Rome for `.MI`) saved
+  with the quote (a Room schema change and migration), then the stamp and "Today" computed in that zone.

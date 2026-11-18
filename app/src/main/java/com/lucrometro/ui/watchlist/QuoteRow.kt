@@ -112,10 +112,18 @@ fun QuoteRow(entry: WatchlistEntry, formats: QuoteFormats, modifier: Modifier = 
  * the colour alone. Direction follows the value as shown, so a rounded 0.00% is flat.
  */
 @Composable
-fun ChangeBadge(percent: Double, formats: QuoteFormats, modifier: Modifier = Modifier) {
-    val rounded = round(percent * 100) / 100
+fun ChangeBadge(
+    percent: Double,
+    formats: QuoteFormats,
+    modifier: Modifier = Modifier,
+    /** The change in price units, shown before the percent ("+0.86 (+2.14%)"); null for the percent alone. */
+    absolute: AmountChange? = null,
+) {
+    val roundedPercent = round(percent * 100) / 100
+    // The direction follows what is shown: the percent, or the amount when only that is not zero after rounding.
+    val rounded = if (roundedPercent == 0.0 && absolute != null) absolute.rounded else roundedPercent
     val colors = MaterialTheme.gainLoss
-    val magnitude = formats.changeMagnitude(rounded)
+    val magnitude = formats.changeMagnitude(roundedPercent)
     val (container, content, icon) = when {
         rounded > 0 -> Triple(colors.gainContainer, colors.onGainContainer, R.drawable.ic_change_up)
         rounded < 0 -> Triple(colors.lossContainer, colors.onLossContainer, R.drawable.ic_change_down)
@@ -126,6 +134,11 @@ fun ChangeBadge(percent: Double, formats: QuoteFormats, modifier: Modifier = Mod
         )
     }
     val text = when {
+        absolute != null -> when {
+            rounded > 0 -> stringResource(R.string.change_up_abs, absolute.text, magnitude)
+            rounded < 0 -> stringResource(R.string.change_down_abs, absolute.text, magnitude)
+            else -> stringResource(R.string.change_flat_abs, absolute.text, magnitude)
+        }
         rounded > 0 -> stringResource(R.string.change_up, magnitude)
         rounded < 0 -> stringResource(R.string.change_down, magnitude)
         else -> stringResource(R.string.change_flat, magnitude)
@@ -143,6 +156,9 @@ fun ChangeBadge(percent: Double, formats: QuoteFormats, modifier: Modifier = Mod
     }
 }
 
+/** A change in price units: [rounded] (signed, to the price's decimals) and its unsigned [text]. */
+class AmountChange(val rounded: Double, val text: String)
+
 /**
  * Number formats for the list, in one locale, created once per list (not per row and recomposition).
  * The text around the numbers (currency position, sign, percent) comes from strings.xml.
@@ -157,12 +173,23 @@ class QuoteFormats(private val locale: Locale) {
         maximumFractionDigits = decimals
     }
 
+    private fun priceFormat(quote: Quote): NumberFormat {
+        val decimals = quote.priceDecimals ?: 2
+        return prices.getOrPut(decimals) { fixed(decimals) }
+    }
+
     /** The price with the source's decimals (2 if unknown), followed by its currency when known. */
     @Composable
     fun price(quote: Quote): String {
-        val decimals = quote.priceDecimals ?: 2
-        val number = prices.getOrPut(decimals) { fixed(decimals) }.format(quote.price)
+        val number = priceFormat(quote).format(quote.price)
         return quote.currency?.let { stringResource(R.string.quote_price, number, it) } ?: number
+    }
+
+    /** A change in price units with the quote's own decimals, rounded the way it is shown. */
+    fun amountChange(quote: Quote, value: Double): AmountChange {
+        val format = priceFormat(quote)
+        val scale = Math.pow(10.0, format.maximumFractionDigits.toDouble())
+        return AmountChange(round(value * scale) / scale, format.format(abs(value)))
     }
 
     /** The size of a change in percent, unsigned, 2 decimals: the sign comes from the string. */

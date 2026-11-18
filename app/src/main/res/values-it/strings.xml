@@ -12,10 +12,21 @@
     <string name="change_down">-%1$s%%</string>
     <string name="change_flat">%1$s%%</string>
 
+    <string name="change_up_abs">+%1$s (+%2$s%%)</string>
+    <string name="change_down_abs">-%1$s (-%2$s%%)</string>
+    <string name="change_flat_abs">%1$s (%2$s%%)</string>
+
     <string name="ticker_removed">%1$s rimosso</string>
     <string name="undo_failed">Impossibile ripristinare %1$s</string>
     <string name="undo">Annulla</string>
     <string name="remove_ticker">Rimuovi</string>
+
+    <!-- Details screen -->
+    <!-- Accessibility label of the tap action on a watchlist row (TalkBack). -->
+    <string name="open_details">Apri dettagli</string>
+    <string name="back">Indietro</string>
+    <string name="quote_stamp_today">Oggi, %1$s</string>
+    <string name="quote_stamp_day">%1$s, %2$s</string>
 
     <!-- Add ticker sheet -->
     <string name="add_ticker">Aggiungi titolo</string>

@@ -1,6 +1,7 @@
 package com.lucrometro.ui.watchlist
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -70,7 +72,12 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 @Composable
-fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = WatchlistViewModel.Factory)) {
+fun WatchlistScreen(
+    onOpenTicker: (String) -> Unit,
+    /** Owned by the caller so the scroll position survives opening a ticker and coming back. */
+    listState: LazyListState,
+    viewModel: WatchlistViewModel = viewModel(factory = WatchlistViewModel.Factory),
+) {
     val entries by viewModel.entries.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     val addSheet by viewModel.addSheet.collectAsStateWithLifecycle()
@@ -104,6 +111,8 @@ fun WatchlistScreen(viewModel: WatchlistViewModel = viewModel(factory = Watchlis
         snackbar = snackbar,
         onRefresh = viewModel::refresh,
         onRemove = viewModel::remove,
+        onOpen = onOpenTicker,
+        listState = listState,
         onAddClick = viewModel::openAddSheet,
     )
 
@@ -125,6 +134,8 @@ private fun WatchlistContent(
     snackbar: SnackbarHostState,
     onRefresh: () -> Unit,
     onRemove: suspend (String) -> Boolean,
+    onOpen: (String) -> Unit,
+    listState: LazyListState,
     onAddClick: () -> Unit,
 ) {
     Scaffold(
@@ -164,13 +175,14 @@ private fun WatchlistContent(
                 modifier = Modifier.padding(top = padding.calculateTopPadding()),
             ) {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     // Room below the last row for the FAB (56dp + its 16dp margin + 16dp air).
                     contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 88.dp),
                 ) {
                     items(entries, key = { it.code }) { entry ->
                         // No fade-out: the swiped row has already left the screen, so it just goes.
-                        RemovableQuoteRow(entry, formats, onRemove, Modifier.animateItem(fadeOutSpec = null))
+                        RemovableQuoteRow(entry, formats, onRemove, onOpen, Modifier.animateItem(fadeOutSpec = null))
                     }
                 }
             }
@@ -187,6 +199,7 @@ private fun RemovableQuoteRow(
     entry: WatchlistEntry,
     formats: QuoteFormats,
     onRemove: suspend (String) -> Boolean,
+    onOpen: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Plain remember, not rememberSwipeToDismissBoxState: that one is saveable, and LazyColumn restores
@@ -197,6 +210,7 @@ private fun RemovableQuoteRow(
     val scope = rememberCoroutineScope()
     val remove: () -> Unit = { scope.launch { if (!onRemove(entry.code)) state.reset() } }
     val removeLabel = stringResource(R.string.remove_ticker)
+    val openLabel = stringResource(R.string.open_details)
     SwipeToDismissBox(
         state = state,
         modifier = modifier,
@@ -223,6 +237,7 @@ private fun RemovableQuoteRow(
             formats,
             Modifier
                 .background(MaterialTheme.colorScheme.surface) // covers the red background at rest
+                .clickable(onClickLabel = openLabel) { onOpen(entry.code) }
                 .semantics { customActions = listOf(CustomAccessibilityAction(removeLabel) { remove(); true }) },
         )
     }

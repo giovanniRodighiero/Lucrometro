@@ -16,11 +16,25 @@
     <string name="change_down">-%1$s%%</string>
     <string name="change_flat">%1$s%%</string>
 
+    <!-- Absolute and percent change in one pill, e.g. "+0.86 (+2.14%)". %1$s abs, %2$s percent, both unsigned. -->
+    <string name="change_up_abs">+%1$s (+%2$s%%)</string>
+    <string name="change_down_abs">-%1$s (-%2$s%%)</string>
+    <string name="change_flat_abs">%1$s (%2$s%%)</string>
+
     <string name="ticker_removed">%1$s removed</string>
     <string name="undo_failed">Couldn\'t restore %1$s</string>
     <string name="undo">Undo</string>
     <!-- Accessibility action on a row (TalkBack), the alternative to swiping it away. -->
     <string name="remove_ticker">Remove</string>
+
+    <!-- Details screen -->
+    <!-- Accessibility label of the tap action on a watchlist row (TalkBack). -->
+    <string name="open_details">Open details</string>
+    <string name="back">Back</string>
+    <!-- The quote's own time: "Today, 14:32" while it is from today. -->
+    <string name="quote_stamp_today">Today, %1$s</string>
+    <!-- Otherwise the session day and time, e.g. "Fri, Nov 14, 5:35 PM". %1$s is the date, %2$s the time. -->
+    <string name="quote_stamp_day">%1$s, %2$s</string>
 
     <!-- Add ticker sheet -->
     <string name="add_ticker">Add ticker</string>
