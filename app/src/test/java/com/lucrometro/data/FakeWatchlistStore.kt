@@ -11,6 +11,7 @@ class FakeWatchlistStore : WatchlistStore {
     override fun observe(): Flow<List<StoredTicker>> = rows
     override suspend fun codes() = rows.value.map { it.code }
     override suspend fun contains(code: String) = rows.value.any { it.code == code }
+    override suspend fun get(code: String) = rows.value.firstOrNull { it.code == code }
 
     override suspend fun add(code: String, saved: SavedQuote): Boolean {
         if (contains(code)) return false

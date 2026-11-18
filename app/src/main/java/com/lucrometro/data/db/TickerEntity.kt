@@ -36,6 +36,8 @@ data class QuoteColumns(
     val marketTime: Long,
     /** Epoch millis when the quote was fetched. */
     val fetchedAt: Long,
+    /** IANA zone of the exchange; null for quotes saved before schema v3, until the next fetch. */
+    val exchangeZone: String?,
 )
 
 /** Partial update of a row's quote columns (Room `@Update(entity = TickerEntity::class)`). */
@@ -50,6 +52,7 @@ internal fun SavedQuote.toColumns() = QuoteColumns(
     priceDecimals = quote.priceDecimals,
     marketTime = quote.marketTimeEpoch,
     fetchedAt = fetchedAt,
+    exchangeZone = quote.exchangeZone,
 )
 
 internal fun TickerEntity.toStored() = StoredTicker(
@@ -67,6 +70,7 @@ internal fun TickerEntity.toStored() = StoredTicker(
                 name = it.name,
                 previousClose = it.previousClose,
                 priceDecimals = it.priceDecimals,
+                exchangeZone = it.exchangeZone,
             ),
             it.fetchedAt,
         )

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
@@ -28,9 +29,11 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -38,13 +41,26 @@ import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.pow
 
+/** Height of the chart area; the loading and message states take the same, so nothing moves when the chart loads. */
+val ChartHeight = 324.dp
+
+// The plot inside the chart area: the right gutter holds the price labels, the bottom one the time labels.
+private val PlotStart = 16.dp
+private val PriceGutter = 60.dp
+private val PlotTop = 12.dp
+private val PlotBottom = 288.dp
+private val TimeLabelsY = 312.dp
+
+private fun Density.plotLeft() = PlotStart.toPx()
+private fun Density.plotRight(width: Float) = width - PriceGutter.toPx()
+
 /** Labels of the TalkBack actions that step the scrub through the points. */
 class StepLabels(val previous: String, val next: String, val latest: String)
 
 /**
  * Doop component PriceChart, ready state (decision 0023), drawn on a Canvas: a line with an area fill
  * in [color], gridlines at round prices with their labels in a right gutter, the [layout]'s labels on the bottom row,
- * and a dot at the last point. The plot spans x 16dp to (width - 60dp) and y 12dp to 288dp of a 324dp area.
+ * and a dot at the last point. The plot sits inside [ChartHeight] with gutters for the labels (see [plotLeft]).
  * [baseline] (1D: the previous close) is a dashed line with its price in medium weight, and always inside the axis.
  * While scrubbing, a 1dp line and a dot mark the point under the finger (and the end dot is hidden). The scrub starts
  * on a horizontal drag only, so a vertical drag still scrolls the page. [formatPrice] formats axis labels; [description]
@@ -84,7 +100,7 @@ fun PriceChart(
     Canvas(
         modifier
             .fillMaxWidth()
-            .height(324.dp)
+            .height(ChartHeight)
             .semantics {
                 contentDescription = description
                 scrubDescription?.let { stateDescription = it }
@@ -104,8 +120,8 @@ fun PriceChart(
             .pointerInput(layout) {
                 // The plot bounds are read per event: the width changes on rotation while the layout does not.
                 fun indexAt(px: Float): Int {
-                    val left = 16.dp.toPx()
-                    val right = size.width - 60.dp.toPx()
+                    val left = plotLeft()
+                    val right = plotRight(size.width.toFloat())
                     val fraction = ((px - left) / (right - left)).coerceIn(0f, 1f)
                     return layout.xs.indices.minByOrNull { abs(layout.xs[it] - fraction) } ?: 0
                 }
@@ -127,10 +143,10 @@ fun PriceChart(
                 }
             },
     ) {
-        val left = 16.dp.toPx()
-        val right = size.width - 60.dp.toPx()
-        val top = 12.dp.toPx()
-        val bottom = 288.dp.toPx()
+        val left = plotLeft()
+        val right = plotRight(size.width)
+        val top = PlotTop.toPx()
+        val bottom = PlotBottom.toPx()
         fun x(fraction: Float) = left + (right - left) * fraction
         fun y(price: Double) = bottom - (bottom - top) * ((price - axis.low) / (axis.high - axis.low)).toFloat()
         val baselineY = baseline?.let { y(it) }
@@ -140,7 +156,7 @@ fun PriceChart(
             drawLine(gridColor, Offset(left, ty), Offset(right, ty), strokeWidth = 1.dp.toPx())
             // The baseline's own label sits at its line: skip a gridline label that would overlap it.
             if (baselineY == null || abs(ty - baselineY) > 14.dp.toPx()) {
-                drawLabel(measurer, formatPrice(tick), labelStyle, right + 8.dp.toPx(), ty, Anchor.Start)
+                drawLabel(measurer, formatPrice(tick), labelStyle, right + 8.dp.toPx(), ty, LabelAnchor.Start)
             }
         }
         if (baseline != null && baselineY != null) {
@@ -150,7 +166,7 @@ fun PriceChart(
             )
             drawLabel(
                 measurer, formatPrice(baseline), labelStyle.copy(fontWeight = FontWeight.Medium),
-                right + 8.dp.toPx(), baselineY, Anchor.Start,
+                right + 8.dp.toPx(), baselineY, LabelAnchor.Start,
             )
         }
 
@@ -183,34 +199,25 @@ fun PriceChart(
             drawCircle(surface, 6.dp.toPx(), dot, style = Stroke(2.dp.toPx()))
         }
 
-        val labelY = 312.dp.toPx()
-        layout.labels.forEach {
-            val anchor = when (it.anchor) {
-                LabelAnchor.Start -> Anchor.Start
-                LabelAnchor.Center -> Anchor.Center
-                LabelAnchor.End -> Anchor.End
-            }
-            drawLabel(measurer, it.text, labelStyle, x(it.fraction), labelY, anchor)
-        }
+        val labelY = TimeLabelsY.toPx()
+        layout.labels.forEach { drawLabel(measurer, it.text, labelStyle, x(it.fraction), labelY, it.anchor) }
     }
 }
 
-private enum class Anchor { Start, Center, End }
-
 /** Draws [text] vertically centred on [y] (for axis labels) and anchored at [x]. */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLabel(
+private fun DrawScope.drawLabel(
     measurer: TextMeasurer,
     text: String,
-    style: androidx.compose.ui.text.TextStyle,
+    style: TextStyle,
     x: Float,
     y: Float,
-    anchor: Anchor,
+    anchor: LabelAnchor,
 ) {
     val layout = measurer.measure(text, style)
     val dx = when (anchor) {
-        Anchor.Start -> 0f
-        Anchor.Center -> -layout.size.width / 2f
-        Anchor.End -> -layout.size.width.toFloat()
+        LabelAnchor.Start -> 0f
+        LabelAnchor.Center -> -layout.size.width / 2f
+        LabelAnchor.End -> -layout.size.width.toFloat()
     }
     drawText(layout, topLeft = Offset(x + dx, y - layout.size.height / 2f))
 }

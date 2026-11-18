@@ -7,10 +7,10 @@ are listed under each screen.
 |---|---|
 | `TopAppBar` | Material 3 `TopAppBar`; the stamp is a `bodySmall` text in `actions` |
 | `QuoteRow` | `ui/watchlist/QuoteRow.kt` `QuoteRow` (a `Row`, see decision 0014) |
-| `ChangeBadge` | `ui/watchlist/QuoteRow.kt` `ChangeBadge` (`Surface` with `CircleShape`) |
+| `ChangeBadge` | `ui/common/ChangeBadge.kt` `ChangeBadge` (`Surface` with `CircleShape`) |
 | `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; the market status is a `Row` (8dp dot and `bodySmall` text) in `actions`, decision 0027 |
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
-| `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode, and scrub mode via `scrubbing`; the label is `scrubLabel`, decision 0028) |
+| `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode, and scrub mode via `scrubbing`; the label is `scrubLabel` in the same file, decision 0028) |
 | `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025 |
 | `RangeTab` | `ui/details/RangeBar.kt`: a `Row` of `selectable` cells in a `selectableGroup`, `Role.RadioButton` (decision 0026) |
 | `Fab` | Material 3 `FloatingActionButton` |
@@ -28,7 +28,7 @@ are listed under each screen.
 ## Details
 
 - The change pill is the watchlist `ChangeBadge` with an `absolute` value ("+0.86 (+2.14%)"). Abs uses the quote's decimals.
-- The stamp is the quote's own time (`regularMarketTime`) in the system 12/24h setting; "Today, 14:32", otherwise the session day.
+- The stamp is the quote's own time (`regularMarketTime`) in the exchange's clock (decision 0031) and the system 12/24h setting; "Today, 14:32", otherwise the session day.
 - Back is the system back and the top bar arrow (decision 0024). The frames' status bar and gesture bar are not ported.
 - The chart loading state (a progress indicator) is not in the frames.
 - Not in the frames: the empty 1D card ("No trades yet"), 5D (weekday labels, bars by index), 8dp dots for the market status are drawn as in the top bar frame.

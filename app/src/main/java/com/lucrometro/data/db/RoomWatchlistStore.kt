@@ -13,6 +13,8 @@ class RoomWatchlistStore(private val dao: WatchlistDao) : WatchlistStore {
 
     override suspend fun contains(code: String): Boolean = dao.contains(code)
 
+    override suspend fun get(code: String): StoredTicker? = dao.get(code)?.toStored()
+
     // Added at the moment its first quote was fetched: one clock, the repository's.
     override suspend fun add(code: String, saved: SavedQuote): Boolean =
         dao.insertLast(code, addedAt = saved.fetchedAt, quote = saved.toColumns())

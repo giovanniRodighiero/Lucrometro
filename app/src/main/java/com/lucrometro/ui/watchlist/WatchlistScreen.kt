@@ -51,7 +51,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -68,6 +67,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
 import com.lucrometro.data.WatchlistEntry
+import com.lucrometro.ui.common.QuoteFormats
+import com.lucrometro.ui.common.TimeFormats
+import com.lucrometro.ui.common.rememberQuoteFormats
+import com.lucrometro.ui.common.rememberTimeFormats
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
@@ -138,6 +141,7 @@ private fun WatchlistContent(
     listState: LazyListState,
     onAddClick: () -> Unit,
 ) {
+    val times = rememberTimeFormats()
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
@@ -148,7 +152,7 @@ private fun WatchlistContent(
                     // The newest saved quote: what "updated" means even after a restart or a failed refresh.
                     entries?.mapNotNull { it.saved?.fetchedAt }?.maxOrNull()?.let {
                         Text(
-                            stringResource(R.string.watchlist_updated, formatTime(LocalContext.current, it)),
+                            stringResource(R.string.watchlist_updated, times.phoneStamp(it)),
                             modifier = Modifier.padding(end = 12.dp),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -182,7 +186,7 @@ private fun WatchlistContent(
                 ) {
                     items(entries, key = { it.code }) { entry ->
                         // No fade-out: the swiped row has already left the screen, so it just goes.
-                        RemovableQuoteRow(entry, formats, onRemove, onOpen, Modifier.animateItem(fadeOutSpec = null))
+                        RemovableQuoteRow(entry, formats, times, onRemove, onOpen, Modifier.animateItem(fadeOutSpec = null))
                     }
                 }
             }
@@ -198,6 +202,7 @@ private fun WatchlistContent(
 private fun RemovableQuoteRow(
     entry: WatchlistEntry,
     formats: QuoteFormats,
+    times: TimeFormats,
     onRemove: suspend (String) -> Boolean,
     onOpen: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -235,6 +240,7 @@ private fun RemovableQuoteRow(
         QuoteRow(
             entry,
             formats,
+            times,
             Modifier
                 .background(MaterialTheme.colorScheme.surface) // covers the red background at rest
                 .clickable(onClickLabel = openLabel) { onOpen(entry.code) }

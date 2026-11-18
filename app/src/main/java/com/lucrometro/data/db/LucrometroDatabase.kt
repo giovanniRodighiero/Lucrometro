@@ -11,7 +11,7 @@ import androidx.sqlite.execSQL
 import kotlinx.coroutines.Dispatchers
 
 /** The app database: only the watchlist and each ticker's last quote (PRD section 5). */
-@Database(entities = [TickerEntity::class], version = 2, exportSchema = true)
+@Database(entities = [TickerEntity::class], version = 3, exportSchema = true)
 abstract class LucrometroDatabase : RoomDatabase() {
     abstract fun watchlist(): WatchlistDao
 
@@ -21,7 +21,7 @@ abstract class LucrometroDatabase : RoomDatabase() {
                 // The platform SQLite: no need to bundle a native copy for one small table.
                 .setDriver(AndroidSQLiteDriver())
                 .setQueryCoroutineContext(Dispatchers.IO)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
     }
 }
@@ -40,5 +40,12 @@ internal val MIGRATION_1_2 = object : Migration(1, 2) {
             )
             """.trimIndent(),
         )
+    }
+}
+
+/** v3 stores the exchange's time zone with the quote (decision 0031). Existing quotes get it on their next fetch. */
+internal val MIGRATION_2_3 = object : Migration(2, 3) {
+    override suspend fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("ALTER TABLE watchlist ADD COLUMN exchangeZone TEXT")
     }
 }

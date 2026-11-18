@@ -20,6 +20,9 @@ interface WatchlistStore {
 
     suspend fun contains(code: String): Boolean
 
+    /** The stored ticker [code], or null if it is not stored. */
+    suspend fun get(code: String): StoredTicker?
+
     /** Adds [code] at the end of the list with its first quote. False if it was already stored. */
     suspend fun add(code: String, saved: SavedQuote): Boolean
 

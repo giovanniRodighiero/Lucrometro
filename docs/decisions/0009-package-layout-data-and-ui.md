@@ -1,6 +1,6 @@
 # 0009: Package layout: data and ui under com.lucrometro
 
-Status: accepted (2026-11-17)
+Status: superseded by 0030 (2026-11-18)
 
 ## Context
 The app is a single `:app` module (0002). The spike put the network code in `data/` and everything

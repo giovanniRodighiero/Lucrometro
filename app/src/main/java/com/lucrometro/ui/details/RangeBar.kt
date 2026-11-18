@@ -53,15 +53,6 @@ val HistoryRange.readoutLabel: Int
     }
 
 /**
- * `DateFormat.getBestDateTimePattern` skeleton for the chart's date labels: days up to 6M (the intraday ranges, 1D and 5D,
- * label times and weekdays instead: see `chartLayout`), then month and year. */
-val HistoryRange.dateSkeleton: String
-    get() = when (this) {
-        HistoryRange.DAY_1, HistoryRange.DAYS_5, HistoryRange.MONTH_1, HistoryRange.MONTHS_3, HistoryRange.MONTHS_6 -> "dMMM"
-        HistoryRange.YEAR_1, HistoryRange.YEARS_5, HistoryRange.MAX -> "MMMyyyy"
-    }
-
-/**
  * Doop component RangeTab in a full-width bar (decision 0023): equal-width cells at least 48dp tall that tile the
  * row, the selected one with a 32dp secondary-container pill. Not a stock Material component: a selectable group,
  * each cell a radio button for TalkBack.

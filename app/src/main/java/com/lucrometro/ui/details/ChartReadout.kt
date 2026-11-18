@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lucrometro.data.isIntraday
+import com.lucrometro.ui.common.TimeFormats
 
 /**
  * Doop component ChartReadout, summary mode (decision 0023): the line above the chart, a label and a
@@ -58,3 +60,16 @@ fun ChartReadout(
         change()
     }
 }
+
+/**
+ * The date (and time) of the scrubbed [point] for the readout, in the exchange's clock (a daily bar is stamped at the
+ * exchange's open, which is the day before on a phone far to the west). Intraday ranges: "Today, 11:45", or the day and
+ * time ("Tue, Nov 17, 11:45 AM"). Daily and longer ranges: the date ("Nov 14, 2026").
+ */
+@Composable
+fun scrubLabel(data: ChartData, point: ChartPoint, times: TimeFormats): String =
+    if (data.range.isIntraday) {
+        times.marketStamp(point.epochSeconds, data.zone)
+    } else {
+        times.format("dMMMyyyy", point.epochSeconds, data.zone)
+    }

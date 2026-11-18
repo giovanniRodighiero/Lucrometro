@@ -32,12 +32,14 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             name = meta.optString("longName").ifEmpty { meta.optString("shortName") }.ifEmpty { null },
             previousClose = meta.optDouble("chartPreviousClose").takeIf { !it.isNaN() },
             priceDecimals = meta.optInt("priceHint", -1).takeIf { it in 0..6 },
+            exchangeZone = meta.optString("exchangeTimezoneName").ifEmpty { null },
         )
     }
 
     @Synchronized
     override fun history(symbol: String, range: HistoryRange): Result<History> = runCatching {
-        val result = chart(symbol, range.yahoo, range.interval).getJSONArray("result").getJSONObject(0)
+        val (yahooRange, interval) = range.yahoo
+        val result = chart(symbol, yahooRange, interval).getJSONArray("result").getJSONObject(0)
         // No bars at all (1D before the first trade of the day): no "timestamp" key, an empty history.
         val ts = result.optJSONArray("timestamp") ?: JSONArray()
         val q = result.getJSONObject("indicators").optJSONArray("quote")?.optJSONObject(0) ?: JSONObject()
@@ -144,6 +146,22 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
 
     private companion object {
         val AUTH_FAILURES = setOf(401, 403)
+
+        /**
+         * Yahoo's `range` and the bar `interval` that fits it: 5D has half-hour bars (79 clean bars; daily would be 5
+         * points), then daily up to 1Y, 5Y weekly and Max monthly (decisions 0022, 0027).
+         */
+        val HistoryRange.yahoo: Pair<String, String>
+            get() = when (this) {
+                HistoryRange.DAY_1 -> "1d" to "5m"
+                HistoryRange.DAYS_5 -> "5d" to "30m"
+                HistoryRange.MONTH_1 -> "1mo" to "1d"
+                HistoryRange.MONTHS_3 -> "3mo" to "1d"
+                HistoryRange.MONTHS_6 -> "6mo" to "1d"
+                HistoryRange.YEAR_1 -> "1y" to "1d"
+                HistoryRange.YEARS_5 -> "5y" to "1wk"
+                HistoryRange.MAX -> "max" to "1mo"
+            }
 
         // URLEncoder is form encoding: fix the space, which belongs as %20 in both path and query.
         fun encode(s: String): String = URLEncoder.encode(s, "UTF-8").replace("+", "%20")

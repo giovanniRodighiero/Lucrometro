@@ -1,42 +1,34 @@
 package com.lucrometro.ui.details
 
-import android.text.format.DateFormat
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,19 +39,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
 import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.Quote
-import com.lucrometro.ui.theme.gainLoss
-import com.lucrometro.ui.watchlist.ChangeBadge
-import com.lucrometro.ui.watchlist.QuoteFormats
-import com.lucrometro.ui.watchlist.rememberQuoteFormats
-import kotlinx.coroutines.delay
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
+import com.lucrometro.ui.common.ChangeBadge
+import com.lucrometro.ui.common.ChangeDirection
+import com.lucrometro.ui.common.QuoteFormats
+import com.lucrometro.ui.common.TimeFormats
+import com.lucrometro.ui.common.changeDirection
+import com.lucrometro.ui.common.changeLabel
+import com.lucrometro.ui.common.color
+import com.lucrometro.ui.common.rememberQuoteFormats
+import com.lucrometro.ui.common.rememberTimeFormats
 import kotlin.math.pow
-import kotlin.math.round
 
 /**
- * Details of one ticker (decision 0023): top bar with the market status, quote header, readout, chart and range
- * bar. Not built yet: the scrub.
+ * Details of one ticker (decision 0023): top bar with the market status, quote header, readout, chart (with the
+ * scrub, decision 0028) and range bar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,6 +65,8 @@ fun DetailsScreen(
     val chart by viewModel.chart.collectAsStateWithLifecycle()
     val range by viewModel.range.collectAsStateWithLifecycle()
     val market by viewModel.market.collectAsStateWithLifecycle()
+    val formats = rememberQuoteFormats()
+    val times = rememberTimeFormats()
     // Once per opening of the screen: saved with the composition, so a rotation does not count as opening it again.
     var opened by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -86,7 +81,7 @@ fun DetailsScreen(
                 title = { Text(code) },
                 actions = {
                     // Hidden when the hours are unknown or the chart could not be fetched (decision 0023).
-                    market?.takeIf { chart != ChartState.Failed }?.let { MarketStatusLabel(it) }
+                    market?.takeIf { chart != ChartState.Failed }?.let { MarketStatusLabel(it, times) }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -98,12 +93,11 @@ fun DetailsScreen(
     ) { padding ->
         // Scrolls: at a large font scale the header, chart and range bar do not fit on one screen.
         Column(Modifier.padding(padding).verticalScroll(rememberScrollState())) {
-            val formats = rememberQuoteFormats()
             val quote = entry?.saved?.quote
-            entry?.let { QuoteHeader(it, formats) }
+            entry?.let { QuoteHeader(it, formats, times, fallbackZone = market?.zone) }
             // The chart needs the ticker's currency and decimals, so it waits for the saved quote.
             if (quote != null) {
-                ChartSection(code, quote, chart, range, formats, onSelectRange = viewModel::selectRange, onRetry = viewModel::retry)
+                ChartSection(code, quote, chart, range, formats, times, viewModel::selectRange, viewModel::retry)
             }
         }
     }
@@ -117,46 +111,27 @@ private fun ChartSection(
     chart: ChartState,
     range: HistoryRange,
     formats: QuoteFormats,
+    times: TimeFormats,
     onSelectRange: (HistoryRange) -> Unit,
     onRetry: () -> Unit,
 ) {
-    val colors = MaterialTheme.gainLoss
     val data = (chart as? ChartState.Ready)?.data
-    val percent = data?.changePercent
-    val rounded = percent?.let { round(it * 100) / 100 }
-    val direction = when {
-        rounded == null || rounded == 0.0 -> MaterialTheme.colorScheme.onSurfaceVariant
-        rounded > 0 -> colors.gain
-        else -> colors.loss
-    }
     // The point under the finger while scrubbing; forgotten when another range or a new load replaces the data.
-    var scrub by remember(data) { mutableStateOf<Int?>(null) }
-    val scrubbed = if (data != null) scrub?.let { data.points.getOrNull(it) } else null
-    // 1D: the previous close, no pill (the header already has the day change). Other ranges: where they start, and the change.
-    val previousClose = data?.baseline
-    val scrubDate = if (data != null && scrubbed != null) scrubLabel(data, scrubbed) else null
-    val scrubValue = if (scrubbed != null) formats.price(quote, scrubbed.price) else null
-    val scrubDiff = if (data != null && scrubbed != null) scrubbed.price - data.startPrice else null
-    val scrubPercent = if (data != null && scrubDiff != null) data.startPrice.takeIf { it > 0 }?.let { scrubDiff / it * 100 } else null
-    if (data != null && scrubDate != null && scrubValue != null && scrubDiff != null) {
+    var scrubIndex by remember(data) { mutableStateOf<Int?>(null) }
+    val scrub = data?.scrubAt(scrubIndex)
+    val scrubDate = if (data != null && scrub != null) scrubLabel(data, scrub.point, times) else null
+
+    if (scrub != null && scrubDate != null) {
         // Scrub mode: the date and price at the finger, and the change from the range start (1D: the previous close).
-        ChartReadout(label = scrubDate, value = scrubValue, scrubbing = true) {
-            if (scrubPercent != null) ChangeBadge(scrubPercent, formats, absolute = formats.amountChange(quote, scrubDiff))
+        ChartReadout(label = scrubDate, value = formats.price(quote, scrub.point.price), scrubbing = true) {
+            scrub.percent?.let { ChangeBadge(it, formats, absolute = formats.amountChange(quote, scrub.change)) }
         }
-    } else ChartReadout(
-        label = stringResource(if (previousClose != null) R.string.readout_previous_close else range.readoutLabel),
-        value = when {
-            data == null -> ""
-            previousClose != null -> formats.price(quote, previousClose)
-            else -> stringResource(R.string.readout_from, formats.price(quote, data.fromPrice))
-        },
-    ) {
-        if (data != null && percent != null && previousClose == null) {
-            ChangeBadge(percent, formats, absolute = formats.amountChange(quote, data.change))
-        }
+    } else {
+        SummaryReadout(data, quote, range, formats)
     }
+
     when (chart) {
-        ChartState.Loading -> Box(Modifier.fillMaxWidth().height(324.dp), contentAlignment = Alignment.Center) {
+        ChartState.Loading -> Box(Modifier.fillMaxWidth().height(ChartHeight), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
         ChartState.Empty -> ChartMessage(
@@ -172,41 +147,37 @@ private fun ChartSection(
             onRetry = onRetry,
         )
         is ChartState.Ready -> {
-            val context = LocalContext.current
-            val locale = LocalConfiguration.current.locales[0]
-            val is24Hour = DateFormat.is24HourFormat(context)
-            val layout = remember(chart.data, locale, is24Hour) { chartLayout(chart.data, locale, is24Hour) }
-            val first = chart.data.points.first().price
-            val last = chart.data.points.last().price
+            val points = chart.data.points
+            val layout = remember(chart.data, times) { chartLayout(chart.data, times) }
+            val percent = chart.data.changePercent
             PriceChart(
-                points = chart.data.points,
+                points = points,
                 layout = layout,
                 baseline = chart.data.baseline,
-                color = direction,
+                color = (percent?.let { changeDirection(it) } ?: ChangeDirection.Flat).color(),
                 formatPrice = { formats.number(quote, it) },
-                scrubIndex = scrub,
-                onScrub = { scrub = it },
-                scrubDescription = scrubDate?.let { date ->
-                    val change = changeText(scrubPercent, formats)
-                    if (change.isEmpty()) {
-                        stringResource(R.string.chart_scrub_description_no_change, date, scrubValue.orEmpty())
-                    } else {
-                        stringResource(R.string.chart_scrub_description, date, scrubValue.orEmpty(), change)
-                    }
+                scrubIndex = scrubIndex,
+                onScrub = { scrubIndex = it },
+                scrubDescription = if (scrub != null && scrubDate != null) {
+                    val value = formats.price(quote, scrub.point.price)
+                    scrub.percent?.let { stringResource(R.string.chart_scrub_description, scrubDate, value, changeLabel(it, formats)) }
+                        ?: stringResource(R.string.chart_scrub_description_no_change, scrubDate, value)
+                } else {
+                    null
                 },
                 stepLabels = StepLabels(
                     stringResource(R.string.chart_action_previous),
                     stringResource(R.string.chart_action_next),
                     stringResource(R.string.chart_action_latest),
                 ),
-                minTickStep = 10.0.pow(-(quote.priceDecimals ?: 2).toDouble()),
+                minTickStep = 10.0.pow(-(quote.priceDecimals ?: 2)),
                 description = stringResource(
                     R.string.chart_description,
                     code,
                     stringResource(range.readoutLabel),
-                    formats.price(quote, chart.data.baseline ?: first),
-                    formats.price(quote, last),
-                    changeText(percent, formats),
+                    formats.price(quote, chart.data.baseline ?: points.first().price),
+                    formats.price(quote, points.last().price),
+                    percent?.let { changeLabel(it, formats) }.orEmpty(),
                 ),
             )
         }
@@ -214,60 +185,25 @@ private fun ChartSection(
     RangeBar(DETAILS_RANGES, range, onSelectRange, Modifier.padding(top = 8.dp))
 }
 
-/** A change in percent as text with its sign ("+4.03%"), for TalkBack; empty when there is none. */
+/**
+ * The readout when not scrubbing. 1D: the previous close, no pill (the header already has the day change). Other
+ * ranges: where they start, and the change. Empty while the chart loads, so the layout does not move.
+ */
 @Composable
-private fun changeText(percent: Double?, formats: QuoteFormats): String {
-    val rounded = percent?.let { round(it * 100) / 100 } ?: return ""
-    val magnitude = formats.changeMagnitude(rounded)
-    return when {
-        rounded > 0 -> stringResource(R.string.change_up, magnitude)
-        rounded < 0 -> stringResource(R.string.change_down, magnitude)
-        else -> stringResource(R.string.change_flat, magnitude)
-    }
-}
-
-/** "Open · closes 17:30" / "Closed · opens Mon 09:00" with a filled (open) or hollow (closed) dot (Doop DetailsTopBar). */
-@Composable
-private fun MarketStatusLabel(market: MarketInfo) {
-    val now by produceState(System.currentTimeMillis() / 1000, market) {
-        while (true) {
-            delay(30_000)
-            value = System.currentTimeMillis() / 1000
-        }
-    }
-    val locale = LocalConfiguration.current.locales[0]
-    val is24Hour = DateFormat.is24HourFormat(LocalContext.current)
-    val time = remember(locale, is24Hour) {
-        val skeleton = if (is24Hour) "Hm" else "hm"
-        DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, skeleton), locale)
-    }
-    val status = marketStatus(now, market.session, market.zone)
-    val open = status is MarketStatus.Open
-    val text = when (status) {
-        is MarketStatus.Open -> stringResource(R.string.market_open_closes, time.format(status.closesAt))
-        is MarketStatus.OpensToday -> stringResource(R.string.market_opens_today, time.format(status.at))
-        is MarketStatus.OpensOn -> stringResource(
-            R.string.market_opens_on,
-            status.day.getDisplayName(TextStyle.SHORT, locale),
-            time.format(status.at),
-        )
-    }
-    Row(
-        modifier = Modifier.padding(end = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+private fun SummaryReadout(data: ChartData?, quote: Quote, range: HistoryRange, formats: QuoteFormats) {
+    val previousClose = data?.baseline
+    ChartReadout(
+        label = stringResource(if (previousClose != null) R.string.readout_previous_close else range.readoutLabel),
+        value = when {
+            data == null -> ""
+            previousClose != null -> formats.price(quote, previousClose)
+            else -> stringResource(R.string.readout_from, formats.price(quote, data.fromPrice))
+        },
     ) {
-        // The text carries the meaning; the dot only supports it.
-        Box(
-            Modifier.size(8.dp).then(
-                if (open) {
-                    Modifier.background(MaterialTheme.gainLoss.gain, CircleShape)
-                } else {
-                    Modifier.border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                },
-            ),
-        )
-        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        val percent = data?.changePercent
+        if (data != null && percent != null && previousClose == null) {
+            ChangeBadge(percent, formats, absolute = formats.amountChange(quote, data.change))
+        }
     }
 }
 
@@ -280,7 +216,7 @@ private fun ChartMessage(
     retryLabel: Int = R.string.retry,
     onRetry: (() -> Unit)? = null,
 ) {
-    Box(Modifier.fillMaxWidth().height(324.dp).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().height(ChartHeight).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
