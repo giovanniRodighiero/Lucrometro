@@ -25,6 +25,8 @@ emulator -avd Pixel_7_Pro_API_33 &           # boot emulator (arm64, Play Store 
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n com.lucrometro/.MainActivity   # may fail if run right after install: retry
 adb exec-out screencap -p > <scratchpad>/shot.png    # verify UI; keep screenshots out of the repo
+scripts/release.sh 0.2 --dry-run             # release checks + signed build, changes nothing
+scripts/release.sh 0.2                       # release: needs "## [0.2]" in CHANGELOG.md committed first (decision 0021)
 ```
 Environment: `ANDROID_HOME=~/Library/Android/sdk`, JDK 17. Gradle auto-downloads missing SDK
 platforms. `PomoTimer` (other project) needs platform 34 and build-tools 34.0.0: do not delete them.
