@@ -1,13 +1,20 @@
 package com.lucrometro.ui.details
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitHorizontalTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -33,7 +40,9 @@ import kotlin.math.pow
  * in [color], gridlines at round prices with their labels in a right gutter, the [layout]'s labels on the bottom row,
  * and a dot at the last point. The plot spans x 16dp to (width - 60dp) and y 12dp to 288dp of a 324dp area.
  * [baseline] (1D: the previous close) is a dashed line with its price in medium weight, and always inside the axis.
- * [formatPrice] formats axis labels; [description] is the TalkBack text (the chart itself has no focus targets).
+ * While scrubbing, a 1dp line and a dot mark the point under the finger (and the end dot is hidden). The scrub starts
+ * on a horizontal drag only, so a vertical drag still scrolls the page. [formatPrice] formats axis labels; [description]
+ * is the TalkBack text (the chart itself has no focus targets).
  */
 @Composable
 fun PriceChart(
@@ -46,10 +55,15 @@ fun PriceChart(
     minTickStep: Double,
     description: String,
     modifier: Modifier = Modifier,
+    /** The point under the finger while scrubbing (a horizontal drag on the chart), or null. */
+    scrubIndex: Int? = null,
+    onScrub: (Int?) -> Unit = {},
 ) {
+    val onScrubState by rememberUpdatedState(onScrub)
     val measurer = rememberTextMeasurer()
     val gridColor = MaterialTheme.colorScheme.outlineVariant
     val baselineColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val scrubColor = MaterialTheme.colorScheme.onSurface
     val labelStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     val surface = MaterialTheme.colorScheme.surface
     val axis = remember(points, baseline) {
@@ -58,7 +72,37 @@ fun PriceChart(
         PriceAxis.of(low, high, minTickStep)
     }
 
-    Canvas(modifier.fillMaxWidth().height(324.dp).semantics { contentDescription = description }) {
+    Canvas(
+        modifier
+            .fillMaxWidth()
+            .height(324.dp)
+            .semantics { contentDescription = description }
+            .pointerInput(layout) {
+                // The plot bounds are read per event: the width changes on rotation while the layout does not.
+                fun indexAt(px: Float): Int {
+                    val left = 16.dp.toPx()
+                    val right = size.width - 60.dp.toPx()
+                    val fraction = ((px - left) / (right - left)).coerceIn(0f, 1f)
+                    return layout.xs.indices.minByOrNull { abs(layout.xs[it] - fraction) } ?: 0
+                }
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    // Only a horizontal drag scrubs: if the page scroll takes the gesture first, this returns null.
+                    val drag = awaitHorizontalTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
+                    if (drag != null) {
+                        try {
+                            onScrubState(indexAt(drag.position.x))
+                            horizontalDrag(drag.id) { change ->
+                                onScrubState(indexAt(change.position.x))
+                                change.consume()
+                            }
+                        } finally {
+                            onScrubState(null) // also when the gesture is cancelled (the chart data changed mid-drag)
+                        }
+                    }
+                }
+            },
+    ) {
         val left = 16.dp.toPx()
         val right = size.width - 60.dp.toPx()
         val top = 12.dp.toPx()
@@ -101,9 +145,19 @@ fun PriceChart(
         drawPath(area, Brush.verticalGradient(listOf(color.copy(alpha = 0.22f), color.copy(alpha = 0f)), top, bottom))
         drawPath(line, color, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 
-        val end = Offset(x(xs.last()), y(points.last().price))
-        drawCircle(color, 5.dp.toPx(), end)
-        drawCircle(surface, 5.dp.toPx(), end, style = Stroke(2.dp.toPx()))
+        // A guard: the index belongs to the parent's state, the points to this call.
+        val scrubbed = scrubIndex?.takeIf { it in points.indices && it in xs.indices }
+        if (scrubbed == null) {
+            val end = Offset(x(xs.last()), y(points.last().price))
+            drawCircle(color, 5.dp.toPx(), end)
+            drawCircle(surface, 5.dp.toPx(), end, style = Stroke(2.dp.toPx()))
+        } else {
+            val sx = x(xs[scrubbed])
+            drawLine(scrubColor, Offset(sx, top), Offset(sx, bottom), strokeWidth = 1.dp.toPx())
+            val dot = Offset(sx, y(points[scrubbed].price))
+            drawCircle(color, 6.dp.toPx(), dot)
+            drawCircle(surface, 6.dp.toPx(), dot, style = Stroke(2.dp.toPx()))
+        }
 
         val labelY = 312.dp.toPx()
         layout.labels.forEach {

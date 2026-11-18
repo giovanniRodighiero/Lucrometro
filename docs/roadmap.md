@@ -46,4 +46,5 @@ Later (v2 candidates, not in v1 scope)
 - Quote stamp in the exchange's timezone: "Today, 14:32" and the session weekday use the device timezone today, so
   a user outside Italy can see a day that differs from the Milan session (a 17:35 close can read as the next or
   previous day). Needs the exchange timezone (Yahoo `meta.exchangeTimezoneName`, Europe/Rome for `.MI`) saved
-  with the quote (a Room schema change and migration), then the stamp and "Today" computed in that zone. The chart's date labels use the device timezone too.
+  with the quote (a Room schema change and migration), then the stamp and "Today" computed in that zone. The chart's date labels and the scrub label already use the exchange zone (from `exchangeTimezoneName`, kept in the
+  history, not in Room).

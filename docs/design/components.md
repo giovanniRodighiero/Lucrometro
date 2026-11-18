@@ -10,7 +10,7 @@ are listed under each screen.
 | `ChangeBadge` | `ui/watchlist/QuoteRow.kt` `ChangeBadge` (`Surface` with `CircleShape`) |
 | `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; the market status is a `Row` (8dp dot and `bodySmall` text) in `actions`, decision 0027 |
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
-| `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode; scrub mode comes with the scrub) |
+| `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode, and scrub mode via `scrubbing`; the label is `scrubLabel`, decision 0028) |
 | `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025 |
 | `RangeTab` | `ui/details/RangeBar.kt`: a `Row` of `selectable` cells in a `selectableGroup`, `Role.RadioButton` (decision 0026) |
 | `Fab` | Material 3 `FloatingActionButton` |

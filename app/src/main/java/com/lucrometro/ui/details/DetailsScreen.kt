@@ -26,6 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -117,9 +119,19 @@ private fun ChartSection(
         rounded > 0 -> colors.gain
         else -> colors.loss
     }
+    // The point under the finger while scrubbing; forgotten when another range or a new load replaces the data.
+    var scrub by remember(data) { mutableStateOf<Int?>(null) }
+    val scrubbed = if (data != null) scrub?.let { data.points.getOrNull(it) } else null
     // 1D: the previous close, no pill (the header already has the day change). Other ranges: where they start, and the change.
     val previousClose = data?.baseline
-    ChartReadout(
+    if (data != null && scrubbed != null) {
+        // Scrub mode: the date and price at the finger, and the change from the range start (1D: the previous close).
+        val diff = scrubbed.price - data.startPrice
+        val scrubPercent = data.startPrice.takeIf { it > 0 }?.let { diff / it * 100 }
+        ChartReadout(label = scrubLabel(data, scrubbed), value = formats.price(quote, scrubbed.price), scrubbing = true) {
+            if (scrubPercent != null) ChangeBadge(scrubPercent, formats, absolute = formats.amountChange(quote, diff))
+        }
+    } else ChartReadout(
         label = stringResource(if (previousClose != null) R.string.readout_previous_close else range.readoutLabel),
         value = when {
             data == null -> ""
@@ -160,6 +172,8 @@ private fun ChartSection(
                 baseline = chart.data.baseline,
                 color = direction,
                 formatPrice = { formats.number(quote, it) },
+                scrubIndex = scrub,
+                onScrub = { scrub = it },
                 minTickStep = 10.0.pow(-(quote.priceDecimals ?: 2).toDouble()),
                 description = stringResource(
                     R.string.chart_description,

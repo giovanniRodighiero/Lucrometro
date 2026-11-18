@@ -12,18 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /**
  * Doop component ChartReadout, summary mode (decision 0023): the line above the chart, a label and a
  * value on the left and an optional change pill on the right. It keeps a 56dp height in every state, so
- * nothing moves when the chart loads.
+ * nothing moves when the chart loads or a scrub starts. While [scrubbing] (scrub mode) the label turns primary and the
+ * value is medium weight.
  */
 @Composable
 fun ChartReadout(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
+    scrubbing: Boolean = false,
     change: @Composable () -> Unit = {},
 ) {
     Row(
@@ -39,9 +42,18 @@ fun ChartReadout(
                 label,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = if (scrubbing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Text(value, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = if (scrubbing) FontWeight.Medium else FontWeight.Normal,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
         }
         change()
     }

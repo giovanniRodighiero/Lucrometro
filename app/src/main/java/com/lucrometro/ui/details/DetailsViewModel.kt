@@ -40,7 +40,8 @@ data class ChartData(
     val session: TradingPeriod?,
     val zone: ZoneId?,
 ) {
-    private val startPrice: Double get() = baseline ?: points.first().price
+    /** What changes are measured from: the previous close for 1D, the first bar otherwise. */
+    val startPrice: Double get() = baseline ?: points.first().price
     val change: Double get() = points.last().price - startPrice
     val changePercent: Double? get() = startPrice.takeIf { it > 0 }?.let { change / it * 100 }
 }

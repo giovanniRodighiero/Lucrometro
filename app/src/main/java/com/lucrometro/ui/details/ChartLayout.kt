@@ -18,7 +18,7 @@ class ChartLayout(val xs: List<Float>, val labels: List<AxisLabel>)
 /**
  * 1D: time across the trading session (09:00-17:30), so the line stops at the last bar and the rest stays empty.
  * 5D: bars evenly spaced, with the weekday at the start of each day (the overnight and weekend gaps would leave
- * holes on a time axis). Other ranges: time across the range with four dates. Intraday times are the exchange's.
+ * holes on a time axis). Other ranges: time across the range with four dates. All times and dates are the exchange's.
  */
 fun chartLayout(data: ChartData, locale: Locale, is24Hour: Boolean): ChartLayout {
     val points = data.points
@@ -60,7 +60,7 @@ fun chartLayout(data: ChartData, locale: Locale, is24Hour: Boolean): ChartLayout
         }
         else -> {
             val span = (last - first).coerceAtLeast(1)
-            val date = formatter(data.range.dateSkeleton, ZoneId.systemDefault())
+            val date = formatter(data.range.dateSkeleton, data.zone ?: ZoneId.systemDefault())
             ChartLayout(
                 xs = points.map { (it.epochSeconds - first).toFloat() / span },
                 labels = listOf(
