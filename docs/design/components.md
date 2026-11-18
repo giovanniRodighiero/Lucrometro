@@ -12,6 +12,7 @@ are listed under each screen.
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
 | `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode; scrub mode comes with the scrub) |
 | `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025 |
+| `RangeTab` | `ui/details/RangeBar.kt`: a `Row` of `selectable` cells in a `selectableGroup`, `Role.RadioButton` (decision 0026) |
 | `Fab` | Material 3 `FloatingActionButton` |
 | `BottomSheet`, `TextField`, `Button` | `ModalBottomSheet`, `OutlinedTextField`, `Button`/`TextButton` (decision 0013) |
 | `StatusBar`, `Keyboard` | Drawn by Android; not ported |

@@ -28,11 +28,26 @@
     <string name="quote_stamp_today">Oggi, %1$s</string>
     <string name="quote_stamp_day">%1$s, %2$s</string>
 
-    <string name="range_past_month">Ultimo mese</string>
+    <!-- Range bar cells: keep them short, the bar has equal cells. -->
+    <string name="range_5d">5G</string>
+    <string name="range_1m">1M</string>
+    <string name="range_3m">3M</string>
+    <string name="range_6m">6M</string>
+    <string name="range_1y">1A</string>
+    <string name="range_5y">5A</string>
+    <string name="range_max">Max</string>
+    <!-- Readout label above the chart: the selected range. -->
+    <string name="readout_past_5d">Ultimi 5 giorni</string>
+    <string name="readout_past_1m">Ultimo mese</string>
+    <string name="readout_past_3m">Ultimi 3 mesi</string>
+    <string name="readout_past_6m">Ultimi 6 mesi</string>
+    <string name="readout_past_1y">Ultimo anno</string>
+    <string name="readout_past_5y">Ultimi 5 anni</string>
+    <string name="readout_all_time">Da sempre</string>
     <!-- Readout value: the price at the start of the range. -->
     <string name="readout_from">Da %1$s</string>
     <!-- TalkBack text of the chart: ticker, range, first and last price, signed change in percent. -->
-    <string name="chart_description">%1$s, ultimo mese: da %2$s a %3$s, %4$s</string>
+    <string name="chart_description">%1$s, %2$s: da %3$s a %4$s, %5$s</string>
     <string name="chart_failed_title">Impossibile caricare</string>
     <string name="chart_failed_body">Il grafico richiede una connessione. Controllala e riprova.</string>
     <string name="retry">Riprova</string>

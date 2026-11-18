@@ -34,7 +34,7 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
 
     @Synchronized
     override fun history(symbol: String, range: HistoryRange): Result<List<Candle>> = runCatching {
-        val result = chart(symbol, range.yahoo).getJSONArray("result").getJSONObject(0)
+        val result = chart(symbol, range.yahoo, range.interval).getJSONArray("result").getJSONObject(0)
         val ts = result.getJSONArray("timestamp")
         val q = result.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
         fun d(name: String, i: Int): Double? =
@@ -58,21 +58,21 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
      * Returns the `chart` object of the response; throws on HTTP or API errors. A reused session that
      * Yahoo rejects (expired cookie or crumb: 401/403) is renewed and the request retried once.
      */
-    private fun chart(symbol: String, range: String): JSONObject {
+    private fun chart(symbol: String, range: String, interval: String = "1d"): JSONObject {
         val reused = cookie != null && crumb != null
-        val res = fetchChart(symbol, range)
+        val res = fetchChart(symbol, range, interval)
         if (reused && res.status in AUTH_FAILURES) {
             clearSession()
-            return parseChart(symbol, fetchChart(symbol, range))
+            return parseChart(symbol, fetchChart(symbol, range, interval))
         }
         return parseChart(symbol, res)
     }
 
-    private fun fetchChart(symbol: String, range: String): HttpResult {
+    private fun fetchChart(symbol: String, range: String, interval: String): HttpResult {
         ensureSession()
         // Codes may hold ^ or = (indices, currencies), and the crumb any character: encode both.
         val url = "https://query1.finance.yahoo.com/v8/finance/chart/${encode(symbol)}" +
-            "?range=$range&interval=1d&crumb=${encode(crumb.orEmpty())}"
+            "?range=$range&interval=$interval&crumb=${encode(crumb.orEmpty())}"
         return http.get(url, mapOf("Cookie" to cookie.orEmpty(), "Accept" to "application/json"))
     }
 

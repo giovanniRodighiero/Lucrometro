@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
+import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.Quote
 import com.lucrometro.ui.theme.gainLoss
 import com.lucrometro.ui.watchlist.ChangeBadge
@@ -51,6 +54,7 @@ fun DetailsScreen(
 ) {
     val entry by viewModel.entry.collectAsStateWithLifecycle()
     val chart by viewModel.chart.collectAsStateWithLifecycle()
+    val range by viewModel.range.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -63,21 +67,30 @@ fun DetailsScreen(
             )
         },
     ) { padding ->
-        Column(Modifier.padding(padding)) {
+        // Scrolls: at a large font scale the header, chart and range bar do not fit on one screen.
+        Column(Modifier.padding(padding).verticalScroll(rememberScrollState())) {
             val formats = rememberQuoteFormats()
             val quote = entry?.saved?.quote
             entry?.let { QuoteHeader(it, formats) }
             // The chart needs the ticker's currency and decimals, so it waits for the saved quote.
             if (quote != null) {
-                ChartSection(code, quote, chart, formats, onRetry = viewModel::retry)
+                ChartSection(code, quote, chart, range, formats, onSelectRange = viewModel::selectRange, onRetry = viewModel::retry)
             }
         }
     }
 }
 
-/** Readout and chart of the 1M range; loading and failed states below the readout. */
+/** Readout, chart and range bar; loading and failed states below the readout. */
 @Composable
-private fun ChartSection(code: String, quote: Quote, chart: ChartState, formats: QuoteFormats, onRetry: () -> Unit) {
+private fun ChartSection(
+    code: String,
+    quote: Quote,
+    chart: ChartState,
+    range: HistoryRange,
+    formats: QuoteFormats,
+    onSelectRange: (HistoryRange) -> Unit,
+    onRetry: () -> Unit,
+) {
     val colors = MaterialTheme.gainLoss
     val data = (chart as? ChartState.Ready)?.data
     val percent = data?.changePercent
@@ -88,7 +101,7 @@ private fun ChartSection(code: String, quote: Quote, chart: ChartState, formats:
         else -> colors.loss
     }
     ChartReadout(
-        label = stringResource(R.string.range_past_month),
+        label = stringResource(range.readoutLabel),
         value = data?.let { stringResource(R.string.readout_from, formats.price(quote, data.fromPrice)) }.orEmpty(),
     ) {
         if (data != null && percent != null) {
@@ -107,10 +120,12 @@ private fun ChartSection(code: String, quote: Quote, chart: ChartState, formats:
                 points = chart.data.points,
                 color = direction,
                 formatPrice = { formats.number(quote, it) },
+                dateSkeleton = range.dateSkeleton,
                 minTickStep = 10.0.pow(-(quote.priceDecimals ?: 2).toDouble()),
                 description = stringResource(
                     R.string.chart_description,
                     code,
+                    stringResource(range.readoutLabel),
                     formats.price(quote, first),
                     formats.price(quote, last),
                     when {
@@ -123,6 +138,7 @@ private fun ChartSection(code: String, quote: Quote, chart: ChartState, formats:
             )
         }
     }
+    RangeBar(DETAILS_RANGES, range, onSelectRange, Modifier.padding(top = 8.dp))
 }
 
 /** The chart area when the fetch failed (PRD 4): no chart, never a stale one, and a retry. */

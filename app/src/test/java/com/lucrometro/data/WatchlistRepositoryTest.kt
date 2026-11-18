@@ -103,4 +103,37 @@ class WatchlistRepositoryTest {
         repo.refresh()
         assertFalse(repo.entries.first().single().stale)
     }
+
+    private class CountingHistory : QuoteSource {
+        var calls = 0
+        override fun quote(symbol: String) = Result.success(Quote(symbol, 10.0, "EUR", null, 0))
+        override fun history(symbol: String, range: HistoryRange): Result<List<Candle>> {
+            calls++
+            return Result.success(listOf(Candle(1, null, null, null, 10.0, null), Candle(2, null, null, null, 11.0, null)))
+        }
+    }
+
+    // PRD 5: a range fetched once is reused for the session; retry bypasses it; removing a ticker drops it.
+    @Test fun historyIsCachedPerTickerAndRangeUntilBypassedOrRemoved() = runBlocking {
+        val source = CountingHistory()
+        val store = FakeWatchlistStore().apply { add("ENI.MI", SavedQuote(Quote("ENI.MI", 10.0, "EUR", null, 0), 0)) }
+        var now = 1_000L
+        val repo = WatchlistRepository(source, store, Dispatchers.Unconfined) { now }
+
+        repo.history("ENI.MI", HistoryRange.MONTH_1)
+        repo.history("ENI.MI", HistoryRange.MONTH_1)
+        assertEquals(1, source.calls)
+        now += WatchlistRepository.HISTORY_TTL_MILLIS // the last bar is the live price: a stale chart is refetched
+        repo.history("ENI.MI", HistoryRange.MONTH_1)
+        assertEquals(2, source.calls)
+        source.calls = 1
+        repo.history("ENI.MI", HistoryRange.YEAR_1) // another range is its own entry
+        assertEquals(2, source.calls)
+        repo.history("ENI.MI", HistoryRange.MONTH_1, bypassCache = true)
+        assertEquals(3, source.calls)
+
+        repo.remove("ENI.MI")
+        assertEquals(null, repo.cachedHistory("ENI.MI", HistoryRange.MONTH_1))
+        assertEquals(null, repo.cachedHistory("ENI.MI", HistoryRange.YEAR_1))
+    }
 }

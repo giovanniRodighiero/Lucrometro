@@ -31,8 +31,20 @@ data class Candle(
     val adjClose: Double? = null,
 )
 
-/** Supported history windows (Yahoo `range` values), all with daily bars. */
-enum class HistoryRange(val yahoo: String) { DAYS_5("5d"), MONTH_1("1mo"), MONTHS_3("3mo") }
+/**
+ * Supported history windows: Yahoo `range` and the bar `interval` that fits it. Daily bars up to 1Y; 5Y is weekly
+ * and Max monthly (decision 0022). Yahoo may answer a finer interval than asked for a short history (VWCE.MI Max
+ * came back weekly), so callers must not assume the interval.
+ */
+enum class HistoryRange(val yahoo: String, val interval: String) {
+    DAYS_5("5d", "1d"),
+    MONTH_1("1mo", "1d"),
+    MONTHS_3("3mo", "1d"),
+    MONTHS_6("6mo", "1d"),
+    YEAR_1("1y", "1d"),
+    YEARS_5("5y", "1wk"),
+    MAX("max", "1mo"),
+}
 
 /** The source answered, and the symbol does not exist there (as opposed to a network or server failure). */
 class TickerNotFoundException(symbol: String) : Exception("Ticker not found: $symbol")

@@ -12,13 +12,13 @@ import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 /** One point of the chart: the adjusted close (decision 0022), or the close when the source has no adjusted one. */
@@ -36,37 +36,66 @@ sealed interface ChartState {
     data object Failed : ChartState
 }
 
-/** The details screen of one ticker: its saved quote and the chart of the (for now fixed) 1M range. */
+/** The ranges of the range bar, in order. 1D (the default, decision 0022) joins when the intraday chart is built. */
+val DETAILS_RANGES = listOf(
+    HistoryRange.DAYS_5, HistoryRange.MONTH_1, HistoryRange.MONTHS_3, HistoryRange.MONTHS_6,
+    HistoryRange.YEAR_1, HistoryRange.YEARS_5, HistoryRange.MAX,
+)
+
+/** The details screen of one ticker: its saved quote and the chart of the selected range. */
 class DetailsViewModel(private val repository: WatchlistRepository, private val code: String) : ViewModel() {
     /** The ticker's entry, or null while the list loads (or if the ticker is gone). */
     val entry: StateFlow<WatchlistEntry?> = repository.entries
         .map { list -> list.firstOrNull { it.code == code } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    private val _range = MutableStateFlow(HistoryRange.MONTH_1)
+    val range: StateFlow<HistoryRange> = _range.asStateFlow()
+
     private val _chart = MutableStateFlow<ChartState>(ChartState.Loading)
     val chart: StateFlow<ChartState> = _chart.asStateFlow()
 
-    private var loading: Job? = null
+    /** The wait before a request is sent: a new selection cancels it, so tapping through the bar sends nothing. */
+    private var debounce: Job? = null
 
     init {
-        load()
+        load(bypassCache = false)
     }
 
-    fun retry() = load()
+    fun selectRange(range: HistoryRange) {
+        if (range == _range.value) return
+        _range.value = range
+        load(bypassCache = false)
+    }
 
-    private fun load() {
-        loading?.cancel()
+    /** Fetches the selected range again, ignoring the session cache (PRD 5). */
+    fun retry() = load(bypassCache = true)
+
+    private fun load(bypassCache: Boolean) {
+        debounce?.cancel()
+        val range = _range.value
+        val cached = if (bypassCache) null else repository.cachedHistory(code, range)
+        if (cached != null) {
+            // Already fetched this session: show it at once, no request.
+            _chart.value = cached.toChartState()
+            return
+        }
         _chart.value = ChartState.Loading
-        loading = viewModelScope.launch {
-            val candles = repository.history(code, HistoryRange.MONTH_1).getOrNull()
-            // A superseded load (retry) can come back as an ordinary failure when its request was interrupted:
-            // don't let it overwrite the state of the newer one.
-            ensureActive()
-            _chart.value = candles?.toChartData()?.let { ChartState.Ready(it) } ?: ChartState.Failed
+        debounce = viewModelScope.launch {
+            if (!bypassCache) delay(SWITCH_DEBOUNCE_MILLIS)
+            // A request, once sent, is not cancelled by a later selection: it finishes and fills the session cache,
+            // so coming back to the range costs nothing. Only the screen ignores it if the range has changed.
+            // Launched in the ViewModel's scope, not as a child of this job, which a later selection cancels.
+            viewModelScope.launch {
+                val candles = repository.history(code, range, bypassCache).getOrNull()
+                if (_range.value == range) _chart.value = candles.toChartState()
+            }
         }
     }
 
     companion object {
+        private const val SWITCH_DEBOUNCE_MILLIS = 250L
+
         fun factory(code: String) = viewModelFactory {
             initializer {
                 DetailsViewModel(DataGraph.watchlist(this[APPLICATION_KEY] as Application), code)
@@ -75,7 +104,10 @@ class DetailsViewModel(private val repository: WatchlistRepository, private val 
     }
 }
 
-/** Null when there are fewer than two bars: there is no line to draw. */
+/** Ready with the chart, or Failed when there is nothing to draw (the fetch failed, or fewer than two bars). */
+private fun List<Candle>?.toChartState(): ChartState =
+    this?.toChartData()?.let { ChartState.Ready(it) } ?: ChartState.Failed
+
 private fun List<Candle>.toChartData(): ChartData? {
     if (size < 2) return null
     // All adjusted or none: a bar without an adjusted close among adjusted ones would be a jump in the line.

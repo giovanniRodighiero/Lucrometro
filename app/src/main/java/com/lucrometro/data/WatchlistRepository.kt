@@ -13,6 +13,7 @@ import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 /** Outcome of [WatchlistRepository.add]. */
 sealed interface AddTickerResult {
@@ -93,9 +94,38 @@ class WatchlistRepository(
     private suspend fun fetch(code: String): Result<Quote> =
         sourceLock.withLock { runInterruptible(io) { source.quote(code) } }
 
-    /** Daily candles for the details chart; takes its turn on the source like every other request. */
-    suspend fun history(code: String, range: HistoryRange): Result<List<Candle>> =
-        sourceLock.withLock { runInterruptible(io) { source.history(code, range) } }
+    /** Chart history of one ticker and range, and when it was fetched (the repository's clock). */
+    private class CachedHistory(val candles: List<Candle>, val fetchedAt: Long)
+
+    /**
+     * Session cache of chart history (PRD 5), in memory only: a range fetched for a ticker is reused, so reopening
+     * it or switching back to it makes no request. Entries expire after [HISTORY_TTL_MILLIS]: the last bar is the live
+     * price, so a long-lived process must not show a chart that disagrees with a refreshed header.
+     */
+    private val historyCache = ConcurrentHashMap<Pair<String, HistoryRange>, CachedHistory>()
+
+    /** The cached candles for [code] and [range], or null if not fetched (or expired) in this session. */
+    fun cachedHistory(code: String, range: HistoryRange): List<Candle>? =
+        historyCache[code to range]?.takeIf { clock() - it.fetchedAt < HISTORY_TTL_MILLIS }?.candles
+
+    /**
+     * Candles for the details chart. Served from the session cache unless [bypassCache] (retry); otherwise it takes its
+     * turn on the source like every other request, and a usable result is cached.
+     */
+    suspend fun history(code: String, range: HistoryRange, bypassCache: Boolean = false): Result<List<Candle>> {
+        if (!bypassCache) cachedHistory(code, range)?.let { return Result.success(it) }
+        val result = sourceLock.withLock {
+            // The request before this one may have fetched the same range while this one waited.
+            val fetched = if (bypassCache) null else cachedHistory(code, range)
+            if (fetched != null) Result.success(fetched) else runInterruptible(io) { source.history(code, range) }
+        }
+        val candles = result.getOrNull()
+        // Not if the ticker was removed while the request ran: that would bring its data back (PRD 3).
+        if (candles != null && candles.size >= 2 && storeCall { store.contains(code) } != false) {
+            historyCache[code to range] = CachedHistory(candles, clock())
+        }
+        return result
+    }
 
     /** Normalizes [input], validates it with a live quote and saves it only if the quote resolves. */
     suspend fun add(input: String): AddTickerResult {
@@ -129,6 +159,7 @@ class WatchlistRepository(
      */
     suspend fun remove(code: String): StoredTicker? {
         val removed = storeCall { store.remove(code) } ?: return null
+        historyCache.keys.removeIf { it.first == code } // PRD 3: removing also drops its cached data
         failed.update { it - code }
         return removed
     }
@@ -167,6 +198,10 @@ class WatchlistRepository(
         val last = lastRefreshEndedAt
         if (last != null && clock() - last < minGapMillis) return
         refresh()
+    }
+
+    companion object {
+        const val HISTORY_TTL_MILLIS = 60 * 60 * 1000L
     }
 
     /** Runs a storage call; a storage failure (I/O, disk full) becomes null instead of crashing the app. */

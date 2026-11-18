@@ -44,6 +44,8 @@ fun PriceChart(
     formatPrice: (Double) -> String,
     /** Smallest price step worth a gridline: the price's last decimal, so labels never repeat. */
     minTickStep: Double,
+    /** Skeleton of the date labels, see `HistoryRange.dateSkeleton`. */
+    dateSkeleton: String,
     description: String,
     modifier: Modifier = Modifier,
 ) {
@@ -52,8 +54,8 @@ fun PriceChart(
     val labelStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     val surface = MaterialTheme.colorScheme.surface
     val locale = LocalConfiguration.current.locales[0]
-    val dateFormat = remember(locale) {
-        SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, "dMMM"), locale)
+    val dateFormat = remember(locale, dateSkeleton) {
+        SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, dateSkeleton), locale)
     }
     val axis = remember(points) { PriceAxis.of(points.minOf { it.price }, points.maxOf { it.price }, minTickStep) }
 

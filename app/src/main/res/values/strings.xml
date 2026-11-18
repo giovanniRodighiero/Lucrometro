@@ -36,11 +36,26 @@
     <!-- Otherwise the session day and time, e.g. "Fri, Nov 14, 5:35 PM". %1$s is the date, %2$s the time. -->
     <string name="quote_stamp_day">%1$s, %2$s</string>
 
-    <string name="range_past_month">Past month</string>
+    <!-- Range bar cells: keep them short, the bar has equal cells. -->
+    <string name="range_5d">5D</string>
+    <string name="range_1m">1M</string>
+    <string name="range_3m">3M</string>
+    <string name="range_6m">6M</string>
+    <string name="range_1y">1Y</string>
+    <string name="range_5y">5Y</string>
+    <string name="range_max">Max</string>
+    <!-- Readout label above the chart: the selected range. -->
+    <string name="readout_past_5d">Past 5 days</string>
+    <string name="readout_past_1m">Past month</string>
+    <string name="readout_past_3m">Past 3 months</string>
+    <string name="readout_past_6m">Past 6 months</string>
+    <string name="readout_past_1y">Past year</string>
+    <string name="readout_past_5y">Past 5 years</string>
+    <string name="readout_all_time">All time</string>
     <!-- Readout value: the price at the start of the range. -->
     <string name="readout_from">From %1$s</string>
     <!-- TalkBack text of the chart: ticker, range, first and last price, signed change in percent. -->
-    <string name="chart_description">%1$s, past month: from %2$s to %3$s, %4$s</string>
+    <string name="chart_description">%1$s, %2$s: from %3$s to %4$s, %5$s</string>
     <string name="chart_failed_title">Couldn\'t fetch</string>
     <string name="chart_failed_body">The chart needs a connection. Check it and try again.</string>
     <string name="retry">Retry</string>
