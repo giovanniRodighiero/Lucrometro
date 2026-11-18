@@ -37,6 +37,15 @@
     <string name="quote_stamp_day">%1$s, %2$s</string>
 
     <!-- Range bar cells: keep them short, the bar has equal cells. -->
+    <string name="range_1d">1D</string>
+    <string name="readout_today">Today</string>
+    <string name="readout_previous_close">Previous close</string>
+    <!-- Market status in the top bar. %1$s is a time ("17:30"), %2$s a short weekday ("Mon"). -->
+    <string name="market_open_closes">Open · closes %1$s</string>
+    <string name="market_opens_today">Closed · opens %1$s</string>
+    <string name="market_opens_on">Closed · opens %2$s %1$s</string>
+    <string name="chart_empty_title">No trades yet</string>
+    <string name="chart_empty_body">The chart fills in once the market has traded today.</string>
     <string name="range_5d">5D</string>
     <string name="range_1m">1M</string>
     <string name="range_3m">3M</string>
@@ -58,6 +67,7 @@
     <string name="chart_description">%1$s, %2$s: from %3$s to %4$s, %5$s</string>
     <string name="chart_failed_title">Couldn\'t fetch</string>
     <string name="chart_failed_body">The chart needs a connection. Check it and try again.</string>
+    <string name="refresh">Refresh</string>
     <string name="retry">Retry</string>
 
     <!-- Add ticker sheet -->

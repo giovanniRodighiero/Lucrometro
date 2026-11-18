@@ -8,7 +8,7 @@ are listed under each screen.
 | `TopAppBar` | Material 3 `TopAppBar`; the stamp is a `bodySmall` text in `actions` |
 | `QuoteRow` | `ui/watchlist/QuoteRow.kt` `QuoteRow` (a `Row`, see decision 0014) |
 | `ChangeBadge` | `ui/watchlist/QuoteRow.kt` `ChangeBadge` (`Surface` with `CircleShape`) |
-| `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; market status not built yet |
+| `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; the market status is a `Row` (8dp dot and `bodySmall` text) in `actions`, decision 0027 |
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
 | `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode; scrub mode comes with the scrub) |
 | `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025 |
@@ -31,3 +31,4 @@ are listed under each screen.
 - The stamp is the quote's own time (`regularMarketTime`) in the system 12/24h setting; "Today, 14:32", otherwise the session day.
 - Back is the system back and the top bar arrow (decision 0024). The frames' status bar and gesture bar are not ported.
 - The chart loading state (a progress indicator) is not in the frames.
+- Not in the frames: the empty 1D card ("No trades yet"), 5D (weekday labels, bars by index), 8dp dots for the market status are drawn as in the top bar frame.

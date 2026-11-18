@@ -1,5 +1,6 @@
 package com.lucrometro.data
 
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URLEncoder
 
@@ -33,14 +34,15 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
     }
 
     @Synchronized
-    override fun history(symbol: String, range: HistoryRange): Result<List<Candle>> = runCatching {
+    override fun history(symbol: String, range: HistoryRange): Result<History> = runCatching {
         val result = chart(symbol, range.yahoo, range.interval).getJSONArray("result").getJSONObject(0)
-        val ts = result.getJSONArray("timestamp")
-        val q = result.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
+        // No bars at all (1D before the first trade of the day): no "timestamp" key, an empty history.
+        val ts = result.optJSONArray("timestamp") ?: JSONArray()
+        val q = result.getJSONObject("indicators").optJSONArray("quote")?.optJSONObject(0) ?: JSONObject()
         fun d(name: String, i: Int): Double? =
             q.optJSONArray(name)?.takeIf { !it.isNull(i) }?.getDouble(i)
         val adj = result.getJSONObject("indicators").optJSONArray("adjclose")?.optJSONObject(0)?.optJSONArray("adjclose")
-        (0 until ts.length()).mapNotNull { i ->
+        val candles = (0 until ts.length()).mapNotNull { i ->
             val close = d("close", i) ?: return@mapNotNull null // halted/empty bar
             Candle(
                 epochSeconds = ts.getLong(i),
@@ -51,6 +53,33 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
                 volume = q.optJSONArray("volume")?.takeIf { !it.isNull(i) }?.getLong(i),
                 adjClose = adj?.takeIf { !it.isNull(i) }?.getDouble(i),
             )
+        }
+        val meta = result.optJSONObject("meta") ?: JSONObject()
+        History(
+            candles = candles,
+            previousClose = meta.optDouble("chartPreviousClose").takeIf { !it.isNaN() },
+            sessions = regularSessions(meta.opt("tradingPeriods")),
+            currentSession = meta.optJSONObject("currentTradingPeriod")?.optJSONObject("regular")?.let(::period),
+            exchangeZone = meta.optString("exchangeTimezoneName").ifEmpty { null },
+        )
+    }
+
+    private fun period(o: JSONObject): TradingPeriod? =
+        if (o.has("start") && o.has("end")) TradingPeriod(o.getLong("start"), o.getLong("end")) else null
+
+    /** `tradingPeriods` is a list of lists of periods (one per day), or an object with a "regular" list of them. */
+    private fun regularSessions(raw: Any?): List<TradingPeriod> {
+        val days = when (raw) {
+            is JSONArray -> raw
+            is JSONObject -> raw.optJSONArray("regular")
+            else -> null
+        } ?: return emptyList()
+        return (0 until days.length()).flatMap { i ->
+            when (val day = days.opt(i)) {
+                is JSONArray -> (0 until day.length()).mapNotNull { j -> day.optJSONObject(j)?.let(::period) }
+                is JSONObject -> listOfNotNull(period(day))
+                else -> emptyList()
+            }
         }
     }
 

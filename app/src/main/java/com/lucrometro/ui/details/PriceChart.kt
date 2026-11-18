@@ -1,6 +1,5 @@
 package com.lucrometro.ui.details
 
-import android.text.format.DateFormat
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,19 +11,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -33,71 +30,89 @@ import kotlin.math.pow
 
 /**
  * Doop component PriceChart, ready state (decision 0023), drawn on a Canvas: a line with an area fill
- * in [color], gridlines at round prices with their labels in a right gutter, dates on the bottom row,
+ * in [color], gridlines at round prices with their labels in a right gutter, the [layout]'s labels on the bottom row,
  * and a dot at the last point. The plot spans x 16dp to (width - 60dp) and y 12dp to 288dp of a 324dp area.
+ * [baseline] (1D: the previous close) is a dashed line with its price in medium weight, and always inside the axis.
  * [formatPrice] formats axis labels; [description] is the TalkBack text (the chart itself has no focus targets).
  */
 @Composable
 fun PriceChart(
     points: List<ChartPoint>,
+    layout: ChartLayout,
+    baseline: Double?,
     color: Color,
     formatPrice: (Double) -> String,
     /** Smallest price step worth a gridline: the price's last decimal, so labels never repeat. */
     minTickStep: Double,
-    /** Skeleton of the date labels, see `HistoryRange.dateSkeleton`. */
-    dateSkeleton: String,
     description: String,
     modifier: Modifier = Modifier,
 ) {
     val measurer = rememberTextMeasurer()
     val gridColor = MaterialTheme.colorScheme.outlineVariant
+    val baselineColor = MaterialTheme.colorScheme.onSurfaceVariant
     val labelStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     val surface = MaterialTheme.colorScheme.surface
-    val locale = LocalConfiguration.current.locales[0]
-    val dateFormat = remember(locale, dateSkeleton) {
-        SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, dateSkeleton), locale)
+    val axis = remember(points, baseline) {
+        val low = listOfNotNull(points.minOf { it.price }, baseline).min()
+        val high = listOfNotNull(points.maxOf { it.price }, baseline).max()
+        PriceAxis.of(low, high, minTickStep)
     }
-    val axis = remember(points) { PriceAxis.of(points.minOf { it.price }, points.maxOf { it.price }, minTickStep) }
 
     Canvas(modifier.fillMaxWidth().height(324.dp).semantics { contentDescription = description }) {
         val left = 16.dp.toPx()
         val right = size.width - 60.dp.toPx()
         val top = 12.dp.toPx()
         val bottom = 288.dp.toPx()
-        val t0 = points.first().epochSeconds
-        val t1 = points.last().epochSeconds
-        fun x(t: Long) = left + (right - left) * (t - t0).toFloat() / (t1 - t0).coerceAtLeast(1)
+        fun x(fraction: Float) = left + (right - left) * fraction
         fun y(price: Double) = bottom - (bottom - top) * ((price - axis.low) / (axis.high - axis.low)).toFloat()
+        val baselineY = baseline?.let { y(it) }
 
         for (tick in axis.ticks) {
             val ty = y(tick)
             drawLine(gridColor, Offset(left, ty), Offset(right, ty), strokeWidth = 1.dp.toPx())
-            drawLabel(measurer, formatPrice(tick), labelStyle, right + 8.dp.toPx(), ty, Anchor.Start)
+            // The baseline's own label sits at its line: skip a gridline label that would overlap it.
+            if (baselineY == null || abs(ty - baselineY) > 14.dp.toPx()) {
+                drawLabel(measurer, formatPrice(tick), labelStyle, right + 8.dp.toPx(), ty, Anchor.Start)
+            }
+        }
+        if (baseline != null && baselineY != null) {
+            drawLine(
+                baselineColor, Offset(left, baselineY), Offset(right, baselineY), strokeWidth = 1.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 4.dp.toPx())),
+            )
+            drawLabel(
+                measurer, formatPrice(baseline), labelStyle.copy(fontWeight = FontWeight.Medium),
+                right + 8.dp.toPx(), baselineY, Anchor.Start,
+            )
         }
 
+        val xs = layout.xs
         val line = Path().apply {
             points.forEachIndexed { i, p ->
-                if (i == 0) moveTo(x(p.epochSeconds), y(p.price)) else lineTo(x(p.epochSeconds), y(p.price))
+                if (i == 0) moveTo(x(xs[i]), y(p.price)) else lineTo(x(xs[i]), y(p.price))
             }
         }
         val area = Path().apply {
             addPath(line)
-            lineTo(right, bottom)
-            lineTo(left, bottom)
+            lineTo(x(xs.last()), bottom)
+            lineTo(x(xs.first()), bottom)
             close()
         }
         drawPath(area, Brush.verticalGradient(listOf(color.copy(alpha = 0.22f), color.copy(alpha = 0f)), top, bottom))
         drawPath(line, color, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 
-        val end = Offset(x(t1), y(points.last().price))
+        val end = Offset(x(xs.last()), y(points.last().price))
         drawCircle(color, 5.dp.toPx(), end)
         drawCircle(surface, 5.dp.toPx(), end, style = Stroke(2.dp.toPx()))
 
-        // Dates: first at the left edge, last at the right edge of the plot, two between.
         val labelY = 312.dp.toPx()
-        listOf(0f to Anchor.Start, 1f / 3 to Anchor.Center, 2f / 3 to Anchor.Center, 1f to Anchor.End).forEach { (f, anchor) ->
-            val t = t0 + ((t1 - t0) * f).toLong()
-            drawLabel(measurer, dateFormat.format(Date(t * 1000)), labelStyle, left + (right - left) * f, labelY, anchor)
+        layout.labels.forEach {
+            val anchor = when (it.anchor) {
+                LabelAnchor.Start -> Anchor.Start
+                LabelAnchor.Center -> Anchor.Center
+                LabelAnchor.End -> Anchor.End
+            }
+            drawLabel(measurer, it.text, labelStyle, x(it.fraction), labelY, anchor)
         }
     }
 }

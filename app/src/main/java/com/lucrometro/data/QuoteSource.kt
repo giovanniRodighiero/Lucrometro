@@ -32,12 +32,14 @@ data class Candle(
 )
 
 /**
- * Supported history windows: Yahoo `range` and the bar `interval` that fits it. Daily bars up to 1Y; 5Y is weekly
- * and Max monthly (decision 0022). Yahoo may answer a finer interval than asked for a short history (VWCE.MI Max
+ * Supported history windows: Yahoo `range` and the bar `interval` that fits it. 1D is intraday (5 minutes), 5D has
+ * half-hour bars (79 clean bars; daily would be 5 points), then daily up to 1Y, 5Y weekly and Max monthly
+ * (decisions 0022, 0027). Yahoo may answer a finer interval than asked for a short history (VWCE.MI Max
  * came back weekly), so callers must not assume the interval.
  */
 enum class HistoryRange(val yahoo: String, val interval: String) {
-    DAYS_5("5d", "1d"),
+    DAY_1("1d", "5m"),
+    DAYS_5("5d", "30m"),
     MONTH_1("1mo", "1d"),
     MONTHS_3("3mo", "1d"),
     MONTHS_6("6mo", "1d"),
@@ -45,6 +47,26 @@ enum class HistoryRange(val yahoo: String, val interval: String) {
     YEARS_5("5y", "1wk"),
     MAX("max", "1mo"),
 }
+
+/** Intraday ranges change during the trading day, so they are cached briefly; the others for longer. */
+val HistoryRange.isIntraday: Boolean
+    get() = this == HistoryRange.DAY_1 || this == HistoryRange.DAYS_5
+
+/** A regular trading session of the exchange, in epoch seconds. */
+data class TradingPeriod(val startEpoch: Long, val endEpoch: Long)
+
+/** The bars of a range, with what the details screen needs besides them. */
+data class History(
+    val candles: List<Candle>,
+    /** `chartPreviousClose`: for the 1D range the close of the previous session, the base of the day change. */
+    val previousClose: Double? = null,
+    /** The regular sessions the range covers, oldest first (the 1D axis runs over the last one). */
+    val sessions: List<TradingPeriod> = emptyList(),
+    /** The exchange's current (or next) regular session: what the market status is read from. */
+    val currentSession: TradingPeriod? = null,
+    /** IANA zone of the exchange (Europe/Rome), for times shown as the exchange sees them. */
+    val exchangeZone: String? = null,
+)
 
 /** The source answered, and the symbol does not exist there (as opposed to a network or server failure). */
 class TickerNotFoundException(symbol: String) : Exception("Ticker not found: $symbol")
@@ -61,6 +83,6 @@ interface QuoteSource {
      */
     fun quote(symbol: String): Result<Quote>
 
-    /** Daily candles, oldest first. Blocking; call from a background thread. */
-    fun history(symbol: String, range: HistoryRange): Result<List<Candle>>
+    /** Candles of the range, oldest first. Blocking; call from a background thread. */
+    fun history(symbol: String, range: HistoryRange): Result<History>
 }

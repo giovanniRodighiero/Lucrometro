@@ -28,6 +28,7 @@ import com.lucrometro.data.HistoryRange
 @get:StringRes
 val HistoryRange.tabLabel: Int
     get() = when (this) {
+        HistoryRange.DAY_1 -> R.string.range_1d
         HistoryRange.DAYS_5 -> R.string.range_5d
         HistoryRange.MONTH_1 -> R.string.range_1m
         HistoryRange.MONTHS_3 -> R.string.range_3m
@@ -41,6 +42,7 @@ val HistoryRange.tabLabel: Int
 @get:StringRes
 val HistoryRange.readoutLabel: Int
     get() = when (this) {
+        HistoryRange.DAY_1 -> R.string.readout_today
         HistoryRange.DAYS_5 -> R.string.readout_past_5d
         HistoryRange.MONTH_1 -> R.string.readout_past_1m
         HistoryRange.MONTHS_3 -> R.string.readout_past_3m
@@ -50,10 +52,12 @@ val HistoryRange.readoutLabel: Int
         HistoryRange.MAX -> R.string.readout_all_time
     }
 
-/** `DateFormat.getBestDateTimePattern` skeleton for the chart's date labels: days up to 6M, then month and year. */
+/**
+ * `DateFormat.getBestDateTimePattern` skeleton for the chart's date labels: days up to 6M (the intraday ranges, 1D and 5D,
+ * label times and weekdays instead: see `chartLayout`), then month and year. */
 val HistoryRange.dateSkeleton: String
     get() = when (this) {
-        HistoryRange.DAYS_5, HistoryRange.MONTH_1, HistoryRange.MONTHS_3, HistoryRange.MONTHS_6 -> "dMMM"
+        HistoryRange.DAY_1, HistoryRange.DAYS_5, HistoryRange.MONTH_1, HistoryRange.MONTHS_3, HistoryRange.MONTHS_6 -> "dMMM"
         HistoryRange.YEAR_1, HistoryRange.YEARS_5, HistoryRange.MAX -> "MMMyyyy"
     }
 

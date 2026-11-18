@@ -95,34 +95,37 @@ class WatchlistRepository(
         sourceLock.withLock { runInterruptible(io) { source.quote(code) } }
 
     /** Chart history of one ticker and range, and when it was fetched (the repository's clock). */
-    private class CachedHistory(val candles: List<Candle>, val fetchedAt: Long)
+    private class CachedHistory(val history: History, val fetchedAt: Long)
 
     /**
      * Session cache of chart history (PRD 5), in memory only: a range fetched for a ticker is reused, so reopening
-     * it or switching back to it makes no request. Entries expire after [HISTORY_TTL_MILLIS]: the last bar is the live
-     * price, so a long-lived process must not show a chart that disagrees with a refreshed header.
+     * it or switching back to it makes no request. Entries expire: the last bar is the live price, so a long-lived
+     * process must not show a chart that disagrees with a refreshed header. Intraday ranges after
+     * [INTRADAY_TTL_MILLIS], the others after [HISTORY_TTL_MILLIS].
      */
     private val historyCache = ConcurrentHashMap<Pair<String, HistoryRange>, CachedHistory>()
 
-    /** The cached candles for [code] and [range], or null if not fetched (or expired) in this session. */
-    fun cachedHistory(code: String, range: HistoryRange): List<Candle>? =
-        historyCache[code to range]?.takeIf { clock() - it.fetchedAt < HISTORY_TTL_MILLIS }?.candles
+    /** The cached history for [code] and [range], or null if not fetched (or expired) in this session. */
+    fun cachedHistory(code: String, range: HistoryRange): History? {
+        val ttl = if (range.isIntraday) INTRADAY_TTL_MILLIS else HISTORY_TTL_MILLIS
+        return historyCache[code to range]?.takeIf { clock() - it.fetchedAt < ttl }?.history
+    }
 
     /**
      * Candles for the details chart. Served from the session cache unless [bypassCache] (retry); otherwise it takes its
      * turn on the source like every other request, and a usable result is cached.
      */
-    suspend fun history(code: String, range: HistoryRange, bypassCache: Boolean = false): Result<List<Candle>> {
+    suspend fun history(code: String, range: HistoryRange, bypassCache: Boolean = false): Result<History> {
         if (!bypassCache) cachedHistory(code, range)?.let { return Result.success(it) }
         val result = sourceLock.withLock {
             // The request before this one may have fetched the same range while this one waited.
             val fetched = if (bypassCache) null else cachedHistory(code, range)
             if (fetched != null) Result.success(fetched) else runInterruptible(io) { source.history(code, range) }
         }
-        val candles = result.getOrNull()
+        val history = result.getOrNull()
         // Not if the ticker was removed while the request ran: that would bring its data back (PRD 3).
-        if (candles != null && candles.size >= 2 && storeCall { store.contains(code) } != false) {
-            historyCache[code to range] = CachedHistory(candles, clock())
+        if (history != null && history.isCacheable(range) && storeCall { store.contains(code) } != false) {
+            historyCache[code to range] = CachedHistory(history, clock())
         }
         return result
     }
@@ -200,8 +203,12 @@ class WatchlistRepository(
         refresh()
     }
 
+    /** Usable results only (2+ bars); a 1D with none or one bar yet (before the first trades) is a real answer for 2 minutes. */
+    private fun History.isCacheable(range: HistoryRange) = candles.size >= 2 || range == HistoryRange.DAY_1
+
     companion object {
         const val HISTORY_TTL_MILLIS = 60 * 60 * 1000L
+        const val INTRADAY_TTL_MILLIS = 2 * 60 * 1000L
     }
 
     /** Runs a storage call; a storage failure (I/O, disk full) becomes null instead of crashing the app. */

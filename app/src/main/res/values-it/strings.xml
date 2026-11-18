@@ -29,6 +29,14 @@
     <string name="quote_stamp_day">%1$s, %2$s</string>
 
     <!-- Range bar cells: keep them short, the bar has equal cells. -->
+    <string name="range_1d">1G</string>
+    <string name="readout_today">Oggi</string>
+    <string name="readout_previous_close">Chiusura precedente</string>
+    <string name="market_open_closes">Aperto · chiude %1$s</string>
+    <string name="market_opens_today">Chiuso · apre %1$s</string>
+    <string name="market_opens_on">Chiuso · apre %2$s %1$s</string>
+    <string name="chart_empty_title">Ancora nessuno scambio</string>
+    <string name="chart_empty_body">Il grafico si riempie appena il mercato avrà scambiato oggi.</string>
     <string name="range_5d">5G</string>
     <string name="range_1m">1M</string>
     <string name="range_3m">3M</string>
@@ -50,6 +58,7 @@
     <string name="chart_description">%1$s, %2$s: da %3$s a %4$s, %5$s</string>
     <string name="chart_failed_title">Impossibile caricare</string>
     <string name="chart_failed_body">Il grafico richiede una connessione. Controllala e riprova.</string>
+    <string name="refresh">Aggiorna</string>
     <string name="retry">Riprova</string>
 
     <!-- Add ticker sheet -->

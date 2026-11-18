@@ -26,7 +26,8 @@ Next
 0. On a real phone: check the themed icon (Android 13+, Settings > Wallpaper & style > Themed icons)
    and other launcher shapes (squircle, teardrop). The emulator cannot toggle themed icons.
 1. Remaining Yahoo checks for the details screen: what the 1D range and `currentTradingPeriod` return on a weekend
-   and an exchange holiday, and whether the ~15 minute `.MI` delay is constant. One request at a time (CLAUDE.md).
+   and an exchange holiday (the market status reads Yahoo's period and skips weekends itself, decision 0027), and
+   whether the ~15 minute `.MI` delay is constant. Also what 1D returns before the first trade of the day. One request at a time (CLAUDE.md).
    Done 2026-11-18: 1D intraday, long ranges, `adjclose`, previous close, quote time, trading period, delay
    (docs/research/data-sources.md).
 2. Test on a real phone.
