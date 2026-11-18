@@ -65,6 +65,11 @@
   change is then on plain closes). `meta.chartPreviousClose` is the close before the first bar of the range (VWCE.MI 170.92),
   not the previous session's. The overnight and weekend gaps are large in time (a time-proportional axis would leave
   holes), so the 5D chart should place bars by index.
+- **Quote vs 1D chart (2026-11-18, Cronet, Wed 16:04):** SMH.MI `range=1d&interval=1d` (the refresh's quote) and
+  `range=1d&interval=5m` (the 1D chart), 15 s apart: the same `meta` (price 77.61, `regularMarketTime` 15:48:49, day
+  high/low and volume), and the last 5m bar equals it. The interval does not change the quote. Prices that differ between
+  the list and the details header come from a newer delayed trade arriving between two requests (decision 0029).
+  The `interval=5m` meta also has `previousClose` and `tradingPeriods`; the `interval=1d` one does not.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes
