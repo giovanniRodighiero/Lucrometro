@@ -93,6 +93,10 @@ class WatchlistRepository(
     private suspend fun fetch(code: String): Result<Quote> =
         sourceLock.withLock { runInterruptible(io) { source.quote(code) } }
 
+    /** Daily candles for the details chart; takes its turn on the source like every other request. */
+    suspend fun history(code: String, range: HistoryRange): Result<List<Candle>> =
+        sourceLock.withLock { runInterruptible(io) { source.history(code, range) } }
+
     /** Normalizes [input], validates it with a live quote and saves it only if the quote resolves. */
     suspend fun add(input: String): AddTickerResult {
         val code = normalizeTicker(input)

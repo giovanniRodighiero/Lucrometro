@@ -36,6 +36,15 @@
     <!-- Otherwise the session day and time, e.g. "Fri, Nov 14, 5:35 PM". %1$s is the date, %2$s the time. -->
     <string name="quote_stamp_day">%1$s, %2$s</string>
 
+    <string name="range_past_month">Past month</string>
+    <!-- Readout value: the price at the start of the range. -->
+    <string name="readout_from">From %1$s</string>
+    <!-- TalkBack text of the chart: ticker, range, first and last price, signed change in percent. -->
+    <string name="chart_description">%1$s, past month: from %2$s to %3$s, %4$s</string>
+    <string name="chart_failed_title">Couldn\'t fetch</string>
+    <string name="chart_failed_body">The chart needs a connection. Check it and try again.</string>
+    <string name="retry">Retry</string>
+
     <!-- Add ticker sheet -->
     <string name="add_ticker">Add ticker</string>
     <string name="add_ticker_body">Paste a ticker code, like ENI.MI or VWCE.MI. We check it before saving.</string>

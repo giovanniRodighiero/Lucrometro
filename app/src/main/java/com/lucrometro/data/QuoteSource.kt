@@ -27,6 +27,8 @@ data class Candle(
     val low: Double?,
     val close: Double,
     val volume: Long?,
+    /** Close adjusted for dividends and splits (decision 0022); null when the source gave none for this bar. */
+    val adjClose: Double? = null,
 )
 
 /** Supported history windows (Yahoo `range` values), all with daily bars. */

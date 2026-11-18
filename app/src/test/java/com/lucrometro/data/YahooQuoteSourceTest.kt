@@ -52,4 +52,21 @@ class YahooQuoteSourceTest {
         assertEquals(1, http.chartUrls.size)
     }
 
+    private fun candles(adjclose: String?) = HttpResult(
+        200,
+        """{"chart":{"result":[{"meta":{},"timestamp":[1,2,3],"indicators":{"quote":[{"close":[10.0,null,12.0]}]""" +
+            (adjclose?.let { ""","adjclose":[{"adjclose":$it}]""" } ?: "") + "}}],\"error\":null}}",
+        emptyList(),
+    )
+
+    @Test fun historyCarriesAdjustedClosesAndDropsEmptyBars() {
+        val bars = YahooQuoteSource(FakeHttp(candles("[9.5,9.8,11.5]"))).history("X.MI", HistoryRange.MONTH_1).getOrThrow()
+        assertEquals(listOf(10.0, 12.0), bars.map { it.close })
+        assertEquals(listOf(9.5, 11.5), bars.map { it.adjClose }) // aligned with the kept bars
+    }
+
+    @Test fun historyWithoutAdjustedClosesLeavesThemNull() {
+        val bars = YahooQuoteSource(FakeHttp(candles(null))).history("X.MI", HistoryRange.MONTH_1).getOrThrow()
+        assertEquals(listOf(null, null), bars.map { it.adjClose })
+    }
 }

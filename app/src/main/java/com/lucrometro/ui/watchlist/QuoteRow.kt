@@ -180,10 +180,17 @@ class QuoteFormats(private val locale: Locale) {
 
     /** The price with the source's decimals (2 if unknown), followed by its currency when known. */
     @Composable
-    fun price(quote: Quote): String {
-        val number = priceFormat(quote).format(quote.price)
+    fun price(quote: Quote): String = price(quote, quote.price)
+
+    /** [value] in the quote's decimals and currency (e.g. the first price of a range). */
+    @Composable
+    fun price(quote: Quote, value: Double): String {
+        val number = priceFormat(quote).format(value)
         return quote.currency?.let { stringResource(R.string.quote_price, number, it) } ?: number
     }
+
+    /** A price (e.g. an axis label) with the quote's decimals, without the currency. */
+    fun number(quote: Quote, value: Double): String = priceFormat(quote).format(value)
 
     /** A change in price units with the quote's own decimals, rounded the way it is shown. */
     fun amountChange(quote: Quote, value: Double): AmountChange {

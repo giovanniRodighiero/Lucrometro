@@ -39,6 +39,7 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
         val q = result.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
         fun d(name: String, i: Int): Double? =
             q.optJSONArray(name)?.takeIf { !it.isNull(i) }?.getDouble(i)
+        val adj = result.getJSONObject("indicators").optJSONArray("adjclose")?.optJSONObject(0)?.optJSONArray("adjclose")
         (0 until ts.length()).mapNotNull { i ->
             val close = d("close", i) ?: return@mapNotNull null // halted/empty bar
             Candle(
@@ -48,6 +49,7 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
                 low = d("low", i),
                 close = close,
                 volume = q.optJSONArray("volume")?.takeIf { !it.isNull(i) }?.getLong(i),
+                adjClose = adj?.takeIf { !it.isNull(i) }?.getDouble(i),
             )
         }
     }

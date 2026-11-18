@@ -28,6 +28,15 @@
     <string name="quote_stamp_today">Oggi, %1$s</string>
     <string name="quote_stamp_day">%1$s, %2$s</string>
 
+    <string name="range_past_month">Ultimo mese</string>
+    <!-- Readout value: the price at the start of the range. -->
+    <string name="readout_from">Da %1$s</string>
+    <!-- TalkBack text of the chart: ticker, range, first and last price, signed change in percent. -->
+    <string name="chart_description">%1$s, ultimo mese: da %2$s a %3$s, %4$s</string>
+    <string name="chart_failed_title">Impossibile caricare</string>
+    <string name="chart_failed_body">Il grafico richiede una connessione. Controllala e riprova.</string>
+    <string name="retry">Riprova</string>
+
     <!-- Add ticker sheet -->
     <string name="add_ticker">Aggiungi titolo</string>
     <string name="add_ticker_body">Incolla un codice, come ENI.MI o VWCE.MI. Lo verifichiamo prima di salvarlo.</string>

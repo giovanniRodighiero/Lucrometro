@@ -10,6 +10,8 @@ are listed under each screen.
 | `ChangeBadge` | `ui/watchlist/QuoteRow.kt` `ChangeBadge` (`Surface` with `CircleShape`) |
 | `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; market status not built yet |
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
+| `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode; scrub mode comes with the scrub) |
+| `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025 |
 | `Fab` | Material 3 `FloatingActionButton` |
 | `BottomSheet`, `TextField`, `Button` | `ModalBottomSheet`, `OutlinedTextField`, `Button`/`TextButton` (decision 0013) |
 | `StatusBar`, `Keyboard` | Drawn by Android; not ported |
@@ -27,3 +29,4 @@ are listed under each screen.
 - The change pill is the watchlist `ChangeBadge` with an `absolute` value ("+0.86 (+2.14%)"). Abs uses the quote's decimals.
 - The stamp is the quote's own time (`regularMarketTime`) in the system 12/24h setting; "Today, 14:32", otherwise the session day.
 - Back is the system back and the top bar arrow (decision 0024). The frames' status bar and gesture bar are not ported.
+- The chart loading state (a progress indicator) is not in the frames.
