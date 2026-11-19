@@ -1,17 +1,24 @@
 <!--
-  Component: PriceChart (Doop id cngdxi4dgd, rev 3)
-  The details price chart area, 412x324 (custom drawing in Compose: Canvas, not a Material component).
+  Component: PriceChart (Doop id cngdxi4dgd, rev 4)
+  The details price chart area, 412x292 (324 until the position work, decision 0033; custom drawing in Compose:
+  Canvas, not a Material component).
   Props: state ready|error = ready; direction up|down|flat = up (sign of the selected range's change: sets the line
          colour to gain / loss / on-surface-variant).
-  Slot: plot (ready state). Geometry used by every frame: plot x 16-352, y 12-288; price labels in the right gutter
-        from x 360 (body-small, tabular); time labels on the bottom row at y 312; 1px outline-variant gridlines at
+  Slot: plot (ready state). Geometry used by every frame: plot x 16-352, y 12-256; price labels in the right gutter
+        from x 360 (body-small, tabular); time labels on the bottom row at y 280; 1px outline-variant gridlines at
         round prices; 2px line in currentColor; area fill = currentColor 22% -> 0% top to bottom; 5px end dot with a
         2px surface ring. 1D only: dashed 1px on-surface-variant baseline at the previous close, its label in medium
         weight; the line stops at the last quote (the rest of the 09:00-17:30 session stays empty).
         Scrub: 1px on-surface vertical line at the finger plus a 6px dot on the line.
+  Position (decisions 0033, 0034), only when the owner logged one:
+        Average: 1.5px dotted tertiary line (dasharray 0.1 5, round caps) across the plot, "Your avg" above its left
+        end (11px medium tertiary), its price in the gutter in tertiary medium. Outside the axis range the axis is
+        never stretched: a short dotted stub at the plot edge, a chevron and the price in the gutter.
+        Last buy: 15px tertiary diamond with a 2px surface outline on the line at the buy's date, only when that
+        date is inside the range. No drop line, axis tick or date label (the date is in the PositionCard footer).
   Error state: no chart (never a stale one), "Couldn't fetch" with a Retry button (PRD 4).
 -->
-<div class="pc" data-state="ready" data-direction="up" style="position:relative;height:324px;font-family:var(--font-sans);"><div class="pc-plot" data-doop-slot="plot" style="position:absolute;inset:0;"></div><div class="pc-err" style="position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);margin:0 var(--spacing-md);border-radius:var(--radius-lg);background:var(--color-surface-container-low);color:var(--color-on-surface-variant);text-align:center;"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4c-1.48 0-2.85.43-4.01 1.17l1.46 1.46a5.497 5.497 0 0 1 8.05 4.87v.5H19c1.66 0 3 1.34 3 3 0 1.13-.64 2.11-1.56 2.62l1.45 1.45C23.16 18.16 24 16.68 24 15c0-2.64-2.05-4.78-4.65-4.96zM3 5.27l2.75 2.74C2.56 8.15 0 10.77 0 14c0 3.31 2.69 6 6 6h11.73l2 2L21 20.73 4.27 4 3 5.27zM7.73 10l8 8H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h1.73z"></path></svg><p style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);color:var(--color-on-surface);">Couldn't fetch</p><p style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);max-width:260px;">The chart needs a connection. Check it and try again.</p><span style="margin-top:var(--spacing-sm);"><doop-use component="Button" tone="filled" label="Retry"></doop-use></span></div></div>
+<div class="pc" data-state="ready" data-direction="up" style="position:relative;height:292px;font-family:var(--font-sans);"><div class="pc-plot" data-doop-slot="plot" style="position:absolute;inset:0;"></div><div class="pc-err" style="position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-sm);margin:0 var(--spacing-md);border-radius:var(--radius-lg);background:var(--color-surface-container-low);color:var(--color-on-surface-variant);text-align:center;"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4c-1.48 0-2.85.43-4.01 1.17l1.46 1.46a5.497 5.497 0 0 1 8.05 4.87v.5H19c1.66 0 3 1.34 3 3 0 1.13-.64 2.11-1.56 2.62l1.45 1.45C23.16 18.16 24 16.68 24 15c0-2.64-2.05-4.78-4.65-4.96zM3 5.27l2.75 2.74C2.56 8.15 0 10.77 0 14c0 3.31 2.69 6 6 6h11.73l2 2L21 20.73 4.27 4 3 5.27zM7.73 10l8 8H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h1.73z"></path></svg><p style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);color:var(--color-on-surface);">Couldn't fetch</p><p style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);max-width:260px;">The chart needs a connection. Check it and try again.</p><span style="margin-top:var(--spacing-sm);"><doop-use component="Button" tone="filled" label="Retry"></doop-use></span></div></div>
 <style>
 .pc[data-direction="up"] { color: var(--color-gain); }
 .pc[data-direction="down"] { color: var(--color-loss); }

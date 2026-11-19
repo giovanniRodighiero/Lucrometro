@@ -39,7 +39,7 @@ Next
 3. Details screen, open points: the loading state is a plain progress indicator and the empty 1D a plain card (not in Doop);
    check what a weekend and a holiday look like (item 1); the markets' holidays are not known (decision 0027).
 4. Personal position (decision 0033): designed in Doop (`Details · position ...` frames, `PositionCard`), not built.
-   First `/doop-sync export`, then: Room v4 with dated entries, the card, the add/edit sheet, the average line and the last-buy
+   Snapshot exported 2026-11-19 (`docs/design/doop/`). To build: Room v4 with dated entries, the card, the add/edit sheet, the average line and the last-buy
    diamond on the chart (decision 0034), the chart at 292dp. Frames ready for dev since 2026-11-19. The watchlist line
    is designed but undecided ("Exploration · Position" page).
 
