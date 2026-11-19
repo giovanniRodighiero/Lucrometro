@@ -8,7 +8,7 @@ are listed under each screen.
 | `TopAppBar` | Material 3 `TopAppBar`; the stamp is a `bodySmall` text in `actions` |
 | `QuoteRow` | `ui/watchlist/QuoteRow.kt` `QuoteRow` (a `Row`, see decision 0014) |
 | `ChangeBadge` | `ui/common/ChangeBadge.kt` `ChangeBadge` (`Surface` with `CircleShape`) |
-| `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; the market status is a `Row` (8dp dot and `bodySmall` text) in `actions`, decision 0027 |
+| `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; the market status is a `Row` (8dp dot and `bodySmall` text) in `actions`, decision 0027; exchange + phone clock and title ellipsis, decision 0032 (`frames/market-status-cases`) |
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
 | `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode, and scrub mode via `scrubbing`; the label is `scrubLabel` in the same file, decision 0028) |
 | `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025 |

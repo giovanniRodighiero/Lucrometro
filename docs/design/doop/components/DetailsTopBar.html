@@ -1,12 +1,17 @@
 <!--
-  Component: DetailsTopBar (Doop id cw5r7g8fav, rev 3)
+  Component: DetailsTopBar (Doop id cw5r7g8fav, rev 4)
   Material 3 small top app bar for the details screen: back arrow (48dp touch target), the ticker code as title,
   and the market status on the right (where the watchlist shows its "Updated" stamp). Decision 0014.
-  Props: title (ticker code); market none|open|closed = open; status (e.g. "Open · closes 17:30",
-         "Closed · opens Mon 09:00"). market=none hides the status (chart fetch failed, or hours unknown).
+  Props: title (ticker code; cut with an ellipsis when it does not fit beside the status);
+         market none|open|closed = open; status (e.g. "Open · closes 17:30", "Closed · opens Mon 09:00",
+         "Closed · opens 09:30 EST (15:30)"). market=none hides the status (chart fetch failed, or hours unknown).
+  Status times are in the exchange's clock. When the phone's clock differs, the exchange's time carries its zone
+  name and the phone's time follows in parentheses, with the weekday when the phone's day differs ("(Thu 22:00)").
+  The weekday after "opens" only when the opening is not tomorrow. The status stays on one line at full width
+  (decision 0032). See frames/market-status-cases.
   The text carries the meaning; the dot only supports it (filled gain dot = open, hollow outline dot = closed).
 -->
-<header class="dtb" data-market="open" style="display:flex;align-items:center;gap:var(--spacing-xs);height:64px;padding:0 var(--spacing-xs);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><span style="display:flex;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);color:var(--color-on-surface);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg></span><h1 data-doop-prop="title" style="font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">SMH.MI</h1><span class="dtb-status" style="align-items:center;gap:6px;margin-left:auto;padding-right:calc(var(--spacing-md) - var(--spacing-xs));font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);white-space:nowrap;"><span class="dtb-dot" style="width:8px;height:8px;border-radius:var(--radius-full);"></span><span data-doop-prop="status">Open · closes 17:30</span></span></header>
+<header class="dtb" data-market="open" style="display:flex;align-items:center;gap:var(--spacing-xs);height:64px;padding:0 var(--spacing-xs);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><span style="display:flex;flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);color:var(--color-on-surface);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg></span><h1 data-doop-prop="title" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">SMH.MI</h1><span class="dtb-status" style="flex-shrink:0;align-items:center;gap:6px;margin-left:auto;padding-right:calc(var(--spacing-md) - var(--spacing-xs));font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);white-space:nowrap;"><span class="dtb-dot" style="width:8px;height:8px;border-radius:var(--radius-full);"></span><span data-doop-prop="status">Open · closes 17:30</span></span></header>
 <style>
 .dtb-status { display: none; }
 .dtb[data-market="open"] .dtb-status, .dtb[data-market="closed"] .dtb-status { display: flex; }

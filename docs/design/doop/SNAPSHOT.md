@@ -17,9 +17,15 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `details-chart-failed` | Details · chart failed (stale header) | `ysEbtRvZXk` | `frames/details-chart-failed.html`, `.png` |
 | `details-1d-dark` | Details · 1D (dark) | `2FJ3ZK7LCY` | `frames/details-1d-dark.html`, `.png` |
 | `details-worst-case` | Details · worst case (stress values) | `iJVgK2AL0n` | `frames/details-worst-case.html`, `.png` |
+| `market-status-cases` | Reference · market status label cases (phone in Italy) | `mcAknly6zH` | `frames/market-status-cases.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
+
+`market-status-cases` (added 2026-11-19, decision 0032) is a reference board, not a screen: the top bar's market
+status for exchanges in other zones, seen from a phone in Italy. On 2026-11-19 only it and `DetailsTopBar` (rev 4:
+title ellipsis) were exported; the other frames were not re-exported, because on the canvas they already hold the
+unmerged position design (branch `position-design`).
 
 ## Tokens and components
 
