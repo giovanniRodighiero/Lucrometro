@@ -39,11 +39,13 @@ Next
 3. Details screen, open points: the loading state is a plain progress indicator and the empty 1D a plain card (not in Doop);
    check what a weekend and a holiday look like (item 1); the markets' holidays are not known (decision 0027).
 4. Personal position (decision 0033): designed in Doop (`Details · position ...` frames, `PositionCard`), not built.
-   First `/doop-sync export`, then: Room v4 with dated entries, the card, the add/edit sheet, the average line on the
-   chart, the chart at 292dp. The watchlist line is designed but undecided ("Exploration · Position" page).
+   First `/doop-sync export`, then: Room v4 with dated entries, the card, the add/edit sheet, the average line and the last-buy
+   diamond on the chart (decision 0034), the chart at 292dp. Frames ready for dev since 2026-11-19. The watchlist line
+   is designed but undecided ("Exploration · Position" page).
 
 Later (v2 candidates, not in v1 scope)
 - Full buy log per ticker (date, quantity, price) behind the position card's footer (decision 0033).
+- Show the last buy's date when a tap or the scrub reaches its diamond on the chart (decision 0034).
 - A private note per ticker.
 - More details info: 52-week and day range, distance from the all-time high, multi-period performance with YTD,
   dividends on the chart, delay notice.
