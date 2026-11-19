@@ -65,4 +65,28 @@ class MarketStatusTest {
         val noon = LocalDateTime.of(2026, 11, 18, 12, 0).atZone(newYork).toEpochSecond()
         assertEquals(MarketStatus.Open(LocalTime.of(16, 0)), marketStatus(noon, nyse, newYork))
     }
+
+    // The phone-clock equivalent is derived from the exchange's date, across a DST gap (US already back, Europe not yet).
+    @Test fun eventAtGivesTheRealMoment() {
+        val newYork = ZoneId.of("America/New_York")
+        val now = LocalDateTime.of(2026, 11, 20, 20, 0).atZone(newYork)
+        val event = MarketStatus.OpensOn(DayOfWeek.MONDAY, LocalTime.of(9, 30)).eventAt(now, newYork)
+        assertEquals(LocalDateTime.of(2026, 11, 23, 9, 30), event.toLocalDateTime())
+        assertEquals(LocalDateTime.of(2026, 11, 23, 15, 30), event.withZoneSameInstant(rome).toLocalDateTime())
+        // 2026-03-16: the US is on summer time, Italy is not yet: 14:30 in Milan.
+        val gap = MarketStatus.OpensToday(LocalTime.of(9, 30)).eventAt(LocalDateTime.of(2026, 3, 16, 8, 0).atZone(newYork), newYork)
+        assertEquals(LocalDateTime.of(2026, 3, 16, 14, 30), gap.withZoneSameInstant(rome).toLocalDateTime())
+    }
+
+    // The weekday is named only when the opening is not tomorrow (Friday evening, the weekend).
+    @Test fun weekdayIsShownOnlyWhenTheOpeningIsNotTomorrow() {
+        fun at(d: Int, h: Int) = LocalDateTime.of(2026, 11, d, h, 0).atZone(rome)
+        val tomorrow = MarketStatus.OpensOn(DayOfWeek.THURSDAY, LocalTime.of(9, 0))
+        val monday = MarketStatus.OpensOn(DayOfWeek.MONDAY, LocalTime.of(9, 0))
+        assertEquals(false, tomorrow.showsWeekday(at(18, 20), rome))
+        assertEquals(true, monday.showsWeekday(at(20, 20), rome))
+        assertEquals(true, monday.showsWeekday(at(21, 12), rome))
+        // Sunday: Monday is tomorrow.
+        assertEquals(false, monday.showsWeekday(at(22, 12), rome))
+    }
 }

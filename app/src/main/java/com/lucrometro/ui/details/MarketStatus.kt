@@ -27,6 +27,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 
 /** Whether the exchange is open, in the exchange's own clock (decision 0023). */
 sealed interface MarketStatus {
@@ -64,6 +65,35 @@ fun marketStatus(nowEpoch: Long, session: TradingPeriod, zone: ZoneId): MarketSt
 private fun opensOn(date: LocalDate, at: LocalTime, today: LocalDate): MarketStatus =
     if (date == today) MarketStatus.OpensToday(at) else MarketStatus.OpensOn(date.dayOfWeek, at)
 
+/** The moment [status] names (a close or an opening), in the exchange's [zone], given [now]. */
+fun MarketStatus.eventAt(now: ZonedDateTime, zone: ZoneId): ZonedDateTime {
+    val today = now.toLocalDate()
+    return when (this) {
+        is MarketStatus.Open -> today.atTime(closesAt)
+        is MarketStatus.OpensToday -> today.atTime(at)
+        // Always later than today: the next date with that weekday.
+        is MarketStatus.OpensOn -> generateSequence(today.plusDays(1)) { it.plusDays(1) }.first { it.dayOfWeek == day }.atTime(at)
+    }.atZone(zone)
+}
+
+/** Whether the label names the weekday: only for an opening that is not tomorrow in the exchange's calendar (decision 0032). */
+fun MarketStatus.showsWeekday(now: ZonedDateTime, zone: ZoneId): Boolean =
+    this is MarketStatus.OpensOn && eventAt(now, zone).toLocalDate() != now.toLocalDate().plusDays(1)
+
+/**
+ * [exchangeTime] (a time of day in the exchange's clock) with the same moment on the phone's clock in parentheses:
+ * "09:30 EST (15:30)", or "09:30 EST (Mon 01:00)" when the phone's day differs. The exchange's time carries its zone
+ * name; the phone's does not (it is taken for granted). Nothing is added when both clocks read the same (phone in
+ * the exchange's zone). Decision 0032.
+ */
+private fun withPhoneClock(exchangeTime: String, event: ZonedDateTime, times: TimeFormats): String {
+    val phone = event.withZoneSameInstant(ZoneId.systemDefault())
+    if (phone.toLocalDateTime() == event.toLocalDateTime()) return exchangeTime
+    val local = times.format(times.timeSkeleton, event.toEpochSecond(), phone.zone)
+    val shown = if (phone.toLocalDate() == event.toLocalDate()) local else "${times.weekday(phone.dayOfWeek)} $local"
+    return "$exchangeTime ${times.zoneName(event.toEpochSecond(), event.zone)} ($shown)"
+}
+
 /** "Open · closes 17:30" / "Closed · opens Mon 09:00" with a filled (open) or hollow (closed) dot (Doop DetailsTopBar). */
 @Composable
 fun MarketStatusLabel(market: MarketInfo, times: TimeFormats) {
@@ -74,10 +104,18 @@ fun MarketStatusLabel(market: MarketInfo, times: TimeFormats) {
         }
     }
     val status = marketStatus(now, market.session, market.zone)
+    val nowInZone = Instant.ofEpochSecond(now).atZone(market.zone)
+    val event = status.eventAt(nowInZone, market.zone)
+    fun time(at: LocalTime) = withPhoneClock(times.time(at), event, times)
     val text = when (status) {
-        is MarketStatus.Open -> stringResource(R.string.market_open_closes, times.time(status.closesAt))
-        is MarketStatus.OpensToday -> stringResource(R.string.market_opens_today, times.time(status.at))
-        is MarketStatus.OpensOn -> stringResource(R.string.market_opens_on, times.weekday(status.day), times.time(status.at))
+        is MarketStatus.Open -> stringResource(R.string.market_open_closes, time(status.closesAt))
+        is MarketStatus.OpensToday -> stringResource(R.string.market_opens_today, time(status.at))
+        // "opens_today" is the plain "Closed · opens <time>" text: used for today and for tomorrow.
+        is MarketStatus.OpensOn -> if (status.showsWeekday(nowInZone, market.zone)) {
+            stringResource(R.string.market_opens_on, times.weekday(status.day), time(status.at))
+        } else {
+            stringResource(R.string.market_opens_today, time(status.at))
+        }
     }
     Row(
         modifier = Modifier.padding(end = 12.dp),
@@ -94,6 +132,11 @@ fun MarketStatusLabel(market: MarketInfo, times: TimeFormats) {
                 },
             ),
         )
-        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+        )
     }
 }

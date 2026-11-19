@@ -49,6 +49,14 @@ class TimeFormats(private val locale: Locale, is24Hour: Boolean) {
     /** A time of day that is already in its clock (e.g. a session's opening). */
     fun time(time: LocalTime): String = formatter(timeSkeleton, ZoneOffset.UTC).format(time)
 
+    /**
+     * The short zone name at [epochSeconds] ("EST", "CET"; summer or winter as of then). Zones without a short name
+     * come as an offset ("GMT+08:00"), which is shortened to "GMT+8".
+     */
+    fun zoneName(epochSeconds: Long, zone: ZoneId): String =
+        DateTimeFormatter.ofPattern("z", locale).withZone(zone).format(Instant.ofEpochSecond(epochSeconds))
+            .replace(Regex("""([+-])0?(\d+):00$"""), "$1$2")
+
     /** The short weekday name ("Mon"). */
     fun weekday(day: DayOfWeek): String = day.getDisplayName(TextStyle.SHORT, locale)
 

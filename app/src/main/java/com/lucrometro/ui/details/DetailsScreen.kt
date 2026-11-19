@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -78,7 +79,8 @@ fun DetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(code) },
+                // One line: the market status keeps its width, a long symbol is cut with an ellipsis (decision 0032).
+                title = { Text(code, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 actions = {
                     // Hidden when the hours are unknown or the chart could not be fetched (decision 0023).
                     market?.takeIf { chart != ChartState.Failed }?.let { MarketStatusLabel(it, times) }
