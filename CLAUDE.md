@@ -53,8 +53,12 @@ APK is unsigned), the `gh` CLI logged in, and macOS (decision 0021).
 
 ## Where knowledge lives (keep CLAUDE.md short)
 - `CLAUDE.md`: only what an agent needs on every task: stack, commands, conventions.
-- `docs/decisions/NNNN-title.md`: one decision per file (context, decision, consequences, status).
-  Add one whenever a non-obvious choice is made. Do not edit accepted ones: supersede them.
+- `docs/spec.md`: how the app works now. Read it first. At each release, update it with that release's decisions
+  before writing the changelog (decision 0039).
+- `docs/decisions/NNNN-title.md`: one decision per file (context, decision, consequences, status), the archive of
+  why. Add one for a product, design, architecture or process choice; review fixes and small build choices go in
+  the commit message. Do not edit accepted ones: supersede them.
+- `docs/prd.md`: the v1 starting point, not updated.
 - `docs/research/`: findings and experiments (what was tested, results, dates, open questions).
 - `docs/design/`: design rules for the native UI (look and feel, tokens, Doop-to-Compose mapping).
 - `docs/brand/`: app icon artwork (source and store image).

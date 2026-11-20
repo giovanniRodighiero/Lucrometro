@@ -36,7 +36,8 @@ The loop, and where to see each step in the repo:
 
 1. **Decide what to build.** A short product spec, [docs/prd.md](docs/prd.md), set the scope of v1.
    Each non-obvious choice became a decision record in [docs/decisions/](docs/decisions/), one file per
-   decision, superseded but never rewritten.
+   decision, superseded but never rewritten. At each release, the decisions are folded into
+   [docs/spec.md](docs/spec.md), one page on how the app works now, so agents don't have to replay the history.
 2. **Design before code.** Screens were designed in Doop, a design canvas the agents read through MCP, and
    signed off by me. They are snapshotted into [docs/design/doop/](docs/design/doop/), so agents build from
    files in the repo. The [doop-sync skill](.claude/skills/doop-sync/SKILL.md) does the export and the port. The export needs
