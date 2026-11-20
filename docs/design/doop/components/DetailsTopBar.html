@@ -1,20 +1,29 @@
 <!--
-  Component: DetailsTopBar (Doop id cw5r7g8fav, rev 4)
-  Material 3 small top app bar for the details screen: back arrow (48dp touch target), the ticker code as title,
-  and the market status on the right (where the watchlist shows its "Updated" stamp). Decision 0014.
-  Props: title (ticker code; cut with an ellipsis when it does not fit beside the status);
-         market none|open|closed = open; status (e.g. "Open · closes 17:30", "Closed · opens Mon 09:00",
-         "Closed · opens 09:30 EST (15:30)"). market=none hides the status (chart fetch failed, or hours unknown).
-  Status times are in the exchange's clock. When the phone's clock differs, the exchange's time carries its zone
-  name and the phone's time follows in parentheses, with the weekday when the phone's day differs ("(Thu 22:00)").
-  The weekday after "opens" only when the opening is not tomorrow. The status stays on one line at full width
-  (decision 0032). See frames/market-status-cases.
-  The text carries the meaning; the dot only supports it (filled gain dot = open, hollow outline dot = closed).
+  Component: DetailsTopBar (Doop id cw5r7g8fav, rev 5)
+  Material 3 small top app bar for the details screen (decision 0035): back arrow (48dp touch target), the ticker code
+  as title, then on the right a market marker and the auto-refresh sync icon button.
+  Props: title (ticker code; cut with an ellipsis when it does not fit);
+         market none|open|closed = open; refresh off|on = off.
+  Marker: 8dp dot and one word, "Open" (filled gain dot) or "Closed" (hollow outline dot), neutral text, 48dp touch
+  target. Tapping it opens the market details sheet (frames/details-market-sheet), which holds the full status text of
+  decision 0032 ("Open · closes 17:30", exchange clock and phone clock, see frames/market-status-cases).
+  Icon: 48dp sync button. refresh=off: plain. refresh=on: tonal secondary-container fill, polling is running (the chart's
+  last point also gets a halo, see frames/details-auto-refresh-on). market=closed: shown disabled (38%), whatever
+  `refresh` says. market=none hides the marker and the icon (chart fetch failed, or hours unknown).
+  The text carries the meaning; the dot only supports it. Never red for closed: red means loss in the app.
+  Before decision 0035 the right side was the full status text (rev 4, decisions 0014, 0027, 0032).
 -->
-<header class="dtb" data-market="open" style="display:flex;align-items:center;gap:var(--spacing-xs);height:64px;padding:0 var(--spacing-xs);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><span style="display:flex;flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);color:var(--color-on-surface);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg></span><h1 data-doop-prop="title" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">SMH.MI</h1><span class="dtb-status" style="flex-shrink:0;align-items:center;gap:6px;margin-left:auto;padding-right:calc(var(--spacing-md) - var(--spacing-xs));font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);white-space:nowrap;"><span class="dtb-dot" style="width:8px;height:8px;border-radius:var(--radius-full);"></span><span data-doop-prop="status">Open · closes 17:30</span></span></header>
+<header class="dtb" data-market="open" data-refresh="off" style="display:flex;align-items:center;gap:var(--spacing-xs);height:64px;padding:0 var(--spacing-xs);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><span style="display:flex;flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);color:var(--color-on-surface);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg></span><h1 data-doop-prop="title" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">SMH.MI</h1><span class="dtb-marker" style="flex-shrink:0;align-items:center;gap:6px;height:var(--spacing-touch);margin-left:auto;padding:0 var(--spacing-sm);font-size:var(--text-label-large);line-height:var(--leading-label-large);font-weight:var(--font-weight-medium);color:var(--color-on-surface-variant);white-space:nowrap;"><span class="dtb-dot" style="width:8px;height:8px;border-radius:var(--radius-full);"></span><span class="dtb-word-open">Open</span><span class="dtb-word-closed">Closed</span></span><span class="dtb-refresh" style="flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"></path></svg></span></header>
 <style>
-.dtb-status { display: none; }
-.dtb[data-market="open"] .dtb-status, .dtb[data-market="closed"] .dtb-status { display: flex; }
+.dtb-marker, .dtb-refresh { display: none; }
+.dtb[data-market="open"] .dtb-marker, .dtb[data-market="closed"] .dtb-marker { display: flex; }
+.dtb[data-market="open"] .dtb-refresh, .dtb[data-market="closed"] .dtb-refresh { display: flex; }
+.dtb-word-closed { display: none; }
+.dtb[data-market="closed"] .dtb-word-open { display: none; }
+.dtb[data-market="closed"] .dtb-word-closed { display: inline; }
 .dtb[data-market="open"] .dtb-dot { background: var(--color-gain); }
 .dtb[data-market="closed"] .dtb-dot { background: transparent; box-shadow: inset 0 0 0 1.5px var(--color-outline); }
+.dtb-refresh { color: var(--color-on-surface-variant); }
+.dtb[data-refresh="on"] .dtb-refresh { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+.dtb[data-market="closed"] .dtb-refresh { background: transparent; color: var(--color-on-surface); opacity: 0.38; }
 </style>

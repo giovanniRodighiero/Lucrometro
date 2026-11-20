@@ -42,6 +42,13 @@ Next
    Snapshot exported 2026-11-19 (`docs/design/doop/`). To build: Room v4 with dated entries, the card, the add/edit sheet, the average line and the last-buy
    diamond on the chart (decision 0034), the chart at 292dp. Frames ready for dev since 2026-11-19. The watchlist line
    is designed but undecided ("Exploration · Position" page).
+5. Auto-refresh on the details screen (decision 0035): designed in Doop and snapshotted 2026-11-20 (frames
+   `details-auto-refresh-on`, `details-market-closed`, `details-market-sheet`, `auto-refresh-spec`; the other details
+   frames show the new top bar), not built. The decision lists the code changes. Sync icon and "Open/Closed" marker in the top bar, details
+   sheet behind the marker, halo on the chart's last point while polling, 30 s from the end of each fetch. To build:
+   the polling loop in the view model, the marker and sheet, the halo, strings in both languages. To settle: one chart
+   request per poll for header and chart. Still to verify: whether Yahoo has a push channel (WebSocket) for `.MI`;
+   with the ~15 minute delay it may add nothing. Polling follows the live-request rules in CLAUDE.md.
 
 Later (v2 candidates, not in v1 scope)
 - Full buy log per ticker (date, quantity, price) behind the position card's footer (decision 0033).

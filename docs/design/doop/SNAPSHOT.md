@@ -1,7 +1,8 @@
 # Doop snapshot
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
-(`export`), with the deviations listed below; details and position frames re-exported 2026-11-19. Re-running the export overwrites this folder.
+(`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
+2026-11-20 for the auto-refresh design (decision 0035). Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -21,13 +22,25 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `details-position-avg-only` | Details · position (avg only, below the chart) | `QUevA8SJK_` | `frames/details-position-avg-only.html`, `.png` |
 | `details-add-position` | Details · add position sheet | `-rhgnhOKIC` | `frames/details-add-position.html`, `.png` |
 | `details-edit-position` | Details · edit position sheet | `a02OBvdVC9` | `frames/details-edit-position.html`, `.png` |
-| `market-status-cases` | Reference · market status label cases (phone in Italy) | `mcAknly6zH` | `frames/market-status-cases.html`, `.png` |
+| `details-auto-refresh-on` | Details · auto-refresh on | `tMJVHoDnfM` | `frames/details-auto-refresh-on.html`, `.png` |
+| `details-market-closed` | Details · market closed (auto-refresh disabled) | `LbQyoDJzA4` | `frames/details-market-closed.html`, `.png` |
+| `details-market-sheet` | Details · market details sheet | `jpgBg-4wm5` | `frames/details-market-sheet.html`, `.png` |
+| `market-status-cases` | Reference · market status line in the sheet (phone in Italy) | `mcAknly6zH` | `frames/market-status-cases.html`, `.png` |
+| `auto-refresh-spec` | Reference · auto-refresh behaviour | `gBgQzbEzah` | `frames/auto-refresh-spec.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
 
-`market-status-cases` (added 2026-11-19, decision 0032) is a reference board, not a screen: the top bar's market
-status for exchanges in other zones, seen from a phone in Italy.
+`market-status-cases` (added 2026-11-19, decision 0032; reworked 2026-11-20) is a reference board, not a screen: the market
+status line for exchanges in other zones, seen from a phone in Italy. Since decision 0035 that line is shown in the
+details sheet, not in the top bar. `auto-refresh-spec` is a reference board too: the three signals (marker, icon, halo)
+and the polling rules as text.
+
+Auto-refresh (decision 0035, 2026-11-20): `DetailsTopBar` is rev 5 (marker and sync icon instead of the status text), so
+every details frame shows the new top bar. The old text-only top bar is in git at 38e73f3. There is no separate "off"
+frame: `details-1d` is the off state. The three new screens (`details-auto-refresh-on`, `details-market-closed`,
+`details-market-sheet`) are marked ready for dev on the canvas, signed off by the owner on 2026-11-20. The page "Exploration · Auto-refresh" was deleted with its rejected options
+(header chip, icon beside the status text, status strip under the header).
 
 The position frames (added 2026-11-19, decisions 0033 and 0034) are marked ready for dev on the canvas. With the
 position work every details frame was re-exported: the chart is 292dp (was 324) and the empty `PositionCard` sits

@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Reference · auto-refresh behaviour" (gBgQzbEzah), 440x640. Snapshot: instance ids and the
+     <style data-doop-tokens>/webfonts blocks are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }</style></head>
+<body style="width:440px;height:640px;padding:var(--spacing-lg);background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);">
+<h1 style="font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">Auto-refresh on the details screen</h1>
+<p style="margin-top:var(--spacing-xs);font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">Three signals, each with one job. Quotes are about 15 minutes delayed, so this is "check again", not a live feed.</p>
+<div style="margin-top:var(--spacing-lg);display:grid;grid-template-columns:96px 1fr;column-gap:var(--spacing-md);row-gap:var(--spacing-md);font-size:var(--text-body-medium);line-height:var(--leading-body-medium);">
+<span style="display:flex;align-items:center;gap:6px;font-weight:var(--font-weight-medium);"><span style="width:8px;height:8px;border-radius:var(--radius-full);background:var(--color-gain);"></span>Open</span>
+<span style="color:var(--color-on-surface-variant);">Market state: filled dot Open, hollow dot Closed, neutral colours. Tap it for the details sheet.</span>
+<span style="display:flex;align-items:center;"><span style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:var(--radius-full);background:var(--color-secondary-container);color:var(--color-on-secondary-container);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg></span></span>
+<span style="color:var(--color-on-surface-variant);">The control: tonal fill when on, plain when off, 38% when disabled. Tap to start or stop.</span>
+<span style="display:flex;align-items:center;"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" style="color:var(--color-gain);"><circle cx="20" cy="20" r="12" fill="currentColor" opacity="0.2"></circle><circle cx="20" cy="20" r="5" fill="currentColor" stroke="var(--color-surface)" stroke-width="2"></circle></svg></span>
+<span style="color:var(--color-on-surface-variant);">Halo on the chart's last point: polling is running. Only while on. It takes the line's colour (gain, loss, neutral).</span>
+</div>
+<h2 style="margin-top:var(--spacing-lg);font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">Rules</h2>
+<ul style="margin-top:var(--spacing-sm);padding-left:var(--spacing-md);display:grid;row-gap:var(--spacing-sm);font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">
+<li>Starts off every time the screen opens.</li>
+<li>Polls every 30 s, counted from the end of the previous fetch. One request at a time.</li>
+<li>Stops when you tap the icon, leave the screen or the app, the market closes, or a fetch fails (no retries; the header goes stale).</li>
+<li>Market closed: icon disabled, no halo, the stamp names the session day.</li>
+<li>The sheet shows the session hours, last quote, delay and the auto-refresh state. A foreign exchange shows both clocks there (decision 0032).</li>
+</ul>
+</body>
+</html>
