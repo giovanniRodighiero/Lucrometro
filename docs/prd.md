@@ -2,6 +2,12 @@
 
 Status: final (v1), 2026-11-17. Single user, personal tool.
 
+> Later decisions changed parts of this spec. It is kept as written to show the starting point:
+> - A personal position (average price, shares, last buy) was added in 0.3 (decisions 0033, 0034, 0036). It is a
+>   single position per ticker, not the full holdings/P&L that is out of scope below.
+> - The market status moved from the top bar to a market sheet, and the details screen gained auto-refresh
+>   (decisions 0035, 0037, 0038).
+
 ## Purpose
 Check a short, dynamic list of ETFs and Borsa Italiana stocks a few times per day, quickly see how
 each is doing, and drill into a chart to see how it moved over time.
