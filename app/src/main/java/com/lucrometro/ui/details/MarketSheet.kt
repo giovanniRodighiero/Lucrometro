@@ -34,7 +34,7 @@ fun MarketSheet(
     market: MarketInfo,
     status: MarketStatus,
     now: Long,
-    quote: Quote?,
+    quote: Quote,
     autoRefresh: AutoRefresh,
     times: TimeFormats,
     onClose: () -> Unit,
@@ -42,7 +42,7 @@ fun MarketSheet(
     ModalBottomSheet(onDismissRequest = onClose) {
         Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 40.dp)) {
             Text(
-                market.exchangeName ?: quote?.exchange ?: code,
+                market.exchangeName ?: quote.exchange ?: code,
                 style = MaterialTheme.typography.titleLarge,
             )
             Row(
@@ -59,7 +59,7 @@ fun MarketSheet(
             }
             Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SheetRow(stringResource(R.string.market_sheet_hours), sessionHours(market, times))
-                quote?.let { SheetRow(stringResource(R.string.market_sheet_last_quote), times.marketStamp(it.marketTimeEpoch, market.zone)) }
+                SheetRow(stringResource(R.string.market_sheet_last_quote), times.marketStamp(quote.marketTimeEpoch, market.zone))
                 market.delayMinutes?.let {
                     SheetRow(stringResource(R.string.market_sheet_delay), pluralStringResource(R.plurals.market_sheet_delay_minutes, it, it))
                 }

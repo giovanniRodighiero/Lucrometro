@@ -33,6 +33,8 @@ class DetailsViewModel(
     private val watchlist: WatchlistRepository,
     private val history: HistoryRepository,
     private val code: String,
+    /** Epoch millis: what the market status and the auto-refresh "checked" time are read from. */
+    private val clock: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
     /** The ticker's entry, or null while the list loads (or if the ticker is gone). */
     val entry: StateFlow<WatchlistEntry?> = watchlist.entries
@@ -123,7 +125,7 @@ class DetailsViewModel(
                     if (result == null) {
                         watchlist.markFailed(code)
                     } else {
-                        _autoRefresh.update { it.copy(checkedAt = System.currentTimeMillis()) }
+                        _autoRefresh.update { it.copy(checkedAt = clock()) }
                         when {
                             _range.value != HistoryRange.DAY_1 -> result.marketInfo()?.let { _market.value = it }
                             scrubbing -> pending = result
@@ -148,7 +150,7 @@ class DetailsViewModel(
     }
 
     private fun marketOpen(): Boolean =
-        _market.value?.let { marketStatus(System.currentTimeMillis() / 1000, it.session, it.zone) is MarketStatus.Open } == true
+        _market.value?.let { marketStatus(clock() / 1000, it.session, it.zone) is MarketStatus.Open } == true
 
     private fun load(bypassCache: Boolean) {
         debounce?.cancel()

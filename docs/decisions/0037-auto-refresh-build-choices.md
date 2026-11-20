@@ -20,7 +20,11 @@ and delay come from. Some behaviour showed up only while building.
 - **Failure**: the header goes stale through the watchlist's failed mark (`WatchlistRepository.markFailed`), as after a
   failed refresh; the next successful fetch clears it. The chart keeps what it shows.
 - **Stops** also when the marker and icon are hidden (the chart failed or the hours became unknown), besides the rules of
-  0035. The loop is `pollWhileOpen` in `ui/details/AutoRefresh.kt`, with a unit test for its stop rules.
+  0035. The loop is `pollWhileOpen` in `ui/details/AutoRefresh.kt`, with a unit test for its stop rules;
+  `DetailsAutoRefreshTest` covers what the view model does with each poll (held during a scrub, a failure stops it and
+  marks the header stale, no retry). The view model takes a clock, so the test does not depend on the day it runs.
+- **One sync button**: an `IconButton` whose colours switch to filled tonal when on, not two components swapped, so
+  TalkBack keeps its focus on the button when it is toggled.
 - **Sheet**: the title is Yahoo's `fullExchangeName` ("Milan" for `.MI`, not "Borsa Italiana"), then the quote's short
   exchange name, then the ticker code. Yahoo's chart `meta` gave no delay on 2026-11-20 (`exchangeDataDelayedBy` absent
   or 0), so the delay row is hidden; it appears if a response carries one. "Today's session" became "Trading hours"

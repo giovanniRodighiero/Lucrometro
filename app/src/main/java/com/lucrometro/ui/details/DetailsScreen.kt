@@ -14,9 +14,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -244,11 +244,13 @@ private fun AutoRefreshButton(on: Boolean, enabled: Boolean, onToggle: () -> Uni
             else -> R.string.auto_refresh_start
         },
     )
-    val icon: @Composable () -> Unit = { Icon(painterResource(R.drawable.ic_sync), description) }
-    if (on && enabled) {
-        FilledTonalIconButton(onClick = onToggle) { icon() }
-    } else {
-        IconButton(onClick = onToggle, enabled = enabled) { icon() }
+    // One button whose colours change, not two buttons: TalkBack keeps its focus on it when it is toggled.
+    IconButton(
+        onClick = onToggle,
+        enabled = enabled,
+        colors = if (on) IconButtonDefaults.filledTonalIconButtonColors() else IconButtonDefaults.iconButtonColors(),
+    ) {
+        Icon(painterResource(R.drawable.ic_sync), description)
     }
 }
 
