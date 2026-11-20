@@ -211,7 +211,9 @@ fun PriceChart(
             if (averageInside) {
                 drawLine(tertiary, Offset(left, averageY), Offset(right, averageY), 1.5.dp.toPx(), StrokeCap.Round, dots)
                 val label = measurer.measure(average.label, averageLabelStyle)
-                drawText(label, topLeft = Offset(left + 2.dp.toPx(), averageY - 2.dp.toPx() - label.size.height))
+                // Above the line, or below it when the line is too near the top for the label to fit.
+                val above = averageY - 2.dp.toPx() - label.size.height
+                drawText(label, topLeft = Offset(left + 2.dp.toPx(), if (above >= 0) above else averageY + 2.dp.toPx()))
                 drawLabel(measurer, average.price, averagePriceStyle, right + 8.dp.toPx(), averageY, LabelAnchor.Start)
             } else {
                 val below = average.value < axis.low
@@ -220,15 +222,17 @@ fun PriceChart(
                     tertiary, Offset(right - 56.dp.toPx(), averageY + inset), Offset(right, averageY + inset),
                     1.5.dp.toPx(), StrokeCap.Round, dots,
                 )
-                // A chevron pointing off the plot, then the price.
+                // A chevron pointing off the plot, then the price; both move left when a long price would pass the edge.
+                val price = measurer.measure(average.price, averagePriceStyle)
+                val priceX = minOf(right + 19.dp.toPx(), size.width - price.size.width)
                 val tip = if (below) 4.dp.toPx() else -4.dp.toPx()
                 val chevron = Path().apply {
-                    moveTo(right + 7.dp.toPx(), averageY)
-                    lineTo(right + 11.5.dp.toPx(), averageY + tip)
-                    lineTo(right + 16.dp.toPx(), averageY)
+                    moveTo(priceX - 12.dp.toPx(), averageY)
+                    lineTo(priceX - 7.5.dp.toPx(), averageY + tip)
+                    lineTo(priceX - 3.dp.toPx(), averageY)
                 }
                 drawPath(chevron, tertiary, style = Stroke(1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
-                drawLabel(measurer, average.price, averagePriceStyle, right + 19.dp.toPx(), averageY, LabelAnchor.Start)
+                drawText(price, topLeft = Offset(priceX, averageY - price.size.height / 2f))
             }
         }
 
@@ -282,7 +286,8 @@ private fun DrawScope.drawLabel(
         LabelAnchor.Center -> -layout.size.width / 2f
         LabelAnchor.End -> -layout.size.width.toFloat()
     }
-    drawText(layout, topLeft = Offset(x + dx, y - layout.size.height / 2f))
+    // Never past the right edge: a long price in the gutter moves left instead of being cut.
+    drawText(layout, topLeft = Offset(minOf(x + dx, size.width - layout.size.width), y - layout.size.height / 2f))
 }
 
 /** Gridlines at round prices that bracket the data: [low] and [high] are the first and last tick. */

@@ -67,7 +67,8 @@ fun DetailsScreen(
     val chart by viewModel.chart.collectAsStateWithLifecycle()
     val range by viewModel.range.collectAsStateWithLifecycle()
     val market by viewModel.market.collectAsStateWithLifecycle()
-    val position by viewModel.position.collectAsStateWithLifecycle()
+    val positionState by viewModel.position.collectAsStateWithLifecycle()
+    val position = positionState?.position
     var editingPosition by rememberSaveable { mutableStateOf(false) }
     val formats = rememberQuoteFormats()
     val times = rememberTimeFormats()
@@ -103,11 +104,13 @@ fun DetailsScreen(
             // The chart needs the ticker's currency and decimals, so it waits for the saved quote.
             if (quote != null) {
                 ChartSection(code, quote, position, chart, range, formats, times, viewModel::selectRange, viewModel::retry)
-                PositionCard(
-                    position, quote, formats, times,
-                    onEdit = { editingPosition = true },
-                    modifier = Modifier.padding(16.dp),
-                )
+                if (positionState != null) {
+                    PositionCard(
+                        position, quote, formats, times,
+                        onEdit = { editingPosition = true },
+                        modifier = Modifier.padding(16.dp),
+                    )
+                }
                 if (editingPosition) {
                     PositionSheet(position, quote, formats, times, viewModel::savePosition, onClose = { editingPosition = false })
                 }
@@ -195,7 +198,7 @@ private fun ChartSection(
                     percent?.let { changeLabel(it, formats) }.orEmpty(),
                 ) + positionDescription(position, lastBuyIndex, points, quote, formats, times),
                 average = position?.let {
-                    AverageMark(it.averagePrice, stringResource(R.string.chart_average), formats.exact(quote, it.averagePrice))
+                    AverageMark(it.averagePrice, stringResource(R.string.chart_average), formats.number(quote, it.averagePrice))
                 },
                 lastBuyIndex = lastBuyIndex,
             )

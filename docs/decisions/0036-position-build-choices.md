@@ -17,13 +17,17 @@ showed up only on the emulator.
 - **Validation**, shown below the field as in the add-ticker sheet, on Save: the average must be a number above 0, the
   shares (when given) too. A dot or a comma is the decimal mark; nothing else is accepted (no grouping, no sign, no
   exponent): "1.234,56" is rejected rather than guessed. A storage failure shows "Couldn't save" under the average.
-- **Average shown as typed**: at least the quote's decimals and up to 6 more, so a broker average of 29.5123 is not
-  rounded to 29.51 in the card, the chart gutter or the "Was" hint.
+- **Average shown as typed**: at least the quote's decimals and up to 6 in total, so a broker average of 29.5123 is not
+  rounded to 29.51 in the card or the "Was" hint. The chart gutter uses the quote's decimals, like the axis labels, so
+  the price fits; a label that would still pass the right edge (a 4-digit price) moves left, the edge chevron with it.
+- **"Your avg" label**: above the line, or below it when the line is too near the top of the chart for it to fit.
 - **Change since average**: per share with the average only, for the whole position with shares; the percent is the
   same.
 - **Last-buy point**: the last point on or before the buy's day in the exchange's zone (a weekend buy lands on Friday,
   a weekly or monthly bar holds its days). A buy today lands on the last point, so the diamond is drawn above the end
   dot (and below the scrub marker), otherwise the dot hides it.
+- **Card while loading**: hidden until the position has been read, so it never shows the empty state for a ticker
+  that has a position.
 - **Gutter labels**: a gridline label is skipped within 16dp (was 14dp) of the baseline's or the average's label: at 14dp
   they touched.
 - The watchlist line ("Avg 29.50 · +39.90%") is not built (owner, 2026-11-20).

@@ -24,6 +24,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+/** The owner's latest position entry, read from storage: null when none was saved. */
+data class PositionState(val position: Position?)
+
 /** The details screen of one ticker: its saved quote and the chart of the selected range. */
 class DetailsViewModel(
     private val watchlist: WatchlistRepository,
@@ -35,8 +38,9 @@ class DetailsViewModel(
         .map { list -> list.firstOrNull { it.code == code } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    /** The owner's latest position entry (decision 0033); null while it loads or if none was saved. */
-    val position: StateFlow<Position?> = watchlist.position(code)
+    /** The owner's position once read (decision 0033); null while it loads, so the card never flashes its empty state. */
+    val position: StateFlow<PositionState?> = watchlist.position(code)
+        .map(::PositionState)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** Saves a new position entry. False if it could not be saved. */

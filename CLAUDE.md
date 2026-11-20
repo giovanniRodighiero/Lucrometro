@@ -22,6 +22,7 @@ Example tickers: SMH.MI (ETF), ENI.MI, ISP.MI, SWDA.MI, VWCE.MI
 ```
 ./gradlew assembleDebug                      # build
 ./gradlew test                               # unit tests
+./gradlew connectedDebugAndroidTest          # instrumented tests (Room), emulator running; app stays installed
 emulator -avd Pixel_7_Pro_API_33 &           # boot emulator (arm64, Play Store image)
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n com.lucrometro/.MainActivity   # may fail if run right after install: retry

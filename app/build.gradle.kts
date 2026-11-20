@@ -19,6 +19,7 @@ android {
         targetSdk = 36
         versionCode = 2
         versionName = "0.2"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     if (releaseStoreFile != null) {
@@ -68,5 +69,7 @@ dependencies {
     ksp(libs.androidx.room3.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.org.json)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

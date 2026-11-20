@@ -48,7 +48,7 @@ class QuoteFormats(private val locale: Locale) {
     private val exact = HashMap<Int, NumberFormat>()
 
     /**
-     * [value] with at least the quote's decimals and up to 6 more, without the currency: a price the owner typed (the
+     * [value] with at least the quote's decimals and up to 6 in total, without the currency: a price the owner typed (the
      * broker's average, decision 0033), shown as typed.
      */
     fun exact(quote: Quote, value: Double): String {
