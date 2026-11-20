@@ -3,6 +3,35 @@
 All notable changes to Lucrometro are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions match the app's `versionName`.
 
+## [0.3] - 2026-11-20
+
+### Added
+- Your position: on a ticker's details, add the average price your broker shows, and optionally the shares and the date
+  of your last buy. A card under the chart shows the average, the change since it and, with shares, the value.
+  Each save is kept; the latest is shown. The data stays on the phone.
+- The chart shows your average price as a dotted line, and your last buy as a diamond when it falls inside the range.
+- Auto-refresh on the details screen: tap the sync button while the market is open to check the price every 15 seconds.
+  It stops when you leave the screen, when the market closes, or when a check fails.
+- Market marker in the top bar ("Open" or "Closed"). Tap it for the exchange's hours, the time of the last quote,
+  the delay of the prices and the auto-refresh state.
+
+### Changed
+- The market status adds the phone's clock in parentheses when it differs from the exchange's,
+  for example "Closed · opens 09:30 EST (15:30)".
+- Coming back from a ticker's details no longer reloads the whole list. The list refreshes when the app is opened or
+  brought back.
+
+### Fixed
+- When Yahoo answers "too many requests", a refresh stops at once instead of asking for every other ticker.
+  The remaining tickers show their last saved quote as stale.
+
+### Known limitations
+- Exchange holidays are not known: on a holiday the market status can read "opens tomorrow" until that day has passed.
+- Yahoo Finance is unofficial and can stop working. When a price can't be fetched, the app shows the last saved quote
+  as stale, or an error on the chart.
+- A position can be edited but not removed, except by removing the ticker.
+- Tested on the Android emulator (API 33) only. Not yet tested on a physical phone, or with TalkBack on the chart.
+
 ## [0.2] - 2026-11-18
 
 ### Added
