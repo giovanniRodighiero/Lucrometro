@@ -18,7 +18,7 @@ Done
 - [x] Personal position built (decisions 0033, 0034, 0036): Room v4 with dated entries (removed and restored with the
       ticker), `PositionCard`, add/edit sheet with the date picker, average line or edge marker and last-buy diamond on
       the chart, chart at 292dp. Checked on the emulator in English and Italian. The watchlist line is not planned.
-- [x] Auto-refresh on the details screen built (decisions 0035, 0037): market marker and sheet, sync icon, 30 s polling
+- [x] Auto-refresh on the details screen built (decisions 0035, 0037): market marker and sheet, sync icon, 15 s polling (decision 0038)
       of the 1D chart, halo. Checked on the emulator: polls update header and chart, stops on leaving, disabled when closed.
 
 - [x] Watchlist rows from the Doop QuoteRow/ChangeBadge: price, day change pill, stale mark, "Updated"

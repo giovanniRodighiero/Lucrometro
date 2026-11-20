@@ -133,8 +133,8 @@
     <string name="market_sheet_delay">Ritardo</string>
     <string name="market_sheet_auto_refresh">Aggiornamento automatico</string>
     <string name="auto_refresh_off">Spento</string>
-    <string name="auto_refresh_every">Ogni 30 s</string>
-    <string name="auto_refresh_every_checked">Ogni 30 s · controllato alle %1$s</string>
+    <string name="auto_refresh_every">Ogni 15 s</string>
+    <string name="auto_refresh_every_checked">Ogni 15 s · controllato alle %1$s</string>
     <plurals name="market_sheet_delay_minutes">
         <item quantity="one">Circa %1$d minuto</item>
         <item quantity="other">Circa %1$d minuti</item>
