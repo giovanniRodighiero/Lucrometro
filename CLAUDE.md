@@ -23,15 +23,18 @@ Example tickers: SMH.MI (ETF), ENI.MI, ISP.MI, SWDA.MI, VWCE.MI
 ./gradlew assembleDebug                      # build
 ./gradlew test                               # unit tests
 ./gradlew connectedDebugAndroidTest          # instrumented tests (Room), emulator running; app stays installed
-emulator -avd Pixel_7_Pro_API_33 &           # boot emulator (arm64, Play Store image)
+emulator -list-avds                          # pick any API 26+ image (checked so far on a Pixel 7 Pro, API 33)
+emulator -avd <name> &                       # boot it
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n com.lucrometro/.MainActivity   # may fail if run right after install: retry
 adb exec-out screencap -p > <scratchpad>/shot.png    # verify UI; keep screenshots out of the repo
 scripts/release.sh 0.2 --dry-run             # release checks + signed build, changes nothing
 scripts/release.sh 0.2                       # release: needs "## [0.2]" in CHANGELOG.md committed first (decision 0021)
 ```
-Environment: `ANDROID_HOME=~/Library/Android/sdk`, JDK 17. Gradle auto-downloads missing SDK
-platforms. `PomoTimer` (other project) needs platform 34 and build-tools 34.0.0: do not delete them.
+Environment: Android SDK with `ANDROID_HOME` set (macOS default: `~/Library/Android/sdk`), `platform-tools` and
+`emulator` on `PATH`, JDK 17. Gradle auto-downloads missing SDK platforms. Debug builds need nothing else.
+Releases need your own signing keystore in `~/.gradle/gradle.properties` (decision 0020; without it the release
+APK is unsigned), the `gh` CLI logged in, and macOS (decision 0021).
 
 ## Conventions
 - Verify every change: build, install on the emulator, screenshot. Do not report done without it.
