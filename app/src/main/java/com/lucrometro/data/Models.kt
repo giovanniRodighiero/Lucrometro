@@ -30,11 +30,7 @@ data class Quote(
 /** One bar. Prices are null-free: bars with a missing close are dropped by the source. */
 data class Candle(
     val epochSeconds: Long,
-    val open: Double?,
-    val high: Double?,
-    val low: Double?,
     val close: Double,
-    val volume: Long?,
     /** Close adjusted for dividends and splits (decision 0022); null when the source gave none for this bar. */
     val adjClose: Double? = null,
 )

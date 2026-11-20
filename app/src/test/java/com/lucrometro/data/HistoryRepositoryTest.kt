@@ -13,7 +13,7 @@ class HistoryRepositoryTest {
         override fun quote(symbol: String) = Result.success(Quote(symbol, 10.0, "EUR", null, 0))
         override fun history(symbol: String, range: HistoryRange): Result<History> {
             calls++
-            return Result.success(History(listOf(Candle(1, null, null, null, 10.0, null), Candle(2, null, null, null, 11.0, null))))
+            return Result.success(History(listOf(Candle(1, 10.0), Candle(2, 11.0))))
         }
     }
 
@@ -54,7 +54,7 @@ class HistoryRepositoryTest {
         val source = object : QuoteSource {
             override fun quote(symbol: String) = Result.success(newer)
             override fun history(symbol: String, range: HistoryRange) = Result.success(
-                History(listOf(Candle(1, null, null, null, 12.0, null), Candle(2, null, null, null, 12.5, null)), quote = newer),
+                History(listOf(Candle(1, 12.0), Candle(2, 12.5)), quote = newer),
             )
         }
         val store = FakeWatchlistStore().apply { add("ENI.MI", SavedQuote(Quote("ENI.MI", 10.0, "EUR", null, 100), fetchedAt = 500)) }
@@ -83,7 +83,7 @@ class HistoryRepositoryTest {
         val source = object : QuoteSource {
             override fun quote(symbol: String) = Result.success(older)
             override fun history(symbol: String, range: HistoryRange) = Result.success(
-                History(listOf(Candle(1, null, null, null, 11.0, null), Candle(2, null, null, null, 11.0, null)), quote = older),
+                History(listOf(Candle(1, 11.0), Candle(2, 11.0)), quote = older),
             )
         }
         val store = FakeWatchlistStore().apply { add("ENI.MI", SavedQuote(Quote("ENI.MI", 12.0, "EUR", null, 300), fetchedAt = 500)) }

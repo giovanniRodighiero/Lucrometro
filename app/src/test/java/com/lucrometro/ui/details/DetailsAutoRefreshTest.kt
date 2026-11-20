@@ -52,7 +52,7 @@ class DetailsAutoRefreshTest {
 
     private fun day(last: Double) = Result.success(
         History(
-            candles = listOf(Candle(noon - 600, null, null, null, 10.0, null), Candle(noon - 300, null, null, null, last, null)),
+            candles = listOf(Candle(noon - 600, 10.0), Candle(noon - 300, last)),
             currentSession = session,
             exchangeZone = "UTC",
         ),

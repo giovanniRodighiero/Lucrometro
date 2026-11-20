@@ -6,6 +6,9 @@ class TickerNotFoundException(symbol: String) : Exception("Ticker not found: $sy
 /** The source knows the symbol but has no current price for it (suspended, delisted, never traded). */
 class NoPriceException(symbol: String) : Exception("No price for: $symbol")
 
+/** The source refused the request as too many (HTTP 429): stop asking, no retries (CLAUDE.md). */
+class RateLimitedException : Exception("Rate limited (HTTP 429)")
+
 /** Abstraction so the data provider can be swapped if Yahoo blocks or changes. */
 interface QuoteSource {
     /**

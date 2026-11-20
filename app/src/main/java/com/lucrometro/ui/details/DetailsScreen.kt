@@ -231,7 +231,7 @@ private fun ChartSection(
             )
         }
     }
-    RangeBar(DETAILS_RANGES, range, onSelectRange, Modifier.padding(top = 8.dp))
+    RangeBar(HistoryRange.entries, range, onSelectRange, Modifier.padding(top = 8.dp))
 }
 
 /** The sync icon (decision 0035): plain when off, tonal when on, disabled (38%) when the market is closed. */

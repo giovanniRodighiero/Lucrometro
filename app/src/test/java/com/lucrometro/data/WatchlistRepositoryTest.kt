@@ -103,4 +103,25 @@ class WatchlistRepositoryTest {
         repo.refresh()
         assertFalse(repo.entries.first().single().stale)
     }
+
+    // CLAUDE.md: stop at the first 429. The rest of the list is not fetched and shows its last quote as stale.
+    @Test fun refreshStopsAtTheFirstRateLimit() = runBlocking {
+        val asked = mutableListOf<String>()
+        var limited = false
+        val source = object : QuoteSource {
+            override fun quote(symbol: String): Result<Quote> {
+                asked += symbol
+                return if (limited) Result.failure(RateLimitedException()) else Result.success(quote(symbol, 10.0))
+            }
+            override fun history(symbol: String, range: HistoryRange) = Result.success(History(emptyList()))
+        }
+        val repo = WatchlistRepository(source, FakeWatchlistStore(), SourceGate(Dispatchers.Unconfined))
+        listOf("ENI.MI", "ISP.MI", "SWDA.MI").forEach { repo.add(it) }
+        asked.clear()
+
+        limited = true
+        repo.refresh()
+        assertEquals(listOf("ENI.MI"), asked)
+        assertTrue(repo.entries.first().all { it.failed && it.stale })
+    }
 }

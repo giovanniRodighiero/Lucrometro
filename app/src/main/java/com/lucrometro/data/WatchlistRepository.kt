@@ -137,14 +137,22 @@ class WatchlistRepository(
     /**
      * Fetches a fresh quote for every ticker, one at a time (PRD). A failed fetch (or a failed save)
      * keeps the last saved quote and marks the entry failed, so the UI shows it as stale; it never
-     * substitutes data. Does nothing if a refresh is already running.
+     * substitutes data. A rate limit (429) stops it: the remaining entries are marked failed without a request. Does
+     * nothing if a refresh is already running.
      */
     suspend fun refresh() {
         if (!_refreshing.compareAndSet(expect = false, update = true)) return
         try {
             val codes = storeCall { store.codes() } ?: return
-            for (code in codes) {
-                val saved = gate.request { source.quote(code) }.getOrNull()?.let { SavedQuote(it, clock()) }
+            for ((i, code) in codes.withIndex()) {
+                val result = gate.request { source.quote(code) }
+                if (result.exceptionOrNull() is RateLimitedException) {
+                    // Stop at the first 429: the rest keep their last quote, shown stale.
+                    val rest = codes.drop(i).filter { isTracked(it) }
+                    failed.update { it + rest }
+                    break
+                }
+                val saved = result.getOrNull()?.let { SavedQuote(it, clock()) }
                 // Removed while the request was running: don't mark it failed (an undo would bring it
                 // back looking stale).
                 if (!isTracked(code)) continue

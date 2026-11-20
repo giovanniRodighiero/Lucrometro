@@ -43,18 +43,13 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
         // No bars at all (1D before the first trade of the day): no "timestamp" key, an empty history.
         val ts = result.optJSONArray("timestamp") ?: JSONArray()
         val q = result.getJSONObject("indicators").optJSONArray("quote")?.optJSONObject(0) ?: JSONObject()
-        fun d(name: String, i: Int): Double? =
-            q.optJSONArray(name)?.takeIf { !it.isNull(i) }?.getDouble(i)
+        val closes = q.optJSONArray("close")
         val adj = result.getJSONObject("indicators").optJSONArray("adjclose")?.optJSONObject(0)?.optJSONArray("adjclose")
         val candles = (0 until ts.length()).mapNotNull { i ->
-            val close = d("close", i) ?: return@mapNotNull null // halted/empty bar
+            val close = closes?.takeIf { !it.isNull(i) }?.getDouble(i) ?: return@mapNotNull null // halted/empty bar
             Candle(
                 epochSeconds = ts.getLong(i),
-                open = d("open", i),
-                high = d("high", i),
-                low = d("low", i),
                 close = close,
-                volume = q.optJSONArray("volume")?.takeIf { !it.isNull(i) }?.getLong(i),
                 adjClose = adj?.takeIf { !it.isNull(i) }?.getDouble(i),
             )
         }
@@ -115,6 +110,8 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
 
     private fun parseChart(symbol: String, res: HttpResult): JSONObject {
         if (res.status == 404 && isNotFound(res.body)) throw TickerNotFoundException(symbol)
+        // Not a session problem: keep the session, so the next request is not three.
+        if (res.status == 429) throw RateLimitedException()
         if (res.status != 200) {
             clearSession()
             error("chart HTTP ${res.status}: ${res.body.take(120)}")
@@ -138,9 +135,11 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
         if (cookie != null && crumb != null) return
         // 404 is expected here; we only want the Set-Cookie header.
         val seed = http.get("https://fc.yahoo.com")
+        if (seed.status == 429) throw RateLimitedException()
         val c = seed.setCookies.joinToString("; ") { it.substringBefore(';') }
         if (c.isEmpty()) error("no cookie from fc.yahoo.com (HTTP ${seed.status})")
         val res = http.get("https://query1.finance.yahoo.com/v1/test/getcrumb", mapOf("Cookie" to c))
+        if (res.status == 429) throw RateLimitedException()
         if (res.status != 200 || res.body.isBlank()) error("crumb HTTP ${res.status}: ${res.body.take(120)}")
         cookie = c
         crumb = res.body.trim()

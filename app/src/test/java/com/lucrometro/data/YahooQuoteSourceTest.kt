@@ -52,6 +52,16 @@ class YahooQuoteSourceTest {
         assertEquals(1, http.chartUrls.size)
     }
 
+    // A 429 is not an expired session: renewing it would turn one refused request into three.
+    @Test fun rateLimitKeepsTheSession() {
+        val http = FakeHttp(eni, HttpResult(429, "Too Many Requests", emptyList()), eni)
+        val source = YahooQuoteSource(http)
+        source.quote("ENI.MI").getOrThrow()
+        assertTrue(source.quote("ENI.MI").exceptionOrNull() is RateLimitedException)
+        source.quote("ENI.MI").getOrThrow()
+        assertEquals(1, http.sessions)
+    }
+
     private fun candles(adjclose: String?) = HttpResult(
         200,
         """{"chart":{"result":[{"meta":{},"timestamp":[1,2,3],"indicators":{"quote":[{"close":[10.0,null,12.0]}]""" +

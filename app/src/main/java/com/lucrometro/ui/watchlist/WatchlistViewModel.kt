@@ -20,15 +20,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Why the add-ticker sheet refused the input. [code] is the normalized code, when there is one. */
-data class AddTickerError(val kind: Kind, val code: String = "") {
-    enum class Kind { Empty, InvalidFormat, Duplicate, NotFound, NoPrice, CheckFailed, SaveFailed }
-}
-
 /** The add-ticker sheet. The typed text lives in the sheet's TextFieldState, not here. */
 data class AddTickerState(
     val checking: Boolean = false,
-    val error: AddTickerError? = null,
+    /** Why the input was refused: any result but [AddTickerResult.Added]. */
+    val error: AddTickerResult? = null,
     /** Set when the ticker was saved: the screen animates the sheet away, then calls [WatchlistViewModel.closeAddSheet]. */
     val added: Boolean = false,
 )
@@ -69,8 +65,8 @@ class WatchlistViewModel(private val repository: WatchlistRepository) : ViewMode
         viewModelScope.launch { repository.refresh() }
     }
 
-    /** The screen became visible (app opened or brought back): refresh unless one finished in the last minute. */
-    fun onScreenStarted() {
+    /** The app was opened or brought back, on either screen: refresh unless one finished in the last minute. */
+    fun onAppStarted() {
         viewModelScope.launch { repository.refreshUnlessRecent(AUTO_REFRESH_MIN_GAP_MS) }
     }
 
@@ -102,20 +98,9 @@ class WatchlistViewModel(private val repository: WatchlistRepository) : ViewMode
         checkJob = viewModelScope.launch {
             val result = repository.add(input)
             _addSheet.update { current ->
-                current?.copy(checking = false, error = result.toError(), added = result is AddTickerResult.Added)
+                current?.copy(checking = false, error = result.takeIf { it !is AddTickerResult.Added }, added = result is AddTickerResult.Added)
             }
         }
-    }
-
-    private fun AddTickerResult.toError(): AddTickerError? = when (this) {
-        is AddTickerResult.Added -> null
-        AddTickerResult.Empty -> AddTickerError(AddTickerError.Kind.Empty)
-        is AddTickerResult.InvalidFormat -> AddTickerError(AddTickerError.Kind.InvalidFormat, code)
-        is AddTickerResult.Duplicate -> AddTickerError(AddTickerError.Kind.Duplicate, code)
-        is AddTickerResult.NotFound -> AddTickerError(AddTickerError.Kind.NotFound, code)
-        is AddTickerResult.NoPrice -> AddTickerError(AddTickerError.Kind.NoPrice, code)
-        is AddTickerResult.CheckFailed -> AddTickerError(AddTickerError.Kind.CheckFailed, code)
-        is AddTickerResult.SaveFailed -> AddTickerError(AddTickerError.Kind.SaveFailed, code)
     }
 
     companion object {

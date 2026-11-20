@@ -62,10 +62,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
+import com.lucrometro.data.AddTickerResult
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
@@ -100,12 +100,6 @@ fun WatchlistScreen(
             snackbar.showSnackbar(resources.getString(R.string.undo_failed, removed.code))
         }
         viewModel.undoDismissed(removed) // last: it changes the key, which would cancel the message above
-    }
-
-    // PRD: auto-refresh when the app is opened (the ViewModel skips it if it refreshed a moment ago).
-    LifecycleStartEffect(viewModel) {
-        viewModel.onScreenStarted()
-        onStopOrDispose {}
     }
 
     WatchlistContent(
@@ -343,12 +337,13 @@ private val TickerInput = InputTransformation {
 }.allCaps(Locale("en"))
 
 @Composable
-private fun AddTickerError.message(): String = when (kind) {
-    AddTickerError.Kind.Empty -> stringResource(R.string.add_ticker_error_empty)
-    AddTickerError.Kind.InvalidFormat -> stringResource(R.string.add_ticker_error_format)
-    AddTickerError.Kind.Duplicate -> stringResource(R.string.add_ticker_error_duplicate, code)
-    AddTickerError.Kind.NotFound -> stringResource(R.string.add_ticker_error_not_found, code)
-    AddTickerError.Kind.NoPrice -> stringResource(R.string.add_ticker_error_no_price, code)
-    AddTickerError.Kind.CheckFailed -> stringResource(R.string.add_ticker_error_check_failed, code)
-    AddTickerError.Kind.SaveFailed -> stringResource(R.string.add_ticker_error_save_failed, code)
+private fun AddTickerResult.message(): String = when (this) {
+    is AddTickerResult.Added -> "" // never an error: the sheet closes
+    AddTickerResult.Empty -> stringResource(R.string.add_ticker_error_empty)
+    is AddTickerResult.InvalidFormat -> stringResource(R.string.add_ticker_error_format)
+    is AddTickerResult.Duplicate -> stringResource(R.string.add_ticker_error_duplicate, code)
+    is AddTickerResult.NotFound -> stringResource(R.string.add_ticker_error_not_found, code)
+    is AddTickerResult.NoPrice -> stringResource(R.string.add_ticker_error_no_price, code)
+    is AddTickerResult.CheckFailed -> stringResource(R.string.add_ticker_error_check_failed, code)
+    is AddTickerResult.SaveFailed -> stringResource(R.string.add_ticker_error_save_failed, code)
 }

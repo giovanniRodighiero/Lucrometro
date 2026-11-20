@@ -9,12 +9,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** The ranges of the range bar, in order. 1D is the default (decision 0022). */
-val DETAILS_RANGES = listOf(
-    HistoryRange.DAY_1, HistoryRange.DAYS_5, HistoryRange.MONTH_1, HistoryRange.MONTHS_3, HistoryRange.MONTHS_6,
-    HistoryRange.YEAR_1, HistoryRange.YEARS_5, HistoryRange.MAX,
-)
-
 /** One point of the chart: the adjusted close (decision 0022), or the close when the source has no adjusted one. */
 data class ChartPoint(val epochSeconds: Long, val price: Double)
 
