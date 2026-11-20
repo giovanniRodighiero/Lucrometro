@@ -42,10 +42,16 @@ The loop, and where to see each step in the repo:
    files in the repo. The [doop-sync skill](.claude/skills/doop-sync/SKILL.md) does the export and the port. The export needs
    access to my Doop canvas, but the port and the build only need the snapshot.
    Rules for a native Material 3 look are in [docs/design/](docs/design/).
-3. **Build and verify.** [CLAUDE.md](CLAUDE.md) gives every agent the same stack, commands and conventions.
-   Every change is built, installed on an emulator and checked from a screenshot before it counts as done.
-4. **Review.** Features get an agent code review, and the fixes land as their own commit
-   ("Fix the ... review findings").
+3. **Break it down, then build.** Each feature starts with a plan: the agent splits the design and the decisions
+   into tasks, and I approve it or change it before any code is written. [CLAUDE.md](CLAUDE.md) gives every agent
+   the same stack, commands and conventions. Every change is built, installed on an emulator and checked from a
+   screenshot before it counts as done. Choices that only came up while building are written down too, for example
+   [0037](docs/decisions/0037-auto-refresh-build-choices.md).
+4. **Review, then audit.** Each feature gets an agent code review of its change, and the fixes land as their own
+   commit ("Fix the ... review findings"). Every few features, an agent audits the whole codebase, not just the
+   latest diff: bugs that only show across features, dead code, and things to merge or delete. Those fixes land
+   together too ("Fix the audit findings"). This keeps technical debt from piling up even though no one types the
+   code by hand.
 5. **Release.** [scripts/release.sh](scripts/release.sh) runs the checks, builds and verifies the signed APK,
    tags it and publishes the GitHub release, all in one command.
 
