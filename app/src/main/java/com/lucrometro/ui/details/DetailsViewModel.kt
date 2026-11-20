@@ -9,9 +9,11 @@ import com.lucrometro.data.DataGraph
 import com.lucrometro.data.History
 import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.HistoryRepository
+import com.lucrometro.data.Position
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,10 +22,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /** The details screen of one ticker: its saved quote and the chart of the selected range. */
 class DetailsViewModel(
-    watchlist: WatchlistRepository,
+    private val watchlist: WatchlistRepository,
     private val history: HistoryRepository,
     private val code: String,
 ) : ViewModel() {
@@ -31,6 +34,15 @@ class DetailsViewModel(
     val entry: StateFlow<WatchlistEntry?> = watchlist.entries
         .map { list -> list.firstOrNull { it.code == code } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** The owner's latest position entry (decision 0033); null while it loads or if none was saved. */
+    val position: StateFlow<Position?> = watchlist.position(code)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Saves a new position entry. False if it could not be saved. */
+    suspend fun savePosition(averagePrice: Double, shares: Double?, lastBuy: LocalDate): Boolean =
+        // In the ViewModel's scope: closing the sheet must not cancel the write.
+        viewModelScope.async { watchlist.savePosition(code, averagePrice, shares, lastBuy) }.await()
 
     private val _range = MutableStateFlow(DEFAULT_RANGE)
     val range: StateFlow<HistoryRange> = _range.asStateFlow()

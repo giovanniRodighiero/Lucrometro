@@ -1,5 +1,6 @@
 package com.lucrometro.data.db
 
+import com.lucrometro.data.Position
 import com.lucrometro.data.SavedQuote
 import com.lucrometro.data.StoredTicker
 import com.lucrometro.data.WatchlistStore
@@ -21,9 +22,15 @@ class RoomWatchlistStore(private val dao: WatchlistDao) : WatchlistStore {
 
     override suspend fun saveQuote(code: String, saved: SavedQuote) = dao.saveQuote(QuoteUpdate(code, saved.toColumns()))
 
-    override suspend fun remove(code: String): StoredTicker? = dao.take(code)?.toStored()
+    override fun observePosition(code: String): Flow<Position?> = dao.observeLatestPosition(code).map { it?.toPosition() }
+
+    override suspend fun addPosition(code: String, position: Position): Boolean = dao.addPosition(position.toEntity(code))
+
+    override suspend fun remove(code: String): StoredTicker? =
+        dao.take(code)?.let { removed -> removed.ticker.toStored().copy(positions = removed.positions.map { it.toPosition() }) }
 
     override suspend fun restore(ticker: StoredTicker): Boolean = dao.putBack(
         TickerEntity(ticker.code, ticker.position, ticker.addedAt, ticker.saved?.toColumns()),
+        ticker.positions.map { it.toEntity(ticker.code) },
     )
 }

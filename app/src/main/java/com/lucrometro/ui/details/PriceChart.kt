@@ -42,17 +42,20 @@ import kotlin.math.log10
 import kotlin.math.pow
 
 /** Height of the chart area; the loading and message states take the same, so nothing moves when the chart loads. */
-val ChartHeight = 324.dp
+val ChartHeight = 292.dp
 
 // The plot inside the chart area: the right gutter holds the price labels, the bottom one the time labels.
 private val PlotStart = 16.dp
 private val PriceGutter = 60.dp
 private val PlotTop = 12.dp
-private val PlotBottom = 288.dp
-private val TimeLabelsY = 312.dp
+private val PlotBottom = 256.dp
+private val TimeLabelsY = 280.dp
 
 private fun Density.plotLeft() = PlotStart.toPx()
 private fun Density.plotRight(width: Float) = width - PriceGutter.toPx()
+
+/** The owner's average price on the chart (decision 0033): [label] "Your avg", [price] formatted for the gutter. */
+class AverageMark(val value: Double, val label: String, val price: String)
 
 /** Labels of the TalkBack actions that step the scrub through the points. */
 class StepLabels(val previous: String, val next: String, val latest: String)
@@ -83,6 +86,10 @@ fun PriceChart(
     /** TalkBack: what the scrubbed point says (date, price, change), and the labels of the actions that step through points. */
     scrubDescription: String? = null,
     stepLabels: StepLabels? = null,
+    /** The owner's average price: a dotted line, or a stub at the plot edge when it is outside the axis (decision 0033). */
+    average: AverageMark? = null,
+    /** The point of the last buy, drawn as a diamond (decision 0034); null when it is outside the range. */
+    lastBuyIndex: Int? = null,
 ) {
     val onScrubState by rememberUpdatedState(onScrub)
     val measurer = rememberTextMeasurer()
@@ -91,6 +98,9 @@ fun PriceChart(
     val scrubColor = MaterialTheme.colorScheme.onSurface
     val labelStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     val surface = MaterialTheme.colorScheme.surface
+    val tertiary = MaterialTheme.colorScheme.tertiary
+    val averageLabelStyle = MaterialTheme.typography.labelSmall.copy(color = tertiary)
+    val averagePriceStyle = labelStyle.copy(color = tertiary, fontWeight = FontWeight.Medium)
     val axis = remember(points, baseline) {
         val low = listOfNotNull(points.minOf { it.price }, baseline).min()
         val high = listOfNotNull(points.maxOf { it.price }, baseline).max()
@@ -150,12 +160,22 @@ fun PriceChart(
         fun x(fraction: Float) = left + (right - left) * fraction
         fun y(price: Double) = bottom - (bottom - top) * ((price - axis.low) / (axis.high - axis.low)).toFloat()
         val baselineY = baseline?.let { y(it) }
+        // The axis is never stretched to the average (it would flatten the line): outside it, a stub at the nearer edge.
+        val averageInside = average != null && average.value in axis.low..axis.high
+        val averageY = average?.let {
+            when {
+                averageInside -> y(it.value)
+                it.value < axis.low -> bottom
+                else -> top
+            }
+        }
 
         for (tick in axis.ticks) {
             val ty = y(tick)
             drawLine(gridColor, Offset(left, ty), Offset(right, ty), strokeWidth = 1.dp.toPx())
-            // The baseline's own label sits at its line: skip a gridline label that would overlap it.
-            if (baselineY == null || abs(ty - baselineY) > 14.dp.toPx()) {
+            // The baseline's and the average's own labels sit at their lines: skip a gridline label that would overlap.
+            val clear = listOfNotNull(baselineY, averageY).all { abs(ty - it) > 16.dp.toPx() }
+            if (clear) {
                 drawLabel(measurer, formatPrice(tick), labelStyle, right + 8.dp.toPx(), ty, LabelAnchor.Start)
             }
         }
@@ -185,13 +205,56 @@ fun PriceChart(
         drawPath(area, Brush.verticalGradient(listOf(color.copy(alpha = 0.22f), color.copy(alpha = 0f)), top, bottom))
         drawPath(line, color, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 
+        if (average != null && averageY != null) {
+            // Dotted (round dots 5dp apart), never dashed: dashed is the 1D previous close.
+            val dots = PathEffect.dashPathEffect(floatArrayOf(0.1f, 5.dp.toPx()))
+            if (averageInside) {
+                drawLine(tertiary, Offset(left, averageY), Offset(right, averageY), 1.5.dp.toPx(), StrokeCap.Round, dots)
+                val label = measurer.measure(average.label, averageLabelStyle)
+                drawText(label, topLeft = Offset(left + 2.dp.toPx(), averageY - 2.dp.toPx() - label.size.height))
+                drawLabel(measurer, average.price, averagePriceStyle, right + 8.dp.toPx(), averageY, LabelAnchor.Start)
+            } else {
+                val below = average.value < axis.low
+                val inset = if (below) -3.5.dp.toPx() else 3.5.dp.toPx()
+                drawLine(
+                    tertiary, Offset(right - 56.dp.toPx(), averageY + inset), Offset(right, averageY + inset),
+                    1.5.dp.toPx(), StrokeCap.Round, dots,
+                )
+                // A chevron pointing off the plot, then the price.
+                val tip = if (below) 4.dp.toPx() else -4.dp.toPx()
+                val chevron = Path().apply {
+                    moveTo(right + 7.dp.toPx(), averageY)
+                    lineTo(right + 11.5.dp.toPx(), averageY + tip)
+                    lineTo(right + 16.dp.toPx(), averageY)
+                }
+                drawPath(chevron, tertiary, style = Stroke(1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+                drawLabel(measurer, average.price, averagePriceStyle, right + 19.dp.toPx(), averageY, LabelAnchor.Start)
+            }
+        }
+
         // A guard: the index belongs to the parent's state, the points to this call.
         val scrubbed = scrubIndex?.takeIf { it in points.indices && it in xs.indices }
         if (scrubbed == null) {
             val end = Offset(x(xs.last()), y(points.last().price))
             drawCircle(color, 5.dp.toPx(), end)
             drawCircle(surface, 5.dp.toPx(), end, style = Stroke(2.dp.toPx()))
-        } else {
+        }
+        // Above the end dot, which would hide a buy made on the last point; below the scrub marker.
+        lastBuyIndex?.takeIf { it in points.indices && it in xs.indices }?.let { i ->
+            val cx = x(xs[i])
+            val cy = y(points[i].price)
+            val r = 7.5.dp.toPx()
+            val diamond = Path().apply {
+                moveTo(cx, cy - r)
+                lineTo(cx + r, cy)
+                lineTo(cx, cy + r)
+                lineTo(cx - r, cy)
+                close()
+            }
+            drawPath(diamond, tertiary)
+            drawPath(diamond, surface, style = Stroke(2.dp.toPx(), join = StrokeJoin.Round))
+        }
+        if (scrubbed != null) {
             val sx = x(xs[scrubbed])
             drawLine(scrubColor, Offset(sx, top), Offset(sx, bottom), strokeWidth = 1.dp.toPx())
             val dot = Offset(sx, y(points[scrubbed].price))

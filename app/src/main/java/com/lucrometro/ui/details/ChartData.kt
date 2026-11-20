@@ -5,6 +5,8 @@ import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.TradingPeriod
 import com.lucrometro.ui.common.marketZone
 import com.lucrometro.ui.common.zoneOf
+import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 
 /** The ranges of the range bar, in order. 1D is the default (decision 0022). */
@@ -41,6 +43,16 @@ data class ChartData(
         val point = index?.let(points::getOrNull) ?: return null
         val change = point.price - startPrice
         return ScrubbedPoint(point, change, percentOf(change))
+    }
+
+    /**
+     * The point a day falls on: the last one on or before it (a weekend buy lands on Friday, a weekly bar holds its
+     * week). Null when the day is before the first point: outside the range (decision 0034).
+     */
+    fun indexOn(date: LocalDate): Int? {
+        fun day(p: ChartPoint) = Instant.ofEpochSecond(p.epochSeconds).atZone(zone).toLocalDate()
+        if (date < day(points.first())) return null
+        return points.indexOfLast { day(it) <= date }
     }
 
     private fun percentOf(change: Double): Double? = startPrice.takeIf { it > 0 }?.let { change / it * 100 }

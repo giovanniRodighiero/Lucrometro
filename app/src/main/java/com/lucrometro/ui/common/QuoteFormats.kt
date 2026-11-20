@@ -45,6 +45,27 @@ class QuoteFormats(private val locale: Locale) {
     /** A price (e.g. an axis label) with the quote's decimals, without the currency. */
     fun number(quote: Quote, value: Double): String = priceFormat(quote).format(value)
 
+    private val exact = HashMap<Int, NumberFormat>()
+
+    /**
+     * [value] with at least the quote's decimals and up to 6 more, without the currency: a price the owner typed (the
+     * broker's average, decision 0033), shown as typed.
+     */
+    fun exact(quote: Quote, value: Double): String {
+        val decimals = quote.priceDecimals ?: 2
+        return exact.getOrPut(decimals) {
+            NumberFormat.getNumberInstance(locale).apply {
+                minimumFractionDigits = decimals
+                maximumFractionDigits = maxOf(decimals, 6)
+            }
+        }.format(value)
+    }
+
+    /** A number of shares: whole, or with the decimals a fractional one has. */
+    fun shares(value: Double): String = sharesFormat.format(value)
+
+    private val sharesFormat = NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 6 }
+
     /** A change in price units with the quote's own decimals, rounded the way it is shown. */
     fun amountChange(quote: Quote, value: Double): AmountChange {
         val format = priceFormat(quote)

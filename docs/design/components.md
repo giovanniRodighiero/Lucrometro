@@ -11,7 +11,8 @@ are listed under each screen.
 | `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; in `actions`, the market marker (8dp dot and one word, opens the market sheet) and the sync `IconButton` (decision 0035). Not built yet; today the actions hold the full status `Row` (decisions 0027, 0032: its text now goes to the sheet, `frames/market-status-cases`) |
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
 | `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode, and scrub mode via `scrubbing`; the label is `scrubLabel` in the same file, decision 0028) |
-| `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025 |
+| `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025; the average line, edge marker and last-buy diamond, decisions 0033, 0034, 0036 |
+| `PositionCard` | `ui/details/PositionCard.kt` (`Column` on `surfaceContainerLow`; decisions 0033, 0036); the add/edit sheet is `ui/details/PositionSheet.kt` (`ModalBottomSheet`, stock `DatePickerDialog`) |
 | `RangeTab` | `ui/details/RangeBar.kt`: a `Row` of `selectable` cells in a `selectableGroup`, `Role.RadioButton` (decision 0026) |
 | `Fab` | Material 3 `FloatingActionButton` |
 | `BottomSheet`, `TextField`, `Button` | `ModalBottomSheet`, `OutlinedTextField`, `Button`/`TextButton` (decision 0013) |

@@ -91,4 +91,41 @@
     <string name="add_ticker_error_save_failed">Couldn\'t save %1$s. Try again.</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
+
+    <!-- Position card and sheet (decision 0033). Prices the owner copies from the broker. -->
+    <string name="position_title">Your position</string>
+    <string name="position_edit">Edit position</string>
+    <string name="position_empty">Own this? Add the average price from your broker to see it on the chart.</string>
+    <string name="position_add">Add average price</string>
+    <string name="position_average">Avg price</string>
+    <string name="position_shares">Shares</string>
+    <string name="position_value">Value</string>
+    <string name="position_since_average">Since avg</string>
+    <string name="position_hint_shares">Add how many shares you own to see the value.</string>
+    <string name="position_last_buy">Last buy %1$s</string>
+    <string name="position_sheet_body_add">Copy them from your broker. They stay on this phone.</string>
+    <string name="position_sheet_body_edit">Bought more? Copy the new values from your broker.</string>
+    <string name="position_field_average_currency">Average price (%1$s)</string>
+    <string name="position_field_average">Average price</string>
+    <string name="position_field_average_hint">The average purchase price your broker shows</string>
+    <string name="position_field_shares">Shares (optional)</string>
+    <string name="position_field_shares_hint">Add them to see the value of your position</string>
+    <!-- Below a field of the edit sheet: the previous value. -->
+    <string name="position_was">Was %1$s</string>
+    <string name="position_field_date_add">Date of your last buy</string>
+    <string name="position_field_date_edit">Date of this buy</string>
+    <string name="position_field_date_hint">Today by default. Can be in the past.</string>
+    <string name="position_field_date_was">Was %1$s. Can be in the past.</string>
+    <string name="position_pick_date">Choose date</string>
+    <string name="position_error_average">Enter a price above 0, like 29.50</string>
+    <string name="position_error_shares">Enter a number above 0, like 120</string>
+    <string name="position_error_save">Couldn\'t save. Try again.</string>
+    <string name="save">Save</string>
+    <!-- Chart: label above the dotted average line. Keep it short. -->
+    <string name="chart_average">Your avg</string>
+    <!-- TalkBack, appended to chart_description (so they start with a period). %1$s is a price or a date. -->
+    <string name="chart_average_on">. Your average price %1$s</string>
+    <string name="chart_average_below">. Your average price %1$s is below every price on the chart</string>
+    <string name="chart_average_above">. Your average price %1$s is above every price on the chart</string>
+    <string name="chart_last_buy">. Your last buy on %1$s</string>
 </resources>

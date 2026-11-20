@@ -1,5 +1,7 @@
 package com.lucrometro.data
 
+import java.time.LocalDate
+
 data class Quote(
     val symbol: String,
     val price: Double,
@@ -81,4 +83,18 @@ data class WatchlistEntry(
      * session and no fetch has replaced it yet (e.g. right after a restart, or offline).
      */
     val stale: Boolean = false,
+)
+
+/**
+ * The owner's position in a ticker as their broker shows it (decision 0033): never computed by the app. Each save is a
+ * new entry; the latest one is the position.
+ */
+data class Position(
+    /** In the ticker's currency, fees included, as the broker shows it. */
+    val averagePrice: Double,
+    val shares: Double?,
+    /** The day of the last buy (today by default, or earlier: buys are often logged later). */
+    val lastBuy: LocalDate,
+    /** Epoch millis when this entry was saved. */
+    val savedAt: Long,
 )

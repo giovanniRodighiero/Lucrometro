@@ -1,6 +1,7 @@
 package com.lucrometro.data.db
 
 import android.content.Context
+import androidx.room3.AutoMigration
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
@@ -10,8 +11,14 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.Dispatchers
 
-/** The app database: only the watchlist and each ticker's last quote (PRD section 5). */
-@Database(entities = [TickerEntity::class], version = 3, exportSchema = true)
+/** The app database: the watchlist with each ticker's last quote (PRD section 5), and the position entries (0033). */
+@Database(
+    entities = [TickerEntity::class, PositionEntity::class],
+    version = 4,
+    exportSchema = true,
+    // v4 only adds the position table.
+    autoMigrations = [AutoMigration(from = 3, to = 4)],
+)
 abstract class LucrometroDatabase : RoomDatabase() {
     abstract fun watchlist(): WatchlistDao
 

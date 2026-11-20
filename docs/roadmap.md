@@ -15,6 +15,9 @@ Done
       (1D and 5D intraday, 1M to Max), range bar, touch scrub, session cache, failed/empty/loading states.
 - [x] Market times in the exchange's clock, fetch times in the phone's clock; exchange zone saved with the
       quote, Room schema v3 (decision 0031).
+- [x] Personal position built (decisions 0033, 0034, 0036): Room v4 with dated entries (removed and restored with the
+      ticker), `PositionCard`, add/edit sheet with the date picker, average line or edge marker and last-buy diamond on
+      the chart, chart at 292dp. Checked on the emulator in English and Italian. The watchlist line is not planned.
 
 - [x] Watchlist rows from the Doop QuoteRow/ChangeBadge: price, day change pill, stale mark, "Updated"
       stamp, pull-to-refresh and refresh on open (decision 0014). Checked on the emulator online, offline
@@ -34,15 +37,11 @@ Next
    whether the ~15 minute `.MI` delay is constant. Also what 1D returns before the first trade of the day. One request at a time (CLAUDE.md).
    Done 2026-11-18: 1D intraday, long ranges, `adjclose`, previous close, quote time, trading period, delay
    (docs/research/data-sources.md).
-2. Test on a real phone, including the details screen with TalkBack (the scrub actions, decision 0029) and the drawing in
-   light and dark.
+2. Test on a real phone, including the details screen with TalkBack (the scrub actions, decision 0029; the position card
+   and sheet, decision 0033) and the drawing in light and dark.
 3. Details screen, open points: the loading state is a plain progress indicator and the empty 1D a plain card (not in Doop);
    check what a weekend and a holiday look like (item 1); the markets' holidays are not known (decision 0027).
-4. Personal position (decision 0033): designed in Doop (`Details · position ...` frames, `PositionCard`), not built.
-   Snapshot exported 2026-11-19 (`docs/design/doop/`). To build: Room v4 with dated entries, the card, the add/edit sheet, the average line and the last-buy
-   diamond on the chart (decision 0034), the chart at 292dp. Frames ready for dev since 2026-11-19. The watchlist line
-   is designed but undecided ("Exploration · Position" page).
-5. Auto-refresh on the details screen (decision 0035): designed in Doop and snapshotted 2026-11-20 (frames
+4. Auto-refresh on the details screen (decision 0035): designed in Doop and snapshotted 2026-11-20 (frames
    `details-auto-refresh-on`, `details-market-closed`, `details-market-sheet`, `auto-refresh-spec`; the other details
    frames show the new top bar), not built. The decision lists the code changes. Sync icon and "Open/Closed" marker in the top bar, details
    sheet behind the marker, halo on the chart's last point while polling, 30 s from the end of each fetch. To build:

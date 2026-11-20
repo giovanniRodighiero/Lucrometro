@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import java.time.LocalDate
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -110,7 +111,7 @@ class WatchlistRepository(
     }
 
     /**
-     * Removes [code] and its saved quote (PRD 3). Returns the removed ticker so it can be [restore]d
+     * Removes [code] with its saved quote and position entries (PRD 3, decision 0033). Returns the removed ticker so it can be [restore]d
      * (undo); null if it wasn't stored or storage failed.
      */
     suspend fun remove(code: String): StoredTicker? {
@@ -120,7 +121,14 @@ class WatchlistRepository(
         return removed
     }
 
-    /** Undoes [remove]: the ticker comes back at its old place with its saved quote. */
+    /** The latest position entry of [code] (decision 0033), or null if none was saved. */
+    fun position(code: String): Flow<Position?> = store.observePosition(code)
+
+    /** Saves a new position entry for [code], dated now. False if storage failed or [code] is no longer stored. */
+    suspend fun savePosition(code: String, averagePrice: Double, shares: Double?, lastBuy: LocalDate): Boolean =
+        storeCall { store.addPosition(code, Position(averagePrice, shares, lastBuy, clock())) } == true
+
+    /** Undoes [remove]: the ticker comes back at its old place with its saved quote and position entries. */
     suspend fun restore(ticker: StoredTicker): Boolean = storeCall { store.restore(ticker) } ?: false
 
     /**

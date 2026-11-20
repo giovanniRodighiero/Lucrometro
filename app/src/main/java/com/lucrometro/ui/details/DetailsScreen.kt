@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
 import com.lucrometro.data.HistoryRange
+import com.lucrometro.data.Position
 import com.lucrometro.data.Quote
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.ChangeDirection
@@ -53,7 +54,7 @@ import kotlin.math.pow
 
 /**
  * Details of one ticker (decision 0023): top bar with the market status, quote header, readout, chart (with the
- * scrub, decision 0028) and range bar.
+ * scrub, decision 0028), range bar and the owner's position (decision 0033).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +67,8 @@ fun DetailsScreen(
     val chart by viewModel.chart.collectAsStateWithLifecycle()
     val range by viewModel.range.collectAsStateWithLifecycle()
     val market by viewModel.market.collectAsStateWithLifecycle()
+    val position by viewModel.position.collectAsStateWithLifecycle()
+    var editingPosition by rememberSaveable { mutableStateOf(false) }
     val formats = rememberQuoteFormats()
     val times = rememberTimeFormats()
     // Once per opening of the screen: saved with the composition, so a rotation does not count as opening it again.
@@ -99,7 +102,15 @@ fun DetailsScreen(
             entry?.let { QuoteHeader(it, formats, times, fallbackZone = market?.zone) }
             // The chart needs the ticker's currency and decimals, so it waits for the saved quote.
             if (quote != null) {
-                ChartSection(code, quote, chart, range, formats, times, viewModel::selectRange, viewModel::retry)
+                ChartSection(code, quote, position, chart, range, formats, times, viewModel::selectRange, viewModel::retry)
+                PositionCard(
+                    position, quote, formats, times,
+                    onEdit = { editingPosition = true },
+                    modifier = Modifier.padding(16.dp),
+                )
+                if (editingPosition) {
+                    PositionSheet(position, quote, formats, times, viewModel::savePosition, onClose = { editingPosition = false })
+                }
             }
         }
     }
@@ -110,6 +121,7 @@ fun DetailsScreen(
 private fun ChartSection(
     code: String,
     quote: Quote,
+    position: Position?,
     chart: ChartState,
     range: HistoryRange,
     formats: QuoteFormats,
@@ -152,6 +164,7 @@ private fun ChartSection(
             val points = chart.data.points
             val layout = remember(chart.data, times) { chartLayout(chart.data, times) }
             val percent = chart.data.changePercent
+            val lastBuyIndex = position?.let { chart.data.indexOn(it.lastBuy) }
             PriceChart(
                 points = points,
                 layout = layout,
@@ -180,11 +193,37 @@ private fun ChartSection(
                     formats.price(quote, chart.data.baseline ?: points.first().price),
                     formats.price(quote, points.last().price),
                     percent?.let { changeLabel(it, formats) }.orEmpty(),
-                ),
+                ) + positionDescription(position, lastBuyIndex, points, quote, formats, times),
+                average = position?.let {
+                    AverageMark(it.averagePrice, stringResource(R.string.chart_average), formats.exact(quote, it.averagePrice))
+                },
+                lastBuyIndex = lastBuyIndex,
             )
         }
     }
     RangeBar(DETAILS_RANGES, range, onSelectRange, Modifier.padding(top = 8.dp))
+}
+
+/** TalkBack: the average and where it is, and the last buy when the chart shows it (decisions 0033, 0034). */
+@Composable
+private fun positionDescription(
+    position: Position?,
+    lastBuyIndex: Int?,
+    points: List<ChartPoint>,
+    quote: Quote,
+    formats: QuoteFormats,
+    times: TimeFormats,
+): String {
+    if (position == null) return ""
+    val average = price(quote, formats.exact(quote, position.averagePrice))
+    val prices = points.map { it.price }
+    val where = when {
+        position.averagePrice < prices.min() -> R.string.chart_average_below
+        position.averagePrice > prices.max() -> R.string.chart_average_above
+        else -> R.string.chart_average_on
+    }
+    val buy = lastBuyIndex?.let { stringResource(R.string.chart_last_buy, times.date(position.lastBuy)) }.orEmpty()
+    return stringResource(where, average) + buy
 }
 
 /**
