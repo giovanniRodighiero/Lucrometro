@@ -4,6 +4,14 @@
 
 # Lucrometro
 
+<p>
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/giovanniRodighiero/Lucrometro" alt="Latest release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/giovanniRodighiero/Lucrometro/total" alt="Downloads"></a>
+  <img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white" alt="Android 8.0 or later">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/giovanniRodighiero/Lucrometro" alt="License: AGPL-3.0"></a>
+  <a href="#how-it-was-built"><img src="https://img.shields.io/badge/built%20with-Claude%20Code-D97757?logo=claude&logoColor=white" alt="Built with Claude Code"></a>
+</p>
+
 An Android app to check a short list of ETFs and Borsa Italiana stocks a few times a day.
 It was built entirely by AI coding agents. I made the product and design decisions and directed every step.
 
@@ -23,7 +31,28 @@ It was built entirely by AI coding agents. I made the product and design decisio
 - When a price can't be fetched, the app says so and shows the last saved quote as stale. It never shows wrong data.
 - English and Italian.
 
-Download the APK from [Releases](../../releases). See [CHANGELOG.md](CHANGELOG.md) for what changed and the known limitations.
+See [CHANGELOG.md](CHANGELOG.md) for what changed and the known limitations.
+
+## Install
+
+Lucrometro is not on Google Play. Install the APK by hand (Android 8.0 or later):
+
+1. On the phone, download `lucrometro-<version>.apk` from the [latest release](../../releases/latest).
+2. Open it. Android asks to allow installs from the app you opened it with (the browser or the file manager):
+   allow it, then install.
+3. To update, install the newer APK the same way. Your watchlist and positions are kept.
+
+To be told about new versions, add this repository's URL to [Obtainium](https://github.com/ImranR98/Obtainium),
+which installs updates from GitHub releases.
+
+**Check the signature (optional).** Every release is signed with the same key. Its certificate's SHA-256 is:
+
+```
+26:AB:73:10:3E:6A:37:0E:8E:AD:F2:2D:A2:D2:5D:46:B8:2B:35:4A:D2:78:A8:81:23:00:65:2E:A3:0F:8C:BC
+```
+
+Compare it with `apksigner verify --print-certs lucrometro-<version>.apk` (Android SDK build tools), or with
+[AppVerifier](https://github.com/soupslurpr/AppVerifier) on the phone. If it differs, don't install the APK.
 
 ## How it was built
 
@@ -66,8 +95,18 @@ Kotlin, Jetpack Compose, Material 3, Room, Cronet. Single module, no own backend
 ## Data source
 
 Prices come from Yahoo Finance's public, unofficial endpoints, called directly from the phone. Lucrometro is a
-personal project, not affiliated with or endorsed by Yahoo. The endpoints are undocumented and can change or stop
-working at any time. Prices for Borsa Italiana are delayed by about 15 minutes. Not financial advice.
+personal project, not affiliated with or endorsed by Yahoo or Borsa Italiana. The endpoints are undocumented and can
+change or stop working at any time. Prices for Borsa Italiana are delayed by about 15 minutes, and any price can be
+late, wrong or missing.
+
+**Not financial advice.** The app shows prices and what you type in; it does not recommend anything. Check with your
+broker before you buy or sell. Use it at your own risk.
+
+## Contributing
+
+Bug reports and ideas are welcome as [issues](../../issues). Please include the app version (in the release name) and
+your Android version. Pull requests are not accepted: the code is written by agents from my decisions, so an
+outside change doesn't fit that loop. Open an issue instead and I'll take it from there.
 
 ## License
 
