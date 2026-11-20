@@ -2,9 +2,11 @@ package com.lucrometro.ui.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lucrometro.R
@@ -94,20 +97,16 @@ private fun withPhoneClock(exchangeTime: String, event: ZonedDateTime, times: Ti
     return "$exchangeTime ${times.zoneName(event.toEpochSecond(), event.zone)} ($shown)"
 }
 
-/** "Open · closes 17:30" / "Closed · opens Mon 09:00" with a filled (open) or hollow (closed) dot (Doop DetailsTopBar). */
+/**
+ * "Open · closes 17:30" / "Closed · opens Mon 09:00" at [now] (epoch seconds), with the phone's clock when it differs
+ * (decision 0032). Shown in the market sheet since decision 0035.
+ */
 @Composable
-fun MarketStatusLabel(market: MarketInfo, times: TimeFormats) {
-    val now by produceState(System.currentTimeMillis() / 1000, market) {
-        while (true) {
-            delay(30_000)
-            value = System.currentTimeMillis() / 1000
-        }
-    }
-    val status = marketStatus(now, market.session, market.zone)
+fun marketStatusText(status: MarketStatus, now: Long, market: MarketInfo, times: TimeFormats): String {
     val nowInZone = Instant.ofEpochSecond(now).atZone(market.zone)
     val event = status.eventAt(nowInZone, market.zone)
     fun time(at: LocalTime) = withPhoneClock(times.time(at), event, times)
-    val text = when (status) {
+    return when (status) {
         is MarketStatus.Open -> stringResource(R.string.market_open_closes, time(status.closesAt))
         is MarketStatus.OpensToday -> stringResource(R.string.market_opens_today, time(status.at))
         // "opens_today" is the plain "Closed · opens <time>" text: used for today and for tomorrow.
@@ -117,24 +116,51 @@ fun MarketStatusLabel(market: MarketInfo, times: TimeFormats) {
             stringResource(R.string.market_opens_today, time(status.at))
         }
     }
+}
+
+/** The current time in epoch seconds, ticking every 30 s: what the market status is read at. */
+@Composable
+fun rememberNowSeconds(): Long {
+    val now by produceState(System.currentTimeMillis() / 1000) {
+        while (true) {
+            delay(30_000)
+            value = System.currentTimeMillis() / 1000
+        }
+    }
+    return now
+}
+
+/** Filled gain dot for open, hollow outline dot for closed: never red, which means loss (decision 0035). */
+@Composable
+fun MarketDot(open: Boolean) {
+    Box(
+        Modifier.size(8.dp).then(
+            if (open) {
+                Modifier.background(MaterialTheme.gainLoss.gain, CircleShape)
+            } else {
+                Modifier.border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
+            },
+        ),
+    )
+}
+
+/** The top bar's market marker (Doop DetailsTopBar rev 5): a dot and "Open" or "Closed"; a tap opens the market sheet. */
+@Composable
+fun MarketMarker(open: Boolean, onClick: () -> Unit) {
     Row(
-        modifier = Modifier.padding(end = 12.dp),
+        modifier = Modifier
+            .height(48.dp)
+            .clip(CircleShape)
+            .clickable(onClickLabel = stringResource(R.string.market_details), onClick = onClick)
+            .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // The text carries the meaning; the dot only supports it.
-        Box(
-            Modifier.size(8.dp).then(
-                if (status is MarketStatus.Open) {
-                    Modifier.background(MaterialTheme.gainLoss.gain, CircleShape)
-                } else {
-                    Modifier.border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                },
-            ),
-        )
+        // The word carries the meaning; the dot only supports it.
+        MarketDot(open)
         Text(
-            text,
-            style = MaterialTheme.typography.bodySmall,
+            stringResource(if (open) R.string.market_open else R.string.market_closed),
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
         )

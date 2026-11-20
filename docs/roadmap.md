@@ -18,6 +18,8 @@ Done
 - [x] Personal position built (decisions 0033, 0034, 0036): Room v4 with dated entries (removed and restored with the
       ticker), `PositionCard`, add/edit sheet with the date picker, average line or edge marker and last-buy diamond on
       the chart, chart at 292dp. Checked on the emulator in English and Italian. The watchlist line is not planned.
+- [x] Auto-refresh on the details screen built (decisions 0035, 0037): market marker and sheet, sync icon, 30 s polling
+      of the 1D chart, halo. Checked on the emulator: polls update header and chart, stops on leaving, disabled when closed.
 
 - [x] Watchlist rows from the Doop QuoteRow/ChangeBadge: price, day change pill, stale mark, "Updated"
       stamp, pull-to-refresh and refresh on open (decision 0014). Checked on the emulator online, offline
@@ -41,13 +43,9 @@ Next
    and sheet, decision 0033) and the drawing in light and dark.
 3. Details screen, open points: the loading state is a plain progress indicator and the empty 1D a plain card (not in Doop);
    check what a weekend and a holiday look like (item 1); the markets' holidays are not known (decision 0027).
-4. Auto-refresh on the details screen (decision 0035): designed in Doop and snapshotted 2026-11-20 (frames
-   `details-auto-refresh-on`, `details-market-closed`, `details-market-sheet`, `auto-refresh-spec`; the other details
-   frames show the new top bar), not built. The decision lists the code changes. Sync icon and "Open/Closed" marker in the top bar, details
-   sheet behind the marker, halo on the chart's last point while polling, 30 s from the end of each fetch. To build:
-   the polling loop in the view model, the marker and sheet, the halo, strings in both languages. To settle: one chart
-   request per poll for header and chart. Still to verify: whether Yahoo has a push channel (WebSocket) for `.MI`;
-   with the ~15 minute delay it may add nothing. Polling follows the live-request rules in CLAUDE.md.
+4. The ~15 minute `.MI` delay is not stated in the app: Yahoo's chart `meta` has no delay field (decision 0037). Find
+   a source per exchange, or state it for `.MI` only. Still to verify: whether Yahoo has a push channel (WebSocket)
+   for `.MI`; with the delay it may add nothing.
 
 Later (v2 candidates, not in v1 scope)
 - Full buy log per ticker (date, quantity, price) behind the position card's footer (decision 0033).

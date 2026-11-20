@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
@@ -53,7 +55,7 @@ import com.lucrometro.ui.common.rememberTimeFormats
 import kotlin.math.pow
 
 /**
- * Details of one ticker (decision 0023): top bar with the market status, quote header, readout, chart (with the
+ * Details of one ticker (decision 0023): top bar with the market marker and auto-refresh (decision 0035), quote header, readout, chart (with the
  * scrub, decision 0028), range bar and the owner's position (decision 0033).
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +72,15 @@ fun DetailsScreen(
     val positionState by viewModel.position.collectAsStateWithLifecycle()
     val position = positionState?.position
     var editingPosition by rememberSaveable { mutableStateOf(false) }
+    val autoRefresh by viewModel.autoRefresh.collectAsStateWithLifecycle()
+    var showingMarket by rememberSaveable { mutableStateOf(false) }
+    val now = rememberNowSeconds()
+    // Hidden when the hours are unknown or the chart could not be fetched (decisions 0023, 0035).
+    val shownMarket = market?.takeIf { chart != ChartState.Failed }
+    val status = shownMarket?.let { marketStatus(now, it.session, it.zone) }
+    // Auto-refresh stops when the screen or the app stops (decision 0035), and when its icon is hidden.
+    LifecycleStartEffect(viewModel) { onStopOrDispose { viewModel.setAutoRefresh(false) } }
+    LaunchedEffect(status == null) { if (status == null) viewModel.setAutoRefresh(false) }
     val formats = rememberQuoteFormats()
     val times = rememberTimeFormats()
     // Once per opening of the screen: saved with the composition, so a rotation does not count as opening it again.
@@ -86,8 +97,11 @@ fun DetailsScreen(
                 // One line: the market status keeps its width, a long symbol is cut with an ellipsis (decision 0032).
                 title = { Text(code, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 actions = {
-                    // Hidden when the hours are unknown or the chart could not be fetched (decision 0023).
-                    market?.takeIf { chart != ChartState.Failed }?.let { MarketStatusLabel(it, times) }
+                    if (status != null) {
+                        val open = status is MarketStatus.Open
+                        MarketMarker(open, onClick = { showingMarket = true })
+                        AutoRefreshButton(on = autoRefresh.on, enabled = open, onToggle = { viewModel.setAutoRefresh(!autoRefresh.on) })
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -103,13 +117,21 @@ fun DetailsScreen(
             entry?.let { QuoteHeader(it, formats, times, fallbackZone = market?.zone) }
             // The chart needs the ticker's currency and decimals, so it waits for the saved quote.
             if (quote != null) {
-                ChartSection(code, quote, position, chart, range, formats, times, viewModel::selectRange, viewModel::retry)
+                // The halo: polling runs and the 1D chart (what a poll refreshes) is shown.
+                val live = autoRefresh.on && status is MarketStatus.Open && range == HistoryRange.DAY_1
+                ChartSection(
+                    code, quote, position, chart, range, formats, times, live,
+                    viewModel::selectRange, viewModel::retry, viewModel::onScrubbing,
+                )
                 if (positionState != null) {
                     PositionCard(
                         position, quote, formats, times,
                         onEdit = { editingPosition = true },
                         modifier = Modifier.padding(16.dp),
                     )
+                }
+                if (showingMarket && shownMarket != null && status != null) {
+                    MarketSheet(code, shownMarket, status, now, quote, autoRefresh, times, onClose = { showingMarket = false })
                 }
                 if (editingPosition) {
                     PositionSheet(position, quote, formats, times, viewModel::savePosition, onClose = { editingPosition = false })
@@ -129,12 +151,16 @@ private fun ChartSection(
     range: HistoryRange,
     formats: QuoteFormats,
     times: TimeFormats,
+    live: Boolean,
     onSelectRange: (HistoryRange) -> Unit,
     onRetry: () -> Unit,
+    onScrubbing: (Boolean) -> Unit,
 ) {
     val data = (chart as? ChartState.Ready)?.data
     // The point under the finger while scrubbing; forgotten when another range or a new load replaces the data.
     var scrubIndex by remember(data) { mutableStateOf<Int?>(null) }
+    val scrubbing = scrubIndex != null
+    LaunchedEffect(scrubbing) { onScrubbing(scrubbing) }
     val scrub = data?.scrubAt(scrubIndex)
     val scrubDate = if (data != null && scrub != null) scrubLabel(data, scrub.point, times) else null
 
@@ -201,10 +227,29 @@ private fun ChartSection(
                     AverageMark(it.averagePrice, stringResource(R.string.chart_average), formats.number(quote, it.averagePrice))
                 },
                 lastBuyIndex = lastBuyIndex,
+                live = live,
             )
         }
     }
     RangeBar(DETAILS_RANGES, range, onSelectRange, Modifier.padding(top = 8.dp))
+}
+
+/** The sync icon (decision 0035): plain when off, tonal when on, disabled (38%) when the market is closed. */
+@Composable
+private fun AutoRefreshButton(on: Boolean, enabled: Boolean, onToggle: () -> Unit) {
+    val description = stringResource(
+        when {
+            !enabled -> R.string.auto_refresh_unavailable
+            on -> R.string.auto_refresh_stop
+            else -> R.string.auto_refresh_start
+        },
+    )
+    val icon: @Composable () -> Unit = { Icon(painterResource(R.drawable.ic_sync), description) }
+    if (on && enabled) {
+        FilledTonalIconButton(onClick = onToggle) { icon() }
+    } else {
+        IconButton(onClick = onToggle, enabled = enabled) { icon() }
+    }
 }
 
 /** TalkBack: the average and where it is, and the last buy when the chart shows it (decisions 0033, 0034). */

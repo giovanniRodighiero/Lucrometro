@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -59,6 +60,17 @@ class DetailsViewModel(
     /** The exchange's session from the latest chart response (every range carries it); null until one arrives. */
     val market: StateFlow<MarketInfo?> = _market.asStateFlow()
 
+    private val _autoRefresh = MutableStateFlow(AutoRefresh())
+
+    /** Auto-refresh (decision 0035): off every time the screen opens, as the screen stops it when it leaves. */
+    val autoRefresh: StateFlow<AutoRefresh> = _autoRefresh.asStateFlow()
+
+    private var poll: Job? = null
+
+    /** A drag on the chart is running: a poll's chart waits in [pending], so the scrub is not reset under the finger. */
+    private var scrubbing = false
+    private var pending: History? = null
+
     /** The wait before a request is sent: a new selection cancels it, so tapping through the bar sends nothing. */
     private var debounce: Job? = null
 
@@ -85,11 +97,58 @@ class DetailsViewModel(
     fun selectRange(range: HistoryRange) {
         if (range == _range.value) return
         _range.value = range
+        pending = null
         load(bypassCache = false)
     }
 
     /** Fetches the selected range again, ignoring the session cache (PRD 5). */
     fun retry() = load(bypassCache = true)
+
+    /**
+     * Starts or stops auto-refresh. Each poll is one 1D chart request (bypassing the session cache): its quote refreshes
+     * the header, and the chart when 1D is shown. It stops when the market closes or a fetch fails; a failure marks the
+     * header stale. Starting does nothing unless the market is open.
+     */
+    fun setAutoRefresh(on: Boolean) {
+        if (!on) {
+            poll?.cancel()
+            return
+        }
+        if (poll?.isActive == true || !marketOpen()) return
+        _autoRefresh.update { it.copy(on = true) }
+        poll = viewModelScope.launch {
+            try {
+                pollWhileOpen(AUTO_REFRESH_MILLIS, ::marketOpen) {
+                    val result = history.history(code, HistoryRange.DAY_1, bypassCache = true).getOrNull()
+                    if (result == null) {
+                        watchlist.markFailed(code)
+                    } else {
+                        _autoRefresh.update { it.copy(checkedAt = System.currentTimeMillis()) }
+                        when {
+                            _range.value != HistoryRange.DAY_1 -> result.marketInfo()?.let { _market.value = it }
+                            scrubbing -> pending = result
+                            else -> show(HistoryRange.DAY_1, result)
+                        }
+                    }
+                    result != null
+                }
+            } finally {
+                _autoRefresh.update { it.copy(on = false) }
+            }
+        }
+    }
+
+    /** The scrub started or ended; at its end a poll's chart that waited is shown. */
+    fun onScrubbing(active: Boolean) {
+        scrubbing = active
+        if (active) return
+        val waiting = pending ?: return
+        pending = null
+        if (_range.value == HistoryRange.DAY_1) show(HistoryRange.DAY_1, waiting)
+    }
+
+    private fun marketOpen(): Boolean =
+        _market.value?.let { marketStatus(System.currentTimeMillis() / 1000, it.session, it.zone) is MarketStatus.Open } == true
 
     private fun load(bypassCache: Boolean) {
         debounce?.cancel()

@@ -8,7 +8,7 @@ are listed under each screen.
 | `TopAppBar` | Material 3 `TopAppBar`; the stamp is a `bodySmall` text in `actions` |
 | `QuoteRow` | `ui/watchlist/QuoteRow.kt` `QuoteRow` (a `Row`, see decision 0014) |
 | `ChangeBadge` | `ui/common/ChangeBadge.kt` `ChangeBadge` (`Surface` with `CircleShape`) |
-| `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; in `actions`, the market marker (8dp dot and one word, opens the market sheet) and the sync `IconButton` (decision 0035). Not built yet; today the actions hold the full status `Row` (decisions 0027, 0032: its text now goes to the sheet, `frames/market-status-cases`) |
+| `DetailsTopBar` | `ui/details/DetailsScreen.kt`: Material 3 `TopAppBar`, back arrow and ticker; in `actions`, `MarketMarker` (`MarketStatus.kt`: 8dp dot and one word, opens `MarketSheet.kt`) and the sync button (`IconButton`, `FilledTonalIconButton` when on; decisions 0035, 0037). The status text of decisions 0027 and 0032 is in the sheet (`frames/market-status-cases`) |
 | `QuoteHeader` | `ui/details/QuoteHeader.kt` (`Column` with a `FlowRow` for pill and stamp; decision 0023) |
 | `ChartReadout` | `ui/details/ChartReadout.kt` (summary mode, and scrub mode via `scrubbing`; the label is `scrubLabel` in the same file, decision 0028) |
 | `PriceChart` | `ui/details/PriceChart.kt`: a `Canvas`, see decision 0025; the average line, edge marker and last-buy diamond, decisions 0033, 0034, 0036 |

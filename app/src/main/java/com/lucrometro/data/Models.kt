@@ -66,6 +66,10 @@ data class History(
     val exchangeZone: String? = null,
     /** The current quote from the same response, for the 1D range only (the other ranges' previous close differs). */
     val quote: Quote? = null,
+    /** The exchange's full name ("Milan"), when the source gives it: the market sheet's title (decision 0035). */
+    val exchangeName: String? = null,
+    /** How many minutes the source's quotes lag the exchange, when it says. */
+    val delayMinutes: Int? = null,
 )
 
 /** The last quote fetched successfully for a ticker, and when (epoch millis). */

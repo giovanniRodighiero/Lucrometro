@@ -85,6 +85,8 @@
 - Exchange holidays and weekends for the details screen: `currentTradingPeriod` was only checked on an open
   weekday. Check one request on a weekend (what the 1D range returns, the period dates, the previous close).
 - Whether the ~15 minute `.MI` delay is constant (checked once, on 2026-11-18).
+- 2026-11-20, SMH.MI 1D through the app: `meta.fullExchangeName` is "Milan"; no delay in `meta`
+  (`exchangeDataDelayedBy` absent or 0), see decision 0037.
 - Long-term stability: bursts are fine, but does the session/crumb expire, and does Yahoo throttle
   at a few checks per day over weeks? (crumb refresh on HTTP 401/429 is implemented only as 'reset on any non-200')
 - Behaviour on a real phone and mobile networks.

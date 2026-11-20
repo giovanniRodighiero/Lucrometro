@@ -85,6 +85,9 @@ class WatchlistRepository(
         if (storeCall { store.saveQuote(code, SavedQuote(fresh, clock())) } != null) failed.update { it - code }
     }
 
+    /** Marks [code]'s quote as failed, so it shows as stale: a fetch outside [refresh] failed (auto-refresh, decision 0035). */
+    fun markFailed(code: String) = failed.update { it + code }
+
     /** Normalizes [input], validates it with a live quote and saves it only if the quote resolves. */
     suspend fun add(input: String): AddTickerResult {
         val code = normalizeTicker(input)

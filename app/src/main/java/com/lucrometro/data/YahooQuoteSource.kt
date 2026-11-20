@@ -67,6 +67,8 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             exchangeZone = meta.optString("exchangeTimezoneName").ifEmpty { null },
             // Best effort: a malformed quote field must not fail a chart whose bars are fine.
             quote = if (range == HistoryRange.DAY_1) runCatching { quoteFrom(symbol, meta) }.getOrNull() else null,
+            exchangeName = meta.optString("fullExchangeName").ifEmpty { null },
+            delayMinutes = meta.optInt("exchangeDataDelayedBy", -1).takeIf { it > 0 },
         )
     }
 

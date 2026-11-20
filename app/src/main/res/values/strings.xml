@@ -128,4 +128,24 @@
     <string name="chart_average_below">. Your average price %1$s is below every price on the chart</string>
     <string name="chart_average_above">. Your average price %1$s is above every price on the chart</string>
     <string name="chart_last_buy">. Your last buy on %1$s</string>
+
+    <!-- Market marker, auto-refresh and the market sheet (decision 0035). -->
+    <string name="market_open">Open</string>
+    <string name="market_closed">Closed</string>
+    <string name="market_details">Market details</string>
+    <string name="auto_refresh_start">Start auto-refresh</string>
+    <string name="auto_refresh_stop">Stop auto-refresh</string>
+    <string name="auto_refresh_unavailable">Auto-refresh unavailable, market closed</string>
+    <string name="market_sheet_hours">Trading hours</string>
+    <string name="market_sheet_hours_range">%1$s – %2$s</string>
+    <string name="market_sheet_last_quote">Last quote</string>
+    <string name="market_sheet_delay">Delay</string>
+    <string name="market_sheet_auto_refresh">Auto-refresh</string>
+    <string name="auto_refresh_off">Off</string>
+    <string name="auto_refresh_every">Every 30 s</string>
+    <string name="auto_refresh_every_checked">Every 30 s · checked %1$s</string>
+    <plurals name="market_sheet_delay_minutes">
+        <item quantity="one">About %1$d minute</item>
+        <item quantity="other">About %1$d minutes</item>
+    </plurals>
 </resources>

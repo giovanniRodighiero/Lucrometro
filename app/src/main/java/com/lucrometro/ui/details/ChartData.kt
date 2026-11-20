@@ -70,13 +70,21 @@ sealed interface ChartState {
     data object Failed : ChartState
 }
 
-/** The exchange's current session and zone: what the market status in the top bar is read from. */
-data class MarketInfo(val session: TradingPeriod, val zone: ZoneId)
+/**
+ * The exchange's current session and zone: what the market marker and sheet are read from (decision 0035), with the
+ * exchange's name and the quotes' delay when the source gives them.
+ */
+data class MarketInfo(
+    val session: TradingPeriod,
+    val zone: ZoneId,
+    val exchangeName: String? = null,
+    val delayMinutes: Int? = null,
+)
 
 /** The market status from a response, when it has both the session and a known zone. */
 fun History.marketInfo(): MarketInfo? {
     val session = currentSession ?: return null
-    return zoneOf(exchangeZone)?.let { MarketInfo(session, it) }
+    return zoneOf(exchangeZone)?.let { MarketInfo(session, it, exchangeName, delayMinutes) }
 }
 
 /**

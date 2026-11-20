@@ -1,5 +1,11 @@
 package com.lucrometro.ui.details
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -90,6 +96,8 @@ fun PriceChart(
     average: AverageMark? = null,
     /** The point of the last buy, drawn as a diamond (decision 0034); null when it is outside the range. */
     lastBuyIndex: Int? = null,
+    /** Auto-refresh is polling: a soft pulsing halo behind the end dot (decision 0035). */
+    live: Boolean = false,
 ) {
     val onScrubState by rememberUpdatedState(onScrub)
     val measurer = rememberTextMeasurer()
@@ -101,6 +109,17 @@ fun PriceChart(
     val tertiary = MaterialTheme.colorScheme.tertiary
     val averageLabelStyle = MaterialTheme.typography.labelSmall.copy(color = tertiary)
     val averagePriceStyle = labelStyle.copy(color = tertiary, fontWeight = FontWeight.Medium)
+    // Only composed while polling, so the animation does not run otherwise; read in the draw phase (no recomposition).
+    val halo = if (live) {
+        rememberInfiniteTransition(label = "halo").animateFloat(
+            initialValue = 0.32f,
+            targetValue = 0.08f,
+            animationSpec = infiniteRepeatable(tween(1600, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+            label = "halo",
+        )
+    } else {
+        null
+    }
     val axis = remember(points, baseline) {
         val low = listOfNotNull(points.minOf { it.price }, baseline).min()
         val high = listOfNotNull(points.maxOf { it.price }, baseline).max()
@@ -240,6 +259,7 @@ fun PriceChart(
         val scrubbed = scrubIndex?.takeIf { it in points.indices && it in xs.indices }
         if (scrubbed == null) {
             val end = Offset(x(xs.last()), y(points.last().price))
+            halo?.let { drawCircle(color.copy(alpha = it.value), 12.dp.toPx(), end) }
             drawCircle(color, 5.dp.toPx(), end)
             drawCircle(surface, 5.dp.toPx(), end, style = Stroke(2.dp.toPx()))
         }
