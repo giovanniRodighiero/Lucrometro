@@ -89,5 +89,5 @@
   (`exchangeDataDelayedBy` absent or 0), see decision 0037.
 - Long-term stability: bursts are fine, but does the session/crumb expire, and does Yahoo throttle
   at a few checks per day over weeks? (crumb refresh on HTTP 401/429 is implemented only as 'reset on any non-200')
-- Behaviour on a real phone and mobile networks.
+- Real phone: 0.3 works on the owner's phone (2026-11-20). Whether that was Wi-Fi or mobile data was not recorded.
 - Yahoo WebSocket for `.MI` symbols.

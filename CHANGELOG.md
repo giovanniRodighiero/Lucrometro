@@ -30,7 +30,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Yahoo Finance is unofficial and can stop working. When a price can't be fetched, the app shows the last saved quote
   as stale, or an error on the chart.
 - A position can be edited but not removed, except by removing the ticker.
-- Tested on the Android emulator (API 33) only. Not yet tested on a physical phone, or with TalkBack on the chart.
+- Tested on the Android emulator (API 33) and on a phone. Not yet tested with TalkBack.
 
 ## [0.2] - 2026-11-18
 

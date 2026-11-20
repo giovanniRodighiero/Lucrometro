@@ -39,8 +39,8 @@ Next
    whether the ~15 minute `.MI` delay is constant. Also what 1D returns before the first trade of the day. One request at a time (CLAUDE.md).
    Done 2026-11-18: 1D intraday, long ranges, `adjclose`, previous close, quote time, trading period, delay
    (docs/research/data-sources.md).
-2. Test on a real phone, including the details screen with TalkBack (the scrub actions, decision 0029; the position card
-   and sheet, decision 0033) and the drawing in light and dark.
+2. Real phone: 0.3 works (2026-11-20). Still to test there: TalkBack, including the details screen (the scrub
+   actions, decision 0029; the position card and sheet, decision 0033).
 3. Details screen, open points: the loading state is a plain progress indicator and the empty 1D a plain card (not in Doop);
    check what a weekend and a holiday look like (item 1); the markets' holidays are not known (decision 0027).
 4. The ~15 minute `.MI` delay is not stated in the app: Yahoo's chart `meta` has no delay field (decision 0037). Find
