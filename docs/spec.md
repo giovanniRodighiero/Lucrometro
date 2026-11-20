@@ -115,4 +115,4 @@ starts on 1D and reloads (0029). Layout from top to bottom (0023, 0035):
 
 ## Not done yet
 Open points and ideas live in [roadmap.md](roadmap.md). Known limits: no holiday calendar, the price delay is not
-stated in the app, and a position can't be removed on its own. The app has been tested on the emulator only.
+stated in the app, and a position can't be removed on its own.
