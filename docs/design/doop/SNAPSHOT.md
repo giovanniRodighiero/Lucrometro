@@ -50,8 +50,8 @@ average below the axis range (edge marker).
 M1, average only (decision 0040, 2026-11-22): `PositionCard` is rev 4, and its default state is now `avg`. The avg
 state shows the average and "Since avg" only (no shares hint, no "Last buy" footer). The add and edit sheets ask for the
 average only, and no frame draws the last-buy diamond any more. Both sheets were signed off again by the owner on
-2026-11-22. `details-position` is **parked for M2**: it keeps the full card (`state="full"`), which M2 will redesign, and
-is not to be built in M1. Re-exported: `PositionCard`, `PriceChart` (header comment only), `details-add-position`,
+2026-11-22. `details-position` is **parked for M2**: it keeps the full card (`state="full"`), which M2 will redesign, is
+back to draft on the canvas, and is not to be built in M1. `details-position-avg-only` was signed off again too. Re-exported: `PositionCard`, `PriceChart` (header comment only), `details-add-position`,
 `details-edit-position`, `details-position-avg-only` and `details-position`.
 
 ## Tokens and components
