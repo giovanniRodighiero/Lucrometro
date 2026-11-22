@@ -5,6 +5,7 @@ import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.Transaction
 import androidx.room3.Update
+import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -38,14 +39,14 @@ interface WatchlistDao {
     @Query("DELETE FROM watchlist WHERE code = :code")
     suspend fun delete(code: String)
 
-    /** Deletes [code] with its position entries and returns them, in one transaction; null if it wasn't stored. */
+    /** Deletes [code] with its average price and returns them, in one transaction; null if it wasn't stored. */
     @Transaction
     suspend fun take(code: String): RemovedTicker? {
         val ticker = get(code) ?: return null
-        val positions = positions(code)
+        val position = position(code)
         delete(code)
-        deletePositions(code)
-        return RemovedTicker(ticker, positions)
+        deletePosition(code)
+        return RemovedTicker(ticker, position)
     }
 
     /** Moves every row at or after [position] one place down the list, to make room for a restored row. */
@@ -58,11 +59,11 @@ interface WatchlistDao {
      * positions stay unique and the restored row comes back before them. False if its code is stored again.
      */
     @Transaction
-    suspend fun putBack(ticker: TickerEntity, positions: List<PositionEntity>): Boolean {
+    suspend fun putBack(ticker: TickerEntity, position: PositionEntity?): Boolean {
         if (contains(ticker.code)) return false
         shiftFrom(ticker.position)
         insert(ticker)
-        insertPositions(positions)
+        position?.let { upsertPosition(it) }
         return true
     }
 
@@ -70,26 +71,26 @@ interface WatchlistDao {
     @Update(entity = TickerEntity::class)
     suspend fun saveQuote(update: QuoteUpdate)
 
-    @Query("SELECT * FROM position WHERE code = :code ORDER BY id DESC LIMIT 1")
-    fun observeLatestPosition(code: String): Flow<PositionEntity?>
+    @Query("SELECT * FROM position WHERE code = :code")
+    fun observePosition(code: String): Flow<PositionEntity?>
 
-    @Query("SELECT * FROM position WHERE code = :code ORDER BY id")
-    suspend fun positions(code: String): List<PositionEntity>
+    @Query("SELECT * FROM position WHERE code = :code")
+    suspend fun position(code: String): PositionEntity?
 
-    @Insert
-    suspend fun insertPositions(positions: List<PositionEntity>)
+    @Upsert
+    suspend fun upsertPosition(position: PositionEntity)
 
     @Query("DELETE FROM position WHERE code = :code")
-    suspend fun deletePositions(code: String)
+    suspend fun deletePosition(code: String)
 
-    /** Adds a position entry, in one transaction with the check that its ticker is stored. */
+    /** Saves the average price, replacing the old one, in one transaction with the check that its ticker is stored. */
     @Transaction
-    suspend fun addPosition(position: PositionEntity): Boolean {
+    suspend fun savePosition(position: PositionEntity): Boolean {
         if (!contains(position.code)) return false
-        insertPositions(listOf(position))
+        upsertPosition(position)
         return true
     }
 }
 
-/** A deleted watchlist row with its position entries, for undo. */
-class RemovedTicker(val ticker: TickerEntity, val positions: List<PositionEntity>)
+/** A deleted watchlist row with its average price, for undo. */
+class RemovedTicker(val ticker: TickerEntity, val position: PositionEntity?)

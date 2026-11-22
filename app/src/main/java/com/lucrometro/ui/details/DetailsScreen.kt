@@ -125,7 +125,7 @@ fun DetailsScreen(
                 )
                 if (positionState != null) {
                     PositionCard(
-                        position, quote, formats, times,
+                        position, quote, formats,
                         onEdit = { editingPosition = true },
                         modifier = Modifier.padding(16.dp),
                     )
@@ -134,7 +134,7 @@ fun DetailsScreen(
                     MarketSheet(code, shownMarket, status, now, quote, autoRefresh, times, onClose = { showingMarket = false })
                 }
                 if (editingPosition) {
-                    PositionSheet(position, quote, formats, times, viewModel::savePosition, onClose = { editingPosition = false })
+                    PositionSheet(position, quote, formats, viewModel::savePosition, onClose = { editingPosition = false })
                 }
             }
         }
@@ -193,7 +193,6 @@ private fun ChartSection(
             val points = chart.data.points
             val layout = remember(chart.data, times) { chartLayout(chart.data, times) }
             val percent = chart.data.changePercent
-            val lastBuyIndex = position?.let { chart.data.indexOn(it.lastBuy) }
             PriceChart(
                 points = points,
                 layout = layout,
@@ -222,11 +221,10 @@ private fun ChartSection(
                     formats.price(quote, chart.data.baseline ?: points.first().price),
                     formats.price(quote, points.last().price),
                     percent?.let { changeLabel(it, formats) }.orEmpty(),
-                ) + positionDescription(position, lastBuyIndex, points, quote, formats, times),
+                ) + positionDescription(position, points, quote, formats),
                 average = position?.let {
                     AverageMark(it.averagePrice, stringResource(R.string.chart_average), formats.number(quote, it.averagePrice))
                 },
-                lastBuyIndex = lastBuyIndex,
                 live = live,
             )
         }
@@ -254,16 +252,9 @@ private fun AutoRefreshButton(on: Boolean, enabled: Boolean, onToggle: () -> Uni
     }
 }
 
-/** TalkBack: the average and where it is, and the last buy when the chart shows it (decisions 0033, 0034). */
+/** TalkBack: the average and where it is (decision 0033). */
 @Composable
-private fun positionDescription(
-    position: Position?,
-    lastBuyIndex: Int?,
-    points: List<ChartPoint>,
-    quote: Quote,
-    formats: QuoteFormats,
-    times: TimeFormats,
-): String {
+private fun positionDescription(position: Position?, points: List<ChartPoint>, quote: Quote, formats: QuoteFormats): String {
     if (position == null) return ""
     val average = price(quote, formats.exact(quote, position.averagePrice))
     val prices = points.map { it.price }
@@ -272,8 +263,7 @@ private fun positionDescription(
         position.averagePrice > prices.max() -> R.string.chart_average_above
         else -> R.string.chart_average_on
     }
-    val buy = lastBuyIndex?.let { stringResource(R.string.chart_last_buy, times.date(position.lastBuy)) }.orEmpty()
-    return stringResource(where, average) + buy
+    return stringResource(where, average)
 }
 
 /**

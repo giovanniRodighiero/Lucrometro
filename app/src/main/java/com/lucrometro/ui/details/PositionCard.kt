@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,19 +32,17 @@ import com.lucrometro.data.Position
 import com.lucrometro.data.Quote
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
-import com.lucrometro.ui.common.TimeFormats
 
 /**
- * Doop component PositionCard (decision 0033), under the range bar: empty (no [position] yet, an "Add average price"
- * button), average only (average, change since it, a hint to add shares) or full (average, shares, value, change).
- * The change is measured on the [quote]'s price; with shares it is the whole position's, otherwise one share's.
+ * Doop component PositionCard rev 4 (decisions 0033, 0040), under the range bar: empty (no [position] yet, an "Add
+ * average price" button) or avg (the average and one share's change since it, on the [quote]'s price). The full state
+ * (shares, value) is parked for M2.
  */
 @Composable
 fun PositionCard(
     position: Position?,
     quote: Quote,
     formats: QuoteFormats,
-    times: TimeFormats,
     onEdit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -84,50 +81,18 @@ fun PositionCard(
             return@Column
         }
 
-        val shares = position.shares
         val perShare = quote.price - position.averagePrice
-        val percent = perShare / position.averagePrice * 100
-        val change: @Composable () -> Unit = {
-            Field(stringResource(R.string.position_since_average)) {
-                ChangeBadge(percent, formats, absolute = formats.amountChange(quote, perShare * (shares ?: 1.0)))
+        Row(Modifier.padding(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(Modifier.weight(1f)) {
+                Field(stringResource(R.string.position_average), swatch = true) {
+                    Text(price(quote, formats.exact(quote, position.averagePrice)), style = MaterialTheme.typography.bodyMedium)
+                }
             }
-        }
-        val average: @Composable () -> Unit = {
-            Field(stringResource(R.string.position_average), swatch = true) {
-                Value(price(quote, formats.exact(quote, position.averagePrice)))
+            Column(Modifier.weight(1f)) {
+                Field(stringResource(R.string.position_since_average)) {
+                    ChangeBadge(perShare / position.averagePrice * 100, formats, absolute = formats.amountChange(quote, perShare))
+                }
             }
-        }
-        if (shares != null) {
-            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                Cells(average) { Field(stringResource(R.string.position_shares)) { Value(formats.shares(shares)) } }
-                Cells({ Field(stringResource(R.string.position_value)) { Value(formats.price(quote, shares * quote.price)) } }, change)
-            }
-        } else {
-            Cells(average, change)
-            Text(
-                stringResource(R.string.position_hint_shares),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 16.dp),
-            )
-        }
-        HorizontalDivider(Modifier.padding(top = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-        Row(
-            Modifier.height(40.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                painterResource(R.drawable.ic_calendar),
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                stringResource(R.string.position_last_buy, times.date(position.lastBuy)),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }
@@ -136,15 +101,6 @@ fun PositionCard(
 @Composable
 internal fun price(quote: Quote, number: String): String =
     quote.currency?.let { stringResource(R.string.quote_price, number, it) } ?: number
-
-/** Two equal columns, 16dp apart. */
-@Composable
-private fun Cells(start: @Composable () -> Unit, end: @Composable () -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Column(Modifier.weight(1f)) { start() }
-        Column(Modifier.weight(1f)) { end() }
-    }
-}
 
 /** A label over its value; [swatch] puts the chart's dotted average line before the label. */
 @Composable
@@ -165,7 +121,3 @@ private fun Field(label: String, swatch: Boolean = false, value: @Composable () 
     value()
 }
 
-@Composable
-private fun Value(text: String) {
-    Text(text, style = MaterialTheme.typography.bodyMedium)
-}

@@ -61,11 +61,6 @@ class QuoteFormats(private val locale: Locale) {
         }.format(value)
     }
 
-    /** A number of shares: whole, or with the decimals a fractional one has. */
-    fun shares(value: Double): String = sharesFormat.format(value)
-
-    private val sharesFormat = NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 6 }
-
     /** A change in price units with the quote's own decimals, rounded the way it is shown. */
     fun amountChange(quote: Quote, value: Double): AmountChange {
         val format = priceFormat(quote)

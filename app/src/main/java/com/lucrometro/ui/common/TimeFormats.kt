@@ -46,9 +46,6 @@ class TimeFormats(private val locale: Locale, is24Hour: Boolean) {
     fun format(skeleton: String, epochSeconds: Long, zone: ZoneId): String =
         formatter(skeleton, zone).format(Instant.ofEpochSecond(epochSeconds))
 
-    /** A calendar day with the year, e.g. "28 Oct 2026". */
-    fun date(date: LocalDate): String = formatter("dMMMyyyy", ZoneOffset.UTC).format(date)
-
     /** A time of day that is already in its clock (e.g. a session's opening). */
     fun time(time: LocalTime): String = formatter(timeSkeleton, ZoneOffset.UTC).format(time)
 

@@ -65,15 +65,14 @@ starts on 1D and reloads (0029). Layout from top to bottom (0023, 0035):
   differ, and the exchange time carries its zone name (0032).
 
 ## Personal position
-- Per ticker: the average price **copied from the broker**, optional shares, and the date of the last buy (today by
-  default, never in the future). The app never computes the average, so it always agrees with the broker (0033).
-- Each save is a new dated entry and the latest one is shown, which keeps a history for a later buy log. There is no
-  remove yet, except removing the ticker (0033, 0036).
-- **Card**: empty ("Own this?..."), average only (change since the average, per share), or full (shares, value, change
-  for the whole position). A "Last buy <date>" footer closes it (0033, 0036).
+- Per ticker: one average price **copied from the broker**. The app never computes it, so it always agrees with the
+  broker (0033). It has no amounts, so it can be shown in public (0040).
+- Each save replaces the average; there is no history (the trade log comes in M2). There is no remove yet, except
+  removing the ticker (0036, 0040).
+- **Card**: empty ("Own this?...") or the average with the change since it, per share (0033, 0040).
+- **Sheet**: the average field only; editing shows the previous value below it ("Was 40.70") (0040).
 - **Chart**: a dotted line in the tertiary colour at the average. When the average is outside the axis, a stub and
-  chevron at the edge instead of stretching the axis. The last buy is a diamond on the line when its date is in the
-  range (0033, 0034).
+  chevron at the edge instead of stretching the axis (0033).
 - **Input**: a dot or a comma as the decimal mark, nothing else; the average is shown with the decimals typed (0036).
 
 ## Auto-refresh (details screen)

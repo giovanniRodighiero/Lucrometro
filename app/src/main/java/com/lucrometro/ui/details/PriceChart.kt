@@ -94,8 +94,6 @@ fun PriceChart(
     stepLabels: StepLabels? = null,
     /** The owner's average price: a dotted line, or a stub at the plot edge when it is outside the axis (decision 0033). */
     average: AverageMark? = null,
-    /** The point of the last buy, drawn as a diamond (decision 0034); null when it is outside the range. */
-    lastBuyIndex: Int? = null,
     /** Auto-refresh is polling: a soft pulsing halo behind the end dot (decision 0035). */
     live: Boolean = false,
 ) {
@@ -262,21 +260,6 @@ fun PriceChart(
             halo?.let { drawCircle(color.copy(alpha = it.value), 12.dp.toPx(), end) }
             drawCircle(color, 5.dp.toPx(), end)
             drawCircle(surface, 5.dp.toPx(), end, style = Stroke(2.dp.toPx()))
-        }
-        // Above the end dot, which would hide a buy made on the last point; below the scrub marker.
-        lastBuyIndex?.takeIf { it in points.indices && it in xs.indices }?.let { i ->
-            val cx = x(xs[i])
-            val cy = y(points[i].price)
-            val r = 7.5.dp.toPx()
-            val diamond = Path().apply {
-                moveTo(cx, cy - r)
-                lineTo(cx + r, cy)
-                lineTo(cx, cy + r)
-                lineTo(cx - r, cy)
-                close()
-            }
-            drawPath(diamond, tertiary)
-            drawPath(diamond, surface, style = Stroke(2.dp.toPx(), join = StrokeJoin.Round))
         }
         if (scrubbed != null) {
             val sx = x(xs[scrubbed])

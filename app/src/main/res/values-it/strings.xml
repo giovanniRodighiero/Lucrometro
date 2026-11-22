@@ -89,36 +89,23 @@
     <string name="position_empty">Ce l\'hai? Aggiungi il prezzo medio dal tuo broker per vederlo sul grafico.</string>
     <string name="position_add">Aggiungi prezzo medio</string>
     <string name="position_average">Prezzo medio</string>
-    <string name="position_shares">Quantità</string>
-    <string name="position_value">Valore</string>
     <string name="position_since_average">Dal medio</string>
-    <string name="position_hint_shares">Aggiungi la quantità che possiedi per vederne il valore.</string>
-    <string name="position_last_buy">Ultimo acquisto %1$s</string>
-    <string name="position_sheet_body_add">Copiali dal tuo broker. Restano su questo telefono.</string>
-    <string name="position_sheet_body_edit">Hai comprato ancora? Copia i nuovi valori dal tuo broker.</string>
+    <string name="position_sheet_body_add">Copialo dal tuo broker. Resta su questo telefono.</string>
+    <string name="position_sheet_body_edit">Hai comprato ancora? Copia il nuovo medio dal tuo broker.</string>
     <string name="position_field_average_currency">Prezzo medio (%1$s)</string>
     <string name="position_field_average">Prezzo medio</string>
     <string name="position_field_average_hint">Il prezzo medio di carico che mostra il tuo broker</string>
-    <string name="position_field_shares">Quantità (facoltativa)</string>
-    <string name="position_field_shares_hint">Aggiungila per vedere il valore della posizione</string>
-    <!-- Below a field of the edit sheet: the previous value. -->
+    <!-- Below the field of the edit sheet: the previous value. -->
     <string name="position_was">Era %1$s</string>
-    <string name="position_field_date_add">Data dell\'ultimo acquisto</string>
-    <string name="position_field_date_edit">Data di questo acquisto</string>
-    <string name="position_field_date_hint">Oggi, se non la cambi. Può essere nel passato.</string>
-    <string name="position_field_date_was">Era %1$s. Può essere nel passato.</string>
-    <string name="position_pick_date">Scegli la data</string>
     <string name="position_error_average">Inserisci un prezzo maggiore di 0, come 29,50</string>
-    <string name="position_error_shares">Inserisci un numero maggiore di 0, come 120</string>
     <string name="position_error_save">Impossibile salvare. Riprova.</string>
     <string name="save">Salva</string>
     <!-- Chart: label above the dotted average line. Keep it short. -->
     <string name="chart_average">Il tuo medio</string>
-    <!-- TalkBack, appended to chart_description (so they start with a period). %1$s is a price or a date. -->
+    <!-- TalkBack, appended to chart_description (so they start with a period). %1$s is a price. -->
     <string name="chart_average_on">. Il tuo prezzo medio %1$s</string>
     <string name="chart_average_below">. Il tuo prezzo medio %1$s è sotto tutti i prezzi del grafico</string>
     <string name="chart_average_above">. Il tuo prezzo medio %1$s è sopra tutti i prezzi del grafico</string>
-    <string name="chart_last_buy">. Il tuo ultimo acquisto il %1$s</string>
 
     <!-- Market marker, auto-refresh and the market sheet (decision 0035). -->
     <string name="market_open">Aperto</string>

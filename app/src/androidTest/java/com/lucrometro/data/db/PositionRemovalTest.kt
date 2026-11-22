@@ -16,11 +16,10 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDate
 
 /**
- * Removing a ticker deletes its position entries in the same transaction, and undo brings them back in order
- * (decision 0033). Runs on the real Room database, where the transactions live; the unit tests use a fake.
+ * Removing a ticker deletes its average price in the same transaction, and undo brings it back (decisions 0033, 0040).
+ * Runs on the real Room database, where the transactions live; the unit tests use a fake.
  */
 @RunWith(AndroidJUnit4::class)
 class PositionRemovalTest {
@@ -29,32 +28,29 @@ class PositionRemovalTest {
         .build()
     private val store = RoomWatchlistStore(db.watchlist())
     private val quote = SavedQuote(Quote("SMH.MI", 41.27, "EUR", "MIL", marketTimeEpoch = 0), fetchedAt = 0)
-    private val first = Position(40.70, 120.0, LocalDate.of(2026, 10, 28), savedAt = 1)
-    private val second = Position(41.02, 140.0, LocalDate.of(2026, 11, 14), savedAt = 2)
 
     @After
     fun close() = db.close()
 
     @Test
-    fun removeDeletesEntriesAndUndoRestoresThem() = runBlocking {
+    fun saveReplacesAndUndoRestoresTheAverage() = runBlocking {
         store.add("SMH.MI", quote)
-        assertTrue(store.addPosition("SMH.MI", first))
-        assertTrue(store.addPosition("SMH.MI", second))
-        assertEquals(second, store.observePosition("SMH.MI").first())
+        assertTrue(store.savePosition("SMH.MI", Position(40.70)))
+        assertTrue(store.savePosition("SMH.MI", Position(41.02)))
+        assertEquals(Position(41.02), store.observePosition("SMH.MI").first())
 
         val removed = store.remove("SMH.MI")!!
-        assertEquals(listOf(first, second), removed.positions)
+        assertEquals(Position(41.02), removed.average)
         assertNull(store.observePosition("SMH.MI").first())
-        assertTrue(db.watchlist().positions("SMH.MI").isEmpty())
+        assertNull(db.watchlist().position("SMH.MI"))
 
         assertTrue(store.restore(removed))
-        assertEquals(listOf(first, second), db.watchlist().positions("SMH.MI").map { it.toPosition() })
-        assertEquals(second, store.observePosition("SMH.MI").first())
+        assertEquals(Position(41.02), store.observePosition("SMH.MI").first())
     }
 
     @Test
-    fun noEntryForATickerThatIsNotStored() = runBlocking {
-        assertFalse(store.addPosition("SMH.MI", first))
-        assertTrue(db.watchlist().positions("SMH.MI").isEmpty())
+    fun noAverageForATickerThatIsNotStored() = runBlocking {
+        assertFalse(store.savePosition("SMH.MI", Position(40.70)))
+        assertNull(db.watchlist().position("SMH.MI"))
     }
 }

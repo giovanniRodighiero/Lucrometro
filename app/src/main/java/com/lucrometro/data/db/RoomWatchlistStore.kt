@@ -22,15 +22,15 @@ class RoomWatchlistStore(private val dao: WatchlistDao) : WatchlistStore {
 
     override suspend fun saveQuote(code: String, saved: SavedQuote) = dao.saveQuote(QuoteUpdate(code, saved.toColumns()))
 
-    override fun observePosition(code: String): Flow<Position?> = dao.observeLatestPosition(code).map { it?.toPosition() }
+    override fun observePosition(code: String): Flow<Position?> = dao.observePosition(code).map { it?.toPosition() }
 
-    override suspend fun addPosition(code: String, position: Position): Boolean = dao.addPosition(position.toEntity(code))
+    override suspend fun savePosition(code: String, position: Position): Boolean = dao.savePosition(position.toEntity(code))
 
     override suspend fun remove(code: String): StoredTicker? =
-        dao.take(code)?.let { removed -> removed.ticker.toStored().copy(positions = removed.positions.map { it.toPosition() }) }
+        dao.take(code)?.let { removed -> removed.ticker.toStored().copy(average = removed.position?.toPosition()) }
 
     override suspend fun restore(ticker: StoredTicker): Boolean = dao.putBack(
         TickerEntity(ticker.code, ticker.position, ticker.addedAt, ticker.saved?.toColumns()),
-        ticker.positions.map { it.toEntity(ticker.code) },
+        ticker.average?.toEntity(ticker.code),
     )
 }
