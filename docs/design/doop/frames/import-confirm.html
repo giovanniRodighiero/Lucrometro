@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Import · confirm before saving" (VaiXMpV6A0), 412x892. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }
+.yh { height:48px; display:flex; align-items:flex-end; padding:0 var(--spacing-md) var(--spacing-sm); font-size:var(--text-label-large); line-height:var(--leading-label-large); font-weight:var(--font-weight-medium); color:var(--color-on-surface-variant); }
+.two { display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-md); margin-top:var(--spacing-md); }
+.ln { display:flex; justify-content:space-between; gap:var(--spacing-md); font-variant-numeric:tabular-nums; }
+.ln b { font-weight:var(--font-weight-regular); color:var(--color-on-surface); }
+</style></head>
+<body style="width:412px;height:892px;position:relative;overflow:hidden;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);">
+<doop-use component="StatusBar"></doop-use>
+<doop-use component="TradesTopBar" title="Trades" ticker="ENI.MI"></doop-use>
+<section style="margin-top:200px;padding:0 var(--spacing-xl);display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--spacing-md);">
+<h2 style="font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">No trades yet</h2>
+</section>
+<div style="position:absolute;inset:0;background:var(--color-scrim);opacity:0.32;"></div>
+<div style="position:absolute;left:24px;right:24px;top:200px;">
+<doop-use component="Dialog" title="Import 12 trades?"><template slot="content">
+<p>From trades.csv, for ENI.MI.</p>
+<div style="margin-top:var(--spacing-md);display:flex;flex-direction:column;gap:var(--spacing-xs);">
+<p class="ln"><span>New trades</span><b>10 buys, 2 sells</b></p>
+<p class="ln"><span>Dates</span><b>2 Jul 2025 – 18 Nov 2026</b></p>
+<p class="ln"><span>Skipped</span><b>46 rows for other tickers</b></p>
+</div>
+<div style="margin:var(--spacing-md) 0;border-top:1px solid var(--color-outline-variant);"></div>
+<p class="ln"><span>After the import</span><b>300 shares · avg 13.85 EUR</b></p>
+<p style="margin-top:var(--spacing-sm);">The average from your trades replaces the one you typed (13.90 EUR).</p>
+</template><template slot="actions"><doop-use component="Button" tone="text" label="Cancel"></doop-use><doop-use component="Button" tone="text" label="Import"></doop-use></template></doop-use>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;"><span style="width:108px;height:4px;border-radius:var(--radius-full);background:var(--color-on-surface);"></span></div>
+</body></html>

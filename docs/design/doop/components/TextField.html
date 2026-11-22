@@ -1,16 +1,22 @@
 <!--
-  Component: TextField (Doop id cwvvb91wsm, rev 2)
+  Component: TextField (Doop id cwvvb91wsm, rev 3)
   Material 3 outlined text field with floating label and supporting text. Sits on a surface-container-low ground.
-  Props: state default|focused = default; label; value; supporting
+  Props: state default|focused|error = default (error: error outline, label and supporting text, which says what is
+         wrong); trailing none|calendar|clock = none (icon for fields that open a picker); label; value; supporting
 -->
-<div class="tf" data-state="default" style="font-family:var(--font-sans);"><div class="box" style="position:relative;display:flex;align-items:center;height:56px;padding:0 var(--spacing-md);border-radius:var(--radius-xs);"><span class="lbl" data-doop-prop="label" style="position:absolute;left:12px;top:-9px;padding:0 4px;font-size:var(--text-body-small);line-height:var(--leading-body-small);background:var(--color-surface-container-low);">Ticker code</span><span class="val" data-doop-prop="value" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);color:var(--color-on-surface);">PRY.MI</span><span class="caret" style="width:2px;height:24px;margin-left:1px;background:var(--color-primary);"></span></div><span class="sup" data-doop-prop="supporting" style="display:block;padding:4px var(--spacing-md) 0;font-size:var(--text-body-small);line-height:var(--leading-body-small);">Borsa Italiana codes end in .MI</span></div>
+<div class="tf" data-state="default" data-trailing="none" style="font-family:var(--font-sans);"><div class="box" style="position:relative;display:flex;align-items:center;height:56px;padding:0 var(--spacing-md);border-radius:var(--radius-xs);"><span class="lbl" data-doop-prop="label" style="position:absolute;left:12px;top:-9px;padding:0 4px;font-size:var(--text-body-small);line-height:var(--leading-body-small);background:var(--color-surface-container-low);">Ticker code</span><span class="val" data-doop-prop="value" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);color:var(--color-on-surface);">PRY.MI</span><span class="caret" style="width:2px;height:24px;margin-left:1px;background:var(--color-primary);"></span><span class="trail" aria-hidden="true" style="margin-left:auto;margin-right:-4px;color:var(--color-on-surface-variant);"><svg class="ic-cal" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"></path></svg><svg class="ic-clock" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span></div><span class="sup" data-doop-prop="supporting" style="display:block;padding:4px var(--spacing-md) 0;font-size:var(--text-body-small);line-height:var(--leading-body-small);">Borsa Italiana codes end in .MI</span></div>
 <style>
 @keyframes tf-blink{ 50% { opacity: 0; } }
 .tf .box { box-shadow: inset 0 0 0 1px var(--color-outline); }
 .tf .lbl { color: var(--color-on-surface-variant); }
 .tf .sup { color: var(--color-on-surface-variant); }
 .tf .caret { display: none; animation: tf-blink 1s steps(1) infinite; }
+.tf .trail, .tf .ic-cal, .tf .ic-clock { display: none; }
+.tf[data-trailing="calendar"] .trail, .tf[data-trailing="clock"] .trail { display: flex; }
+.tf[data-trailing="calendar"] .ic-cal, .tf[data-trailing="clock"] .ic-clock { display: block; }
 .tf[data-state="focused"] .box { box-shadow: inset 0 0 0 2px var(--color-primary); }
 .tf[data-state="focused"] .lbl { color: var(--color-primary); }
 .tf[data-state="focused"] .caret { display: block; }
+.tf[data-state="error"] .box { box-shadow: inset 0 0 0 2px var(--color-error); }
+.tf[data-state="error"] .lbl, .tf[data-state="error"] .sup { color: var(--color-error); }
 </style>

@@ -1,7 +1,15 @@
 <!--
-  Component: TopAppBar (Doop id cuydrl9178, rev 1)
+  Component: TopAppBar (Doop id cuydrl9178, rev 7)
   Material 3 small top app bar: screen title left, short status stamp (e.g. "Updated 14:32") right.
-  Props: title; stamp
+  Props: title; stamp; privacy none|public|private = none (M2 wallet switch, decision 0042: an icon button after the
+         stamp; public = outlined wallet, plain; private = filled wallet on tertiary-container; none = app before M2).
 -->
-<header style="display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-md);height:64px;padding:0 var(--spacing-md);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><h1 data-doop-prop="title" style="font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">Lucrometro</h1><span data-doop-prop="stamp" style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);font-variant-numeric:tabular-nums;">Updated 14:32</span></header>
-<style>* { margin: 0; box-sizing: border-box; }</style>
+<header class="tab" data-privacy="none" style="display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-md);height:64px;padding:0 var(--spacing-md);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><h1 data-doop-prop="title" style="font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">Lucrometro</h1><span data-doop-prop="stamp" style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);font-variant-numeric:tabular-nums;">Updated 14:32</span><span class="tab-eye" aria-label="Private view" style="flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);margin:0 -12px 0 -8px;border-radius:var(--radius-full);"><svg class="tab-eye-off" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 7.28V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-2.28c.59-.35 1-.98 1-1.72V9c0-.74-.41-1.37-1-1.72zM20 9v6h-7V9h7zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2H5zM16 13.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"></path></svg><svg class="tab-eye-on" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path></svg></span></header>
+<style>
+.tab-eye, .tab-eye-on { display: none; }
+.tab[data-privacy="public"] h1, .tab[data-privacy="private"] h1 { flex: 1; }
+.tab[data-privacy="public"] .tab-eye, .tab[data-privacy="private"] .tab-eye { display: flex; color: var(--color-on-surface-variant); }
+.tab[data-privacy="private"] .tab-eye { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
+.tab[data-privacy="private"] .tab-eye-off { display: none; }
+.tab[data-privacy="private"] .tab-eye-on { display: block; }
+</style>

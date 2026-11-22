@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Position card · all states (public and private)" (U8Ay5Xrjlo), 844x860. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>
+* { margin: 0; box-sizing: border-box; }
+.col { display: flex; flex-direction: column; gap: var(--spacing-sm); padding: 0 var(--spacing-md); }
+.cap { margin-top: var(--spacing-md); font-size: var(--text-label-medium); line-height: var(--leading-label-medium); color: var(--color-on-surface-variant); }
+.colhead { font-size: var(--text-title-medium); line-height: var(--leading-title-medium); font-weight: var(--font-weight-medium); }
+</style></head>
+<body style="width:844px;height:860px;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);padding-top:var(--spacing-lg);display:grid;grid-template-columns:412px 412px;column-gap:20px;align-items:start;">
+<div class="col">
+<p class="colhead">Public</p>
+<p class="cap">Nothing saved</p>
+<doop-use component="PositionCard" state="empty"></doop-use>
+<p class="cap">Typed average (pencil edits it) · change per share</p>
+<doop-use component="PositionCard" state="avg" avg="29.50 EUR"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+11.77 (+39.90%)"></doop-use></template></doop-use>
+<p class="cap">Average from the trades · no pencil: edit the trades in private</p>
+<doop-use component="PositionCard" state="avg-traded" avg="29.50 EUR"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+11.77 (+39.90%)"></doop-use></template></doop-use>
+</div>
+<div class="col">
+<p class="colhead">Private</p>
+<p class="cap">With trades · gain for the whole position · footer opens the trades screen</p>
+<doop-use component="PositionCard" state="private" avg="29.50 EUR" shares="120" value="4,952.40 EUR" lastbuy="12 trades · last buy 20 Nov 2026"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+1,412.40 (+39.90%)"></doop-use></template></doop-use>
+<p class="cap">Typed average, no trades yet</p>
+<doop-use component="PositionCard" state="private-avg" avg="29.50 EUR" lastbuy="No trades yet"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+11.77 (+39.90%)"></doop-use></template></doop-use>
+<p class="cap">Nothing saved</p>
+<doop-use component="PositionCard" state="private-empty" lastbuy="No trades yet"></doop-use>
+</div>
+</body></html>

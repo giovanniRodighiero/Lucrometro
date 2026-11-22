@@ -1,9 +1,11 @@
 <!--
-  Component: DetailsTopBar (Doop id cw5r7g8fav, rev 5)
+  Component: DetailsTopBar (Doop id cw5r7g8fav, rev 12)
   Material 3 small top app bar for the details screen (decision 0035): back arrow (48dp touch target), the ticker code
   as title, then on the right a market marker and the auto-refresh sync icon button.
   Props: title (ticker code; cut with an ellipsis when it does not fit);
-         market none|open|closed = open; refresh off|on = off.
+         market none|open|closed = open; refresh off|on = off;
+         privacy none|public|private = none (M2 wallet switch, decision 0042: public = outlined wallet, plain; private =
+         filled wallet on tertiary-container; stays at the right edge when market=none; none = app before M2).
   Marker: 8dp dot and one word, "Open" (filled gain dot) or "Closed" (hollow outline dot), neutral text, 48dp touch
   target. Tapping it opens the market details sheet (frames/details-market-sheet), which holds the full status text of
   decision 0032 ("Open · closes 17:30", exchange clock and phone clock, see frames/market-status-cases).
@@ -13,9 +15,9 @@
   The text carries the meaning; the dot only supports it. Never red for closed: red means loss in the app.
   Before decision 0035 the right side was the full status text (rev 4, decisions 0014, 0027, 0032).
 -->
-<header class="dtb" data-market="open" data-refresh="off" style="display:flex;align-items:center;gap:var(--spacing-xs);height:64px;padding:0 var(--spacing-xs);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><span style="display:flex;flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);color:var(--color-on-surface);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg></span><h1 data-doop-prop="title" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">SMH.MI</h1><span class="dtb-marker" style="flex-shrink:0;align-items:center;gap:6px;height:var(--spacing-touch);margin-left:auto;padding:0 var(--spacing-sm);font-size:var(--text-label-large);line-height:var(--leading-label-large);font-weight:var(--font-weight-medium);color:var(--color-on-surface-variant);white-space:nowrap;"><span class="dtb-dot" style="width:8px;height:8px;border-radius:var(--radius-full);"></span><span class="dtb-word-open">Open</span><span class="dtb-word-closed">Closed</span></span><span class="dtb-refresh" style="flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"></path></svg></span></header>
+<header class="dtb" data-market="open" data-refresh="off" data-privacy="none" style="display:flex;align-items:center;gap:var(--spacing-xs);height:64px;padding:0 var(--spacing-xs);font-family:var(--font-sans);background:var(--color-surface);color:var(--color-on-surface);"><span style="display:flex;flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);color:var(--color-on-surface);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg></span><h1 data-doop-prop="title" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">SMH.MI</h1><span class="dtb-marker" style="flex-shrink:0;align-items:center;gap:6px;height:var(--spacing-touch);margin-left:auto;padding:0 var(--spacing-sm);font-size:var(--text-label-large);line-height:var(--leading-label-large);font-weight:var(--font-weight-medium);color:var(--color-on-surface-variant);white-space:nowrap;"><span class="dtb-dot" style="width:8px;height:8px;border-radius:var(--radius-full);"></span><span class="dtb-word-open">Open</span><span class="dtb-word-closed">Closed</span></span><span class="dtb-refresh" style="flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"></path></svg></span><span class="dtb-eye" aria-label="Private view" style="flex-shrink:0;align-items:center;justify-content:center;width:var(--spacing-touch);height:var(--spacing-touch);border-radius:var(--radius-full);"><svg class="dtb-eye-off" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 7.28V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-2.28c.59-.35 1-.98 1-1.72V9c0-.74-.41-1.37-1-1.72zM20 9v6h-7V9h7zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2H5zM16 13.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"></path></svg><svg class="dtb-eye-on" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path></svg></span></header>
 <style>
-.dtb-marker, .dtb-refresh { display: none; }
+.dtb-marker, .dtb-refresh, .dtb-eye { display: none; }
 .dtb[data-market="open"] .dtb-marker, .dtb[data-market="closed"] .dtb-marker { display: flex; }
 .dtb[data-market="open"] .dtb-refresh, .dtb[data-market="closed"] .dtb-refresh { display: flex; }
 .dtb-word-closed { display: none; }
@@ -26,4 +28,10 @@
 .dtb-refresh { color: var(--color-on-surface-variant); }
 .dtb[data-refresh="on"] .dtb-refresh { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
 .dtb[data-market="closed"] .dtb-refresh { background: transparent; color: var(--color-on-surface); opacity: 0.38; }
+.dtb[data-privacy="public"] .dtb-eye, .dtb[data-privacy="private"] .dtb-eye { display: flex; color: var(--color-on-surface-variant); }
+.dtb[data-market="none"] .dtb-eye { margin-left: auto; }
+.dtb-eye-on { display: none; }
+.dtb[data-privacy="private"] .dtb-eye { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
+.dtb[data-privacy="private"] .dtb-eye-off { display: none; }
+.dtb[data-privacy="private"] .dtb-eye-on { display: block; }
 </style>

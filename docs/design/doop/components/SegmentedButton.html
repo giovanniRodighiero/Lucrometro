@@ -1,0 +1,12 @@
+<!--
+  Component: SegmentedButton (Doop id c4sp4jwwu2, rev 1)
+  Material 3 two-option segmented button, full width, 40dp tall in a 48dp touch row: outline border, the selected
+  segment on secondary-container with a check icon. Used for Buy / Sell in the trade sheet (decision 0042).
+  Props: selected first|second = first; first ("Buy"); second ("Sell")
+-->
+<div class="seg" data-selected="first" role="radiogroup" style="display:flex;height:40px;margin:4px 0;border-radius:var(--radius-full);overflow:hidden;box-shadow:inset 0 0 0 1px var(--color-outline);font-family:var(--font-sans);font-size:var(--text-label-large);line-height:var(--leading-label-large);font-weight:var(--font-weight-medium);color:var(--color-on-surface);"><span class="seg-a" role="radio" style="flex:1;display:flex;align-items:center;justify-content:center;gap:var(--spacing-sm);"><svg class="seg-ck" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg><span data-doop-prop="first">Buy</span></span><span style="width:1px;background:var(--color-outline);"></span><span class="seg-b" role="radio" style="flex:1;display:flex;align-items:center;justify-content:center;gap:var(--spacing-sm);"><svg class="seg-ck" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg><span data-doop-prop="second">Sell</span></span></div>
+<style>
+.seg .seg-ck { display: none; }
+.seg[data-selected="first"] .seg-a, .seg[data-selected="second"] .seg-b { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+.seg[data-selected="first"] .seg-a .seg-ck, .seg[data-selected="second"] .seg-b .seg-ck { display: block; }
+</style>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Reference · details top bar with the wallet, every state" (R460h3wG5h), 412x636. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }</style></head>
+<body style="width:412px;height:700px;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);padding:var(--spacing-md) 0;">
+<p style="padding:0 var(--spacing-md) var(--spacing-sm);font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">Option B: wallet icon in the details top bar</p>
+<p style="padding:0 var(--spacing-md) var(--spacing-md);font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">Order: back, ticker, market marker, auto-refresh, wallet. Outlined = public; filled on tertiary container = private.</p>
+<p style="padding:var(--spacing-sm) var(--spacing-md) 0;font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Public · open · auto-refresh off</p>
+<doop-use component="DetailsTopBar" privacy="public"></doop-use>
+<p style="padding:var(--spacing-sm) var(--spacing-md) 0;font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Public · open · auto-refresh on</p>
+<doop-use component="DetailsTopBar" privacy="public" refresh="on"></doop-use>
+<p style="padding:var(--spacing-sm) var(--spacing-md) 0;font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Private · open · auto-refresh on (sync and wallet side by side)</p>
+<doop-use component="DetailsTopBar" privacy="private" refresh="on"></doop-use>
+<p style="padding:var(--spacing-sm) var(--spacing-md) 0;font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Private · closed</p>
+<doop-use component="DetailsTopBar" market="closed" privacy="private"></doop-use>
+<p style="padding:var(--spacing-sm) var(--spacing-md) 0;font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Longest code seen so far · public · closed</p>
+<doop-use component="DetailsTopBar" market="closed" privacy="public" title="STMMI.MI"></doop-use>
+<p style="padding:var(--spacing-sm) var(--spacing-md) 0;font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Chart failed: marker and sync hidden, wallet stays</p>
+<doop-use component="DetailsTopBar" market="none" privacy="public"></doop-use>
+</body></html>
