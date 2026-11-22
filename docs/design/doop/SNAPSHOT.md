@@ -44,16 +44,15 @@ frame: `details-1d` is the off state. The three new screens (`details-auto-refre
 
 The position frames (added 2026-11-19, decisions 0033 and 0034) are marked ready for dev on the canvas. With the
 position work every details frame was re-exported: the chart is 292dp (was 324) and the empty `PositionCard` sits
-under the range bar. `details-position` shows the average line and the last-buy diamond; `details-position-avg-only`
-shows an average below the axis range (edge marker) and no diamond, as its last buy is outside the 1D range.
+under the range bar. `details-position` shows the average line inside the range; `details-position-avg-only` shows an
+average below the axis range (edge marker).
 
-M1, average only (decision 0040, 2026-11-22): `PositionCard` is rev 3. Its avg state shows the average and "Since avg"
-only (no shares hint, no "Last buy" footer). The add and edit sheets ask for the average only, and the edit sheet's
-chart has no diamond. Both sheets were signed off again by the owner on 2026-11-22. Re-exported: `PositionCard`,
-`PriceChart` (header comment only), `details-add-position`, `details-edit-position`, and the PNG of
-`details-position-avg-only` (its HTML is unchanged; the `lastbuy` prop it still passes is no longer shown).
-`details-position` is **parked for M2**: it still shows the full card and the diamond and was not re-exported. Do not
-port it in M1.
+M1, average only (decision 0040, 2026-11-22): `PositionCard` is rev 4, and its default state is now `avg`. The avg
+state shows the average and "Since avg" only (no shares hint, no "Last buy" footer). The add and edit sheets ask for the
+average only, and no frame draws the last-buy diamond any more. Both sheets were signed off again by the owner on
+2026-11-22. `details-position` is **parked for M2**: it keeps the full card (`state="full"`), which M2 will redesign, and
+is not to be built in M1. Re-exported: `PositionCard`, `PriceChart` (header comment only), `details-add-position`,
+`details-edit-position`, `details-position-avg-only` and `details-position`.
 
 ## Tokens and components
 
