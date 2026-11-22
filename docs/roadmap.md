@@ -53,11 +53,15 @@ Portfolio track (decision 0040): one branch per milestone, from main
 - M2, trade log and private view: the wallet switch, private position card, last buy on the chart, per-ticker
   trades screen, add/edit sheet, per-ticker CSV import (decisions 0041, 0042). Designed in Doop 2026-11-22 and
   snapshotted on branch `trade-log`; to build. It adds a third screen, so it moves to Navigation 3 (0024).
-- M3, sells: weighted average cost, realized gains.
+- M3, realized gains (decision 0043): gross realized gain per sell and per ticker, sold-out tickers kept with no
+  shares (card hidden in public). To design in Doop after M2 is built.
 - M4, portfolio overview: totals and allocation across tickers.
 
 Later (v2 candidates, not in v1 scope)
 - A private note per ticker.
+- Trade fees: an optional `fees` column in the trade CSV and the sheet, so realized gains can match the broker
+  (0041, 0043).
+- Estimated net realized gains after Italian capital gains tax (26%, 12.5% on government bonds, losses offset) (0043).
 - Ask for the fingerprint or phone PIN before switching to private mode (public/private mode starts as a plain tap; reconsider once the idea is validated).
 - More details info: 52-week and day range, distance from the all-time high, multi-period performance with YTD,
   dividends on the chart, delay notice.
