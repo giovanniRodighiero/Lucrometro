@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035). Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040). Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -18,7 +18,7 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `details-chart-failed` | Details · chart failed (stale header) | `ysEbtRvZXk` | `frames/details-chart-failed.html`, `.png` |
 | `details-1d-dark` | Details · 1D (dark) | `2FJ3ZK7LCY` | `frames/details-1d-dark.html`, `.png` |
 | `details-worst-case` | Details · worst case (stress values) | `iJVgK2AL0n` | `frames/details-worst-case.html`, `.png` |
-| `details-position` | Details · position (avg + shares) | `zoEYo9D6DA` | `frames/details-position.html`, `.png` |
+| `details-position` | Parked for M2 (private view) · position (avg + shares) | `zoEYo9D6DA` | `frames/details-position.html`, `.png` |
 | `details-position-avg-only` | Details · position (avg only, below the chart) | `QUevA8SJK_` | `frames/details-position-avg-only.html`, `.png` |
 | `details-add-position` | Details · add position sheet | `-rhgnhOKIC` | `frames/details-add-position.html`, `.png` |
 | `details-edit-position` | Details · edit position sheet | `a02OBvdVC9` | `frames/details-edit-position.html`, `.png` |
@@ -46,6 +46,14 @@ The position frames (added 2026-11-19, decisions 0033 and 0034) are marked ready
 position work every details frame was re-exported: the chart is 292dp (was 324) and the empty `PositionCard` sits
 under the range bar. `details-position` shows the average line and the last-buy diamond; `details-position-avg-only`
 shows an average below the axis range (edge marker) and no diamond, as its last buy is outside the 1D range.
+
+M1, average only (decision 0040, 2026-11-22): `PositionCard` is rev 3. Its avg state shows the average and "Since avg"
+only (no shares hint, no "Last buy" footer). The add and edit sheets ask for the average only, and the edit sheet's
+chart has no diamond. Both sheets were signed off again by the owner on 2026-11-22. Re-exported: `PositionCard`,
+`PriceChart` (header comment only), `details-add-position`, `details-edit-position`, and the PNG of
+`details-position-avg-only` (its HTML is unchanged; the `lastbuy` prop it still passes is no longer shown).
+`details-position` is **parked for M2**: it still shows the full card and the diamond and was not re-exported. Do not
+port it in M1.
 
 ## Tokens and components
 

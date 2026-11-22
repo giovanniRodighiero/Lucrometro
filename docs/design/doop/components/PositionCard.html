@@ -1,13 +1,14 @@
 <!--
-  Component: PositionCard (Doop id ck5u26pzly, rev 2)
-  Details screen, under the range bar: the owner's own position in the ticker, typed in from their broker, never
-  computed (decision 0033). Wrap in a div with 16px side margins.
+  Component: PositionCard (Doop id ck5u26pzly, rev 3)
+  Details screen, under the range bar: the owner's own position in the ticker. Wrap in a div with 16px side margins.
   Props: state empty|avg|full = full;
-         empty: nothing logged yet, "Own this? Add the average price..." and an "Add average price" text button;
-         avg: average price and change since the average, a hint to add shares;
-         full: average price, shares, value (shares x last price) and change since the average.
+         empty: nothing saved yet, "Own this? Add the average price..." and an "Add average price" text button;
+         avg (public view, decision 0040, M1): the average price copied from the broker and the change since it.
+           No shares, no hint, no footer;
+         full: PARKED for M2 (private view, built from the trade log). Average, shares, value and change, with a
+           footer that will open the buy history. Not built in M1; M2 redesigns it.
          avg, shares, value: text with currency ("40.70 EUR", "120", "4,952.40 EUR");
-         lastbuy: footer text ("Last buy 28 Oct 2026"), avg and full only; later the entry to the buy history.
+         lastbuy: footer text, full only (M2).
   Slot: change (a ChangeBadge with the change since the average, abs and %).
   The edit pencil (48dp touch target) opens the edit sheet; the dotted swatch before "Avg price" matches the chart line.
 -->
@@ -18,9 +19,8 @@
 .poc .poc-grid { display: grid; grid-template-areas: "avg shares" "value change"; }
 .poc .poc-foot { display: flex; }
 .poc .poc-empty, .poc .poc-add, .poc .poc-hint { display: none; }
-.poc[data-state="avg"] .poc-grid { grid-template-areas: "avg change"; }
-.poc[data-state="avg"] .poc-shares, .poc[data-state="avg"] .poc-value { display: none; }
-.poc[data-state="avg"] .poc-hint { display: block; }
+.poc[data-state="avg"] .poc-grid { grid-template-areas: "avg change"; padding-bottom: var(--spacing-md); }
+.poc[data-state="avg"] .poc-shares, .poc[data-state="avg"] .poc-value, .poc[data-state="avg"] .poc-foot { display: none; }
 .poc[data-state="empty"] .poc-edit, .poc[data-state="empty"] .poc-grid, .poc[data-state="empty"] .poc-foot { display: none; }
 .poc[data-state="empty"] .poc-empty { display: block; }
 .poc[data-state="empty"] .poc-add { display: flex; }
