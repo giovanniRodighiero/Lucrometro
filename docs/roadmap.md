@@ -49,7 +49,7 @@ Next
 
 Portfolio track (decision 0040): one branch per milestone, from main
 - M1, average only: `PositionCard`, sheets and chart without the date, the diamond and the shares. Designed in Doop
-  2026-11-22 and built on branch `average-only` (Room v5 keeps the latest average per ticker); to merge.
+  2026-11-22, built and merged into main 2026-11-22 (Room v5 keeps the latest average per ticker). Ships in the next release.
 - M2, trade log and private view: buys only, the public/private switch (one tap), form, then the CSV import.
   To design in Doop. Trades import from the broker-neutral CSV of decision 0041.
 - M3, sells: weighted average cost, realized gains.
