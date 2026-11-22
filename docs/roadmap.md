@@ -47,9 +47,16 @@ Next
    a source per exchange, or state it for `.MI` only. Still to verify: whether Yahoo has a push channel (WebSocket)
    for `.MI`; with the delay it may add nothing.
 
+Portfolio track (decision 0040): one branch per milestone, from main
+- M1, average only: `PositionCard`, sheets and chart without the date, the diamond and the shares. Designed in Doop
+  2026-11-22; to snapshot and build.
+- M2, trade log and private view: buys only, the public/private switch (one tap), form, then the Directa CSV import.
+  To design in Doop. Needs a sample Directa CSV first.
+- M3, sells: weighted average cost, realized gains.
+- M4, portfolio overview: totals and allocation across tickers.
+
 Later (v2 candidates, not in v1 scope)
-- Full buy log per ticker (date, quantity, price) behind the position card's footer (decision 0033).
-- Show the last buy's date when a tap or the scrub reaches its diamond on the chart (decision 0034).
 - A private note per ticker.
+- Ask for the fingerprint or phone PIN before switching to private mode (public/private mode starts as a plain tap; reconsider once the idea is validated).
 - More details info: 52-week and day range, distance from the all-time high, multi-period performance with YTD,
   dividends on the chart, delay notice.
