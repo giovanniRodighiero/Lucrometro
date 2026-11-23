@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Font size 130% · compact vs regular card" (EccC2JjRax), 844x520. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. A reference check, not a screen:
+     the wrappers scale the text tokens by 1.3 to simulate Settings > Font size; the card width is unchanged. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }
+.col { display:flex; flex-direction:column; gap:var(--spacing-sm); padding:0 var(--spacing-md); }
+.cap { margin-top:var(--spacing-md); font-size:var(--text-label-medium); line-height:var(--leading-label-medium); color:var(--color-on-surface-variant); }
+.colhead { font-size:var(--text-title-medium); line-height:var(--leading-title-medium); font-weight:var(--font-weight-medium); }
+</style></head>
+<body style="width:844px;height:520px;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);padding-top:var(--spacing-lg);display:grid;grid-template-columns:412px 412px;column-gap:20px;align-items:start;">
+<div class="col">
+<p class="colhead">Compact at 130% (Settings › Font size)</p>
+<p class="cap">Simulated: text tokens × 1.3, card width unchanged. Value and both pills wrap to two lines; nothing is cut, and the card is still shorter than the regular one.</p>
+<div style="--text-body-medium:18.2px;--leading-body-medium:26px;--text-body-small:15.6px;--leading-body-small:20.8px;--text-title-medium:20.8px;--leading-title-medium:31.2px;--text-label-large:18.2px;--leading-label-large:26px;--text-label-medium:15.6px;--leading-label-medium:20.8px;"><doop-use component="PositionCard" state="private" layout="compact" realized="shown" avg="40.70 EUR" shares="1,250.5" value="51,608.14 EUR" lastbuy="38 trades · last buy 6 Nov 2026"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+712.79 (+1.40%)"></doop-use></template><template slot="realized"><doop-use component="ChangeBadge" direction="down" value="-1,240.55 (-12.85%)"></doop-use></template></doop-use></div>
+</div>
+<div class="col">
+<p class="colhead">Regular 2 × 2 at 130% (today's card)</p>
+<p class="cap">The Since avg pill already wraps here in the M2 card. Taller; the screen scrolls.</p>
+<div style="--text-body-medium:18.2px;--leading-body-medium:26px;--text-body-small:15.6px;--leading-body-small:20.8px;--text-title-medium:20.8px;--leading-title-medium:31.2px;--text-label-large:18.2px;--leading-label-large:26px;--text-label-medium:15.6px;--leading-label-medium:20.8px;"><doop-use component="PositionCard" state="private" realized="shown" avg="40.70 EUR" shares="1,250.5" value="51,608.14 EUR" lastbuy="38 trades · last buy 6 Nov 2026"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+712.79 (+1.40%)"></doop-use></template><template slot="realized"><doop-use component="ChangeBadge" direction="down" value="-1,240.55 (-12.85%)"></doop-use></template></doop-use></div>
+</div>
+</body></html>

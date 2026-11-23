@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -41,6 +41,14 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `trades-edit-sheet-error` | Trades · edit trade sheet (sell too large) | `9jZvW1sgjl` | `frames/trades-edit-sheet-error.html`, `.png` |
 | `import-confirm` | Import · confirm before saving | `VaiXMpV6A0` | `frames/import-confirm.html`, `.png` |
 | `import-bad-row` | Import · bad row, nothing saved | `vRFrvO0WbE` | `frames/import-bad-row.html`, `.png` |
+| `position-card-realized` | Position card · realized gains and sold out (M3) | `VUb6rteCbm` | `frames/position-card-realized.html`, `.png` |
+| `trades-realized-sells` | Trades · sells show the realized gain | `AyURtYGfmc` | `frames/trades-realized-sells.html`, `.png` |
+| `trades-sold-out` | Trades · sold out | `6k5rsPbLxy` | `frames/trades-sold-out.html`, `.png` |
+| `details-private-sold-out` | Details · private · sold out | `g3yE28DVlL` | `frames/details-private-sold-out.html`, `.png` |
+| `details-public-sold-out` | Details · public · sold out (no card) | `CCRLGTfVOW` | `frames/details-public-sold-out.html`, `.png` |
+| `trades-sell-sheet-realized` | Trades · sell sheet previews the realized gain | `jTYKq6gI_g` | `frames/trades-sell-sheet-realized.html`, `.png` |
+| `details-private-worst-case-compact` | Details · private · worst case, compact card fits | `pSW0q1c8cm` | `frames/details-private-worst-case-compact.html`, `.png` |
+| `position-card-font-130` | Font size 130% · compact vs regular card | `EccC2JjRax` | `frames/position-card-font-130.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
@@ -77,6 +85,17 @@ is a reference board. The import's other error texts (no rows for the ticker, sh
 new) are in decision 0042, not drawn. The frame HTML of the M2 screens was written from the markup sent to Doop, with
 the same normalisation as below. The exploration frames (eye, person and lock icons; a bottom navigation bar) were
 deleted from the canvas.
+
+M3, realized gains (decisions 0043 and 0047, 2026-11-23): page "M3 · Realized gains". All eight M3 frames are marked
+ready for dev, signed off by the owner on 2026-11-23. `PositionCard` is rev 10: state `sold-out`, prop `realized`
+(hidden|shown) with a `realized` slot, and prop `layout` (regular|compact). The M3 frames set `layout="compact"`; the
+"Screens" frames keep `regular`, the M2 card as built, until M3 merges and compact becomes the default. `TradeRow` is
+rev 3: prop `realized` (off|on) and a `realized` slot, which replace the amount on sell rows. The example history is
+self-consistent (weighted average, replayed): 95 shares at 36.72 EUR, realized +139.76; sold out, +631.60.
+`details-private-worst-case-compact` uses stress values (1,250.5 shares, 51,608.14 EUR) on the 1M chart of the M2 frame.
+`position-card-font-130` is a reference board: the wrappers scale the text tokens by 1.3 to simulate the system font
+size. The rejected frame (worst case with the regular layout, the footer below the screen) stays on the canvas, not
+exported. The M3 frame HTML was written from the markup sent to Doop and from the M2 snapshot frames it edits.
 
 ## Tokens and components
 

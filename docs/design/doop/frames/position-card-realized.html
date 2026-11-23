@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Position card · realized gains and sold out (M3)" (VUb6rteCbm), 844x860. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>
+* { margin: 0; box-sizing: border-box; }
+.col { display: flex; flex-direction: column; gap: var(--spacing-sm); padding: 0 var(--spacing-md); }
+.cap { margin-top: var(--spacing-md); font-size: var(--text-label-medium); line-height: var(--leading-label-medium); color: var(--color-on-surface-variant); }
+.colhead { font-size: var(--text-title-medium); line-height: var(--leading-title-medium); font-weight: var(--font-weight-medium); }
+</style></head>
+<body style="width:844px;height:860px;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);padding-top:var(--spacing-lg);display:grid;grid-template-columns:412px 412px;column-gap:20px;align-items:start;">
+<div class="col">
+<p class="colhead">Private · shares held</p>
+<p class="cap">No sells yet · compact: three values, then Since avg</p>
+<doop-use component="PositionCard" state="private" layout="compact" avg="36.72 EUR" shares="95" value="3,920.65 EUR" lastbuy="7 trades · last buy 18 Nov 2026"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+431.99 (+12.38%)"></doop-use></template></doop-use>
+<p class="cap">Has sells · Realized (gross) beside Since avg, whole history</p>
+<doop-use component="PositionCard" state="private" layout="compact" realized="shown" avg="36.72 EUR" shares="95" value="3,920.65 EUR" lastbuy="9 trades · last buy 18 Nov 2026"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+431.99 (+12.38%)"></doop-use></template><template slot="realized"><doop-use component="ChangeBadge" direction="up" value="+139.76 (+13.31%)"></doop-use></template></doop-use>
+<p class="cap">Realized at a loss · loss colours</p>
+<doop-use component="PositionCard" state="private" layout="compact" realized="shown" avg="15.40 EUR" shares="300" value="4,458.00 EUR" lastbuy="6 trades · last buy 2 Sep 2026"><template slot="change"><doop-use component="ChangeBadge" direction="down" value="-162.00 (-3.51%)"></doop-use></template><template slot="realized"><doop-use component="ChangeBadge" direction="down" value="-86.40 (-4.12%)"></doop-use></template></doop-use>
+</div>
+<div class="col">
+<p class="colhead">Private · sold out (0 shares)</p>
+<p class="cap">No average, value or Since avg · realized total survives</p>
+<doop-use component="PositionCard" state="sold-out" lastbuy="10 trades · last buy 18 Nov 2026"><template slot="realized"><doop-use component="ChangeBadge" direction="up" value="+631.60 (+13.92%)"></doop-use></template></doop-use>
+<p class="cap">Sold out at a loss</p>
+<doop-use component="PositionCard" state="sold-out" lastbuy="4 trades · last buy 11 Mar 2026"><template slot="realized"><doop-use component="ChangeBadge" direction="down" value="-212.50 (-6.80%)"></doop-use></template></doop-use>
+<p class="cap" style="margin-top:var(--spacing-lg);">Public · sold out: no card at all (nothing to show, realized is private). The ticker stays in the watchlist.</p>
+</div>
+</body></html>

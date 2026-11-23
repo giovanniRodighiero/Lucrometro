@@ -1,14 +1,16 @@
 <!--
-  Component: TradeRow (Doop id cbeswitzlv, rev 2)
+  Component: TradeRow (Doop id cbeswitzlv, rev 3)
   M2, private (decision 0042): one trade on a ticker's trades screen, a 72dp Material 3 list item. Tap opens the edit
   sheet; swipe left deletes with an undo snackbar. Rows sit under a year header ("2026"), newest first.
   Props: side buy|sell = buy (the word "Buy" in tertiary or "Sell" in primary, medium weight; never gain/loss colours,
          a sell is not a loss; the word always says the side, colour is only a glance aid);
          day ("18"), month ("Nov"): the 40dp date tile on the left, no icon (nothing echoes the + button);
          shares ("10 shares", after "Buy · "); time (exchange clock, "11:20"; empty hides the line);
-         price (per share), amount (quantity x price, no fees), both with currency, tabular figures.
+         price (per share), amount (quantity x price, no fees), both with currency, tabular figures;
+         realized off|on = off (M3, decision 0043): on a sell row, the realized slot (a ChangeBadge, signed amount and %,
+         gain or loss colours) replaces the amount; the amount stays in the edit sheet. Buy rows never show it.
 -->
-<div class="trw" data-side="buy" role="button" style="display:flex;align-items:center;gap:var(--spacing-md);height:72px;padding:0 var(--spacing-md);background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);"><span class="trw-tile" style="flex:none;width:40px;text-align:center;font-variant-numeric:tabular-nums;"><p data-doop-prop="day" style="font-size:var(--text-title-medium);line-height:20px;font-weight:var(--font-weight-medium);">18</p><p data-doop-prop="month" style="font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Nov</p></span><div style="flex:1;min-width:0;"><p style="font-size:var(--text-body-large);line-height:var(--leading-body-large);"><span class="trw-wb">Buy</span><span class="trw-ws">Sell</span> · <span data-doop-prop="shares">10 shares</span></p><p class="trw-time" data-doop-prop="time" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);font-variant-numeric:tabular-nums;">11:20</p></div><div style="text-align:right;font-variant-numeric:tabular-nums;"><p data-doop-prop="price" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);">40.35 EUR</p><p data-doop-prop="amount" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">403.50 EUR</p></div></div>
+<div class="trw" data-side="buy" data-realized="off" role="button" style="display:flex;align-items:center;gap:var(--spacing-md);height:72px;padding:0 var(--spacing-md);background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);"><span class="trw-tile" style="flex:none;width:40px;text-align:center;font-variant-numeric:tabular-nums;"><p data-doop-prop="day" style="font-size:var(--text-title-medium);line-height:20px;font-weight:var(--font-weight-medium);">18</p><p data-doop-prop="month" style="font-size:var(--text-label-medium);line-height:var(--leading-label-medium);color:var(--color-on-surface-variant);">Nov</p></span><div style="flex:1;min-width:0;"><p style="font-size:var(--text-body-large);line-height:var(--leading-body-large);"><span class="trw-wb">Buy</span><span class="trw-ws">Sell</span> · <span data-doop-prop="shares">10 shares</span></p><p class="trw-time" data-doop-prop="time" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);font-variant-numeric:tabular-nums;">11:20</p></div><div style="text-align:right;font-variant-numeric:tabular-nums;"><p data-doop-prop="price" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);">40.35 EUR</p><p class="trw-amt" data-doop-prop="amount" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">403.50 EUR</p><div class="trw-real" data-doop-slot="realized" data-doop-slot-suggest="ChangeBadge" style="margin-top:2px;justify-content:flex-end;"></div></div></div>
 <style>
 .trw p { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .trw .trw-time:empty { display: none; }
@@ -17,4 +19,7 @@
 .trw .trw-ws { display: none; color: var(--color-primary); }
 .trw[data-side="sell"] .trw-wb { display: none; }
 .trw[data-side="sell"] .trw-ws { display: inline; }
+.trw .trw-real { display: none; }
+.trw[data-side="sell"][data-realized="on"] .trw-amt { display: none; }
+.trw[data-side="sell"][data-realized="on"] .trw-real { display: flex; }
 </style>
