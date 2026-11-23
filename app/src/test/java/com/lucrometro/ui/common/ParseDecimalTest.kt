@@ -1,4 +1,4 @@
-package com.lucrometro.ui.details
+package com.lucrometro.ui.common
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

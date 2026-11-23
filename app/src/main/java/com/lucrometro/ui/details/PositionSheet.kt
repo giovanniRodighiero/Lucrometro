@@ -40,6 +40,7 @@ import com.lucrometro.R
 import com.lucrometro.data.Position
 import com.lucrometro.data.Quote
 import com.lucrometro.ui.common.QuoteFormats
+import com.lucrometro.ui.common.parseDecimal
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
@@ -144,9 +145,3 @@ private fun NumberField(
 private fun ClearOnEdit(state: TextFieldState, onEdit: () -> Unit) {
     LaunchedEffect(state) { snapshotFlow { state.text.toString() }.drop(1).collect { onEdit() } }
 }
-
-private val DECIMAL = Regex("""\d+([.,]\d*)?|[.,]\d+""")
-
-/** A positive decimal typed with either a dot or a comma as the decimal mark (decision 0033); null if it is not one. */
-internal fun parseDecimal(text: String): Double? =
-    text.trim().takeIf { DECIMAL.matches(it) }?.replace(',', '.')?.toDoubleOrNull()

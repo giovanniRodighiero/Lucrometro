@@ -5,9 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -16,6 +19,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.lucrometro.ui.details.DetailsScreen
 import com.lucrometro.ui.theme.LucrometroTheme
+import com.lucrometro.ui.trades.TradesScreen
 import com.lucrometro.ui.watchlist.WatchlistScreen
 import com.lucrometro.ui.watchlist.WatchlistViewModel
 
@@ -23,15 +27,17 @@ import com.lucrometro.ui.watchlist.WatchlistViewModel
 sealed interface Screen {
     data object Watchlist : Screen
     data class Details(val code: String) : Screen
+    data class Trades(val code: String) : Screen
 }
 
-// Saved as plain strings, so the keys need no serialization plugin: "W", "D:ENI.MI".
+// Saved as plain strings, so the keys need no serialization plugin: "W", "D:ENI.MI", "T:ENI.MI".
 private val BackStackSaver = listSaver<SnapshotStateList<Screen>, String>(
     save = { stack ->
         stack.map {
             when (it) {
                 Screen.Watchlist -> "W"
                 is Screen.Details -> "D:${it.code}"
+                is Screen.Trades -> "T:${it.code}"
             }
         }
     },
@@ -39,6 +45,7 @@ private val BackStackSaver = listSaver<SnapshotStateList<Screen>, String>(
         saved.map {
             when (it.substringBefore(':')) {
                 "D" -> Screen.Details(it.substringAfter(':'))
+                "T" -> Screen.Trades(it.substringAfter(':'))
                 else -> Screen.Watchlist
             }
         }.toMutableStateList()
@@ -55,6 +62,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             LucrometroTheme {
                 val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Screen>(Screen.Watchlist) }
+                // Public or private view (decision 0042): one tap on the wallet, starts public on every launch.
+                var private by rememberSaveable { mutableStateOf(false) }
                 // PRD: auto-refresh when the app is opened or brought back (skipped if it refreshed a moment ago). Above
                 // the screens: coming back from details is not opening the app, and must not refetch the whole list.
                 val watchlist: WatchlistViewModel = viewModel(factory = WatchlistViewModel.Factory)
@@ -72,10 +81,19 @@ class MainActivity : ComponentActivity() {
                             when (screen) {
                                 Screen.Watchlist -> WatchlistScreen(
                                     onOpenTicker = { backStack.add(Screen.Details(it)) },
+                                    private = private,
+                                    onPrivateChange = { private = it },
                                     listState = listState,
                                     viewModel = watchlist,
                                 )
-                                is Screen.Details -> DetailsScreen(screen.code, onBack = { backStack.removeLastOrNull() })
+                                is Screen.Details -> DetailsScreen(
+                                    screen.code,
+                                    private = private,
+                                    onPrivateChange = { private = it },
+                                    onBack = { backStack.removeLastOrNull() },
+                                    onOpenTrades = { backStack.add(Screen.Trades(screen.code)) },
+                                )
+                                is Screen.Trades -> TradesScreen(screen.code, onBack = { backStack.removeLastOrNull() })
                             }
                         }
                     },

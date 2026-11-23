@@ -126,4 +126,108 @@
         <item quantity="one">Circa %1$d minuto</item>
         <item quantity="other">Circa %1$d minuti</item>
     </plurals>
+
+    <!-- M2: private view, trades and the CSV import (decision 0042). -->
+    <string name="private_view">Vista privata</string>
+    <string name="position_empty_private">Lo possiedi? Aggiungi le tue operazioni, o solo il prezzo medio dal tuo broker.</string>
+    <string name="position_shares">Quote</string>
+    <string name="position_value">Valore</string>
+    <string name="position_no_shares">Nessuna quota posseduta</string>
+    <plurals name="position_trades">
+        <item quantity="one">%1$d operazione · ultimo acquisto %2$s</item>
+        <item quantity="other">%1$d operazioni · ultimo acquisto %2$s</item>
+    </plurals>
+    <string name="position_no_trades">Ancora nessuna operazione</string>
+    <string name="position_open_trades">Apri le operazioni</string>
+    <string name="chart_last_buy">Il tuo ultimo acquisto · %1$s</string>
+    <string name="chart_last_buy_value">%1$s a %2$s</string>
+    <string name="trades_title">Operazioni</string>
+    <string name="trades_import">Importa operazioni da un file CSV</string>
+    <string name="trades_add">Aggiungi operazione</string>
+    <plurals name="trades_summary">
+        <item quantity="one">%1$s quote · medio %2$s · %3$d operazione</item>
+        <item quantity="other">%1$s quote · medio %2$s · %3$d operazioni</item>
+    </plurals>
+    <plurals name="trades_summary_sold_out">
+        <item quantity="one">Nessuna quota posseduta · %1$d operazione</item>
+        <item quantity="other">Nessuna quota posseduta · %1$d operazioni</item>
+    </plurals>
+    <string name="trade_buy">Acquisto</string>
+    <string name="trade_sell">Vendita</string>
+    <plurals name="trade_shares">
+        <item quantity="one">%1$s quota</item>
+        <item quantity="other">%1$s quote</item>
+    </plurals>
+    <string name="trades_empty_title">Ancora nessuna operazione</string>
+    <string name="trades_empty_body">Aggiungi le operazioni una alla volta, o importa un file CSV con le operazioni di questo titolo. Dalla prima in poi, il medio viene dalle tue operazioni.</string>
+    <string name="trades_import_button">Importa CSV</string>
+    <string name="trade_deleted">Operazione eliminata · %1$s, %2$s</string>
+    <string name="trade_delete">Elimina</string>
+    <string name="trade_delete_refused">Impossibile eliminarla: la vendita del %1$s ha bisogno di quelle quote.</string>
+    <string name="trade_delete_failed">Impossibile eliminare. Riprova.</string>
+    <string name="trade_sheet_add">Aggiungi operazione</string>
+    <string name="trade_sheet_edit">Modifica operazione</string>
+    <string name="trade_field_date">Data</string>
+    <string name="trade_field_time">Ora (facoltativa)</string>
+    <string name="trade_time_hint">Ora della borsa</string>
+    <string name="trade_field_shares">Quote</string>
+    <string name="trade_field_price_currency">Prezzo (%1$s)</string>
+    <string name="trade_field_price">Prezzo</string>
+    <string name="trade_price_hint">Per quota, senza commissioni</string>
+    <string name="trade_amount">Importo %1$s</string>
+    <string name="trade_pick_date">Scegli la data</string>
+    <string name="trade_pick_time">Scegli l\'ora</string>
+    <string name="trade_clear_time">Nessuna ora</string>
+    <string name="ok">OK</string>
+    <string name="trade_error_shares">Inserisci quote maggiori di 0, come 10 o 2,5</string>
+    <string name="trade_error_price">Inserisci un prezzo maggiore di 0, come 41,20</string>
+    <string name="trade_error_below_zero">Il %2$s avevi %1$s</string>
+    <string name="trade_error_save">Impossibile salvare. Riprova.</string>
+    <plurals name="import_title">
+        <item quantity="one">Importare %1$d operazione?</item>
+        <item quantity="other">Importare %1$d operazioni?</item>
+    </plurals>
+    <string name="import_from">Da %1$s, per %2$s.</string>
+    <string name="import_new">Nuove operazioni</string>
+    <plurals name="import_buys">
+        <item quantity="one">%1$d acquisto</item>
+        <item quantity="other">%1$d acquisti</item>
+    </plurals>
+    <plurals name="import_sells">
+        <item quantity="one">%1$d vendita</item>
+        <item quantity="other">%1$d vendite</item>
+    </plurals>
+    <string name="import_dates">Date</string>
+    <string name="import_skipped">Saltate</string>
+    <plurals name="import_skipped_other">
+        <item quantity="one">%1$d riga di altri titoli</item>
+        <item quantity="other">%1$d righe di altri titoli</item>
+    </plurals>
+    <plurals name="import_skipped_saved">
+        <item quantity="one">%1$d già salvata</item>
+        <item quantity="other">%1$d già salvate</item>
+    </plurals>
+    <string name="import_after">Dopo l\'importazione</string>
+    <string name="import_after_value">%1$s quote · medio %2$s</string>
+    <string name="import_after_sold_out">Nessuna quota posseduta</string>
+    <string name="import_replaces">Il medio delle tue operazioni sostituisce quello che hai inserito (%1$s).</string>
+    <string name="import_action">Importa</string>
+    <plurals name="import_done">
+        <item quantity="one">%1$d operazione importata</item>
+        <item quantity="other">%1$d operazioni importate</item>
+    </plurals>
+    <string name="import_nothing_new">Niente di nuovo: tutte le operazioni di %1$s nel file sono già salvate.</string>
+    <string name="import_error_title">Impossibile importare il file</string>
+    <string name="import_error_nothing_saved">Non è stato salvato nulla. Correggi il file e importalo di nuovo.</string>
+    <string name="import_error_read">Impossibile leggere il file.</string>
+    <string name="import_error_missing">Nel file manca la colonna %1$s. Servono ticker, side, date, quantity e price.</string>
+    <string name="import_error_columns">La riga %1$d ha meno colonne dell\'intestazione.</string>
+    <string name="import_error_side">Riga %1$d: il lato “%2$s” deve essere buy o sell.</string>
+    <string name="import_error_date">Riga %1$d: la data “%2$s” deve essere come 2026-02-01.</string>
+    <string name="import_error_time">Riga %1$d: l\'ora “%2$s” deve essere come 10:00.</string>
+    <string name="import_error_number">Riga %1$d: %2$s “%3$s” non è un numero. Usa il punto per i decimali, come in 41.20.</string>
+    <string name="import_error_positive">Riga %1$d: %2$s deve essere maggiore di 0.</string>
+    <string name="import_error_no_rows">Il file non ha operazioni per %1$s.</string>
+    <string name="import_error_below_zero">Con queste operazioni avresti meno di 0 quote il %1$s: nel file mancano operazioni più vecchie.</string>
+    <string name="import_save_failed">Impossibile salvare le operazioni. Riprova.</string>
 </resources>

@@ -69,6 +69,7 @@ import com.lucrometro.data.AddTickerResult
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
+import com.lucrometro.ui.common.WalletButton
 import com.lucrometro.ui.common.rememberQuoteFormats
 import com.lucrometro.ui.common.rememberTimeFormats
 import kotlinx.coroutines.flow.drop
@@ -77,6 +78,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun WatchlistScreen(
     onOpenTicker: (String) -> Unit,
+    private: Boolean,
+    onPrivateChange: (Boolean) -> Unit,
     /** Owned by the caller so the scroll position survives opening a ticker and coming back. */
     listState: LazyListState,
     viewModel: WatchlistViewModel = viewModel(factory = WatchlistViewModel.Factory),
@@ -111,6 +114,8 @@ fun WatchlistScreen(
         onOpen = onOpenTicker,
         listState = listState,
         onAddClick = viewModel::openAddSheet,
+        private = private,
+        onPrivateChange = onPrivateChange,
     )
 
     addSheet?.let { sheet ->
@@ -134,6 +139,8 @@ private fun WatchlistContent(
     onOpen: (String) -> Unit,
     listState: LazyListState,
     onAddClick: () -> Unit,
+    private: Boolean,
+    onPrivateChange: (Boolean) -> Unit,
 ) {
     val times = rememberTimeFormats()
     Scaffold(
@@ -147,11 +154,12 @@ private fun WatchlistContent(
                     entries?.mapNotNull { it.saved?.fetchedAt }?.maxOrNull()?.let {
                         Text(
                             stringResource(R.string.watchlist_updated, times.phoneStamp(it)),
-                            modifier = Modifier.padding(end = 12.dp),
+                            modifier = Modifier.padding(end = 4.dp),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
+                    WalletButton(private, onPrivateChange)
                 },
             )
         },

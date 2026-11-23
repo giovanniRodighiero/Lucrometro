@@ -47,6 +47,7 @@ import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.ChangeDirection
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
+import com.lucrometro.ui.common.WalletButton
 import com.lucrometro.ui.common.changeDirection
 import com.lucrometro.ui.common.changeLabel
 import com.lucrometro.ui.common.color
@@ -62,7 +63,10 @@ import kotlin.math.pow
 @Composable
 fun DetailsScreen(
     code: String,
+    private: Boolean,
+    onPrivateChange: (Boolean) -> Unit,
     onBack: () -> Unit,
+    onOpenTrades: () -> Unit,
     viewModel: DetailsViewModel = viewModel(key = code, factory = DetailsViewModel.factory(code)),
 ) {
     val entry by viewModel.entry.collectAsStateWithLifecycle()
@@ -70,7 +74,7 @@ fun DetailsScreen(
     val range by viewModel.range.collectAsStateWithLifecycle()
     val market by viewModel.market.collectAsStateWithLifecycle()
     val positionState by viewModel.position.collectAsStateWithLifecycle()
-    val position = positionState?.position
+    val position = positionState?.average
     var editingPosition by rememberSaveable { mutableStateOf(false) }
     val autoRefresh by viewModel.autoRefresh.collectAsStateWithLifecycle()
     var showingMarket by rememberSaveable { mutableStateOf(false) }
@@ -102,6 +106,8 @@ fun DetailsScreen(
                         MarketMarker(open, onClick = { showingMarket = true })
                         AutoRefreshButton(on = autoRefresh.on, enabled = open, onToggle = { viewModel.setAutoRefresh(!autoRefresh.on) })
                     }
+                    // Stays when the marker and sync are hidden (chart failed).
+                    WalletButton(private, onPrivateChange)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -123,10 +129,11 @@ fun DetailsScreen(
                     code, quote, position, chart, range, formats, times, live,
                     viewModel::selectRange, viewModel::retry, viewModel::onScrubbing,
                 )
-                if (positionState != null) {
+                positionState?.let {
                     PositionCard(
-                        position, quote, formats,
+                        it, private, quote, formats, times,
                         onEdit = { editingPosition = true },
+                        onOpenTrades = onOpenTrades,
                         modifier = Modifier.padding(16.dp),
                     )
                 }
@@ -134,7 +141,7 @@ fun DetailsScreen(
                     MarketSheet(code, shownMarket, status, now, quote, autoRefresh, times, onClose = { showingMarket = false })
                 }
                 if (editingPosition) {
-                    PositionSheet(position, quote, formats, viewModel::savePosition, onClose = { editingPosition = false })
+                    PositionSheet(positionState?.typed, quote, formats, viewModel::savePosition, onClose = { editingPosition = false })
                 }
             }
         }

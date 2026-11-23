@@ -9,29 +9,49 @@ import com.lucrometro.data.DataGraph
 import com.lucrometro.data.History
 import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.HistoryRepository
+import com.lucrometro.data.Holding
 import com.lucrometro.data.Position
+import com.lucrometro.data.Replay
+import com.lucrometro.data.Trade
+import com.lucrometro.data.replay
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** The owner's average price, read from storage: null when none was saved. */
-data class PositionState(val position: Position?)
+/**
+ * The owner's position in the ticker: the [typed] average (null when none was saved) and the [trades]. The log wins
+ * (decision 0040): once there are trades, the average is the one they add up to.
+ */
+data class PositionState(val typed: Position?, val trades: List<Trade>) {
+    /** What the trades add up to; null without trades. A stored log always replays (changes are checked when saved). */
+    val holding: Holding? = trades.takeIf { it.isNotEmpty() }?.let { (replay(it) as? Replay.Ok)?.holding }
+
+    /** The average both views show, or null: none saved, or sold out. */
+    val average: Position? = if (trades.isEmpty()) typed else holding?.average?.let(::Position)
+
+    /** Trades exist but no shares are held (decision 0043): no average, no last buy on the chart. */
+    val soldOut: Boolean = trades.isNotEmpty() && average == null
+}
 
 /** The details screen of one ticker: its saved quote and the chart of the selected range. */
 class DetailsViewModel(
     private val watchlist: WatchlistRepository,
     private val history: HistoryRepository,
     private val code: String,
+    trades: Flow<List<Trade>> = flowOf(emptyList()),
     /** Epoch millis: what the market status and the auto-refresh "checked" time are read from. */
     private val clock: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
@@ -41,8 +61,7 @@ class DetailsViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** The owner's position once read (decision 0033); null while it loads, so the card never flashes its empty state. */
-    val position: StateFlow<PositionState?> = watchlist.position(code)
-        .map(::PositionState)
+    val position: StateFlow<PositionState?> = combine(watchlist.position(code), trades, ::PositionState)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** Saves the average price. False if it could not be saved. */
@@ -185,7 +204,7 @@ class DetailsViewModel(
         fun factory(code: String) = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY]!!
-                DetailsViewModel(DataGraph.watchlist(app), DataGraph.history(app), code)
+                DetailsViewModel(DataGraph.watchlist(app), DataGraph.history(app), code, DataGraph.trades(app).trades(code))
             }
         }
     }
