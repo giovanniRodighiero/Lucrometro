@@ -24,8 +24,29 @@ data class Trade(
     val amount: Double get() = quantity * price
 }
 
-/** What a ticker's trades add up to: [average] is null at 0 shares (sold out, or no trades). */
-data class Holding(val shares: Double, val average: Double?, val count: Int, val lastBuy: Trade?)
+/**
+ * A gross realized gain (decision 0043): [gain] = (sell price - average then) x shares sold, [cost] = those shares at
+ * the average then, so [percent] is the gain over what the sold shares cost.
+ */
+data class Realized(val gain: Double, val cost: Double) {
+    val percent: Double get() = gain / cost * 100
+
+    operator fun plus(other: Realized) = Realized(gain + other.gain, cost + other.cost)
+}
+
+/**
+ * What a ticker's trades add up to: [average] is null at 0 shares (sold out, or no trades). [sells] is each sell's
+ * realized gain by trade id (stored trades: ids are unique), [realized] their total, null with no sells; both survive a
+ * sell-out.
+ */
+data class Holding(
+    val shares: Double,
+    val average: Double?,
+    val count: Int,
+    val lastBuy: Trade?,
+    val sells: Map<Long, Realized> = emptyMap(),
+    val realized: Realized? = null,
+)
 
 sealed interface Replay {
     data class Ok(val holding: Holding) : Replay
@@ -45,12 +66,14 @@ val TRADE_ORDER: Comparator<Trade> = compareBy<Trade>({ it.date }, { it.time ?: 
 
 /**
  * Replays [trades] oldest first with the weighted average cost without fees (decision 0041): a buy moves the average, a
- * sell keeps it, and at 0 shares it starts again. Stops at the first trade that would take the shares below 0.
+ * sell keeps it and realizes a gain against it, and at 0 shares it starts again. Stops at the first trade that would take the shares below 0.
  */
 fun replay(trades: List<Trade>): Replay {
     var shares = 0.0
     var average = 0.0
     var lastBuy: Trade? = null
+    val sells = HashMap<Long, Realized>()
+    var realized: Realized? = null
     for (t in trades.sortedWith(TRADE_ORDER)) {
         when (t.side) {
             Side.BUY -> {
@@ -60,6 +83,9 @@ fun replay(trades: List<Trade>): Replay {
             }
             Side.SELL -> {
                 if (t.quantity > shares + EPSILON) return Replay.BelowZero(t, shares)
+                val sell = Realized((t.price - average) * t.quantity, average * t.quantity)
+                sells[t.id] = sell
+                realized = realized?.plus(sell) ?: sell
                 shares -= t.quantity
                 if (abs(shares) < EPSILON) {
                     shares = 0.0
@@ -68,5 +94,5 @@ fun replay(trades: List<Trade>): Replay {
             }
         }
     }
-    return Replay.Ok(Holding(shares, average.takeIf { shares > 0 }, trades.size, lastBuy))
+    return Replay.Ok(Holding(shares, average.takeIf { shares > 0 }, trades.size, lastBuy, sells, realized))
 }

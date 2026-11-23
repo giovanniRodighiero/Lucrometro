@@ -63,17 +63,21 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucrometro.R
+import com.lucrometro.data.Holding
 import com.lucrometro.data.Quote
+import com.lucrometro.data.Realized
 import com.lucrometro.data.Replay
 import com.lucrometro.data.Side
 import com.lucrometro.data.TRADE_ORDER
 import com.lucrometro.data.Trade
 import com.lucrometro.data.TradeChange
 import com.lucrometro.data.replay
+import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.rememberQuoteFormats
 import com.lucrometro.ui.common.rememberTimeFormats
+import kotlin.math.abs
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -206,12 +210,13 @@ fun TradesScreen(
             EmptyTrades(onAdd = { sheet = NEW_TRADE }, onImport = openCsv, modifier = Modifier.padding(padding))
         } else {
             val newestFirst = remember(list) { list.sortedWith(TRADE_ORDER.reversed()) }
+            val holding = remember(list) { (replay(list) as? Replay.Ok)?.holding }
             LazyColumn(
                 Modifier.fillMaxSize().padding(top = padding.calculateTopPadding()),
                 // Room below the last row for the FAB.
                 contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 88.dp),
             ) {
-                item { Summary(list, quote, formats) }
+                holding?.let { item { Summary(it, quote, formats) } }
                 newestFirst.groupBy { it.date.year }.forEach { (year, inYear) ->
                     item(key = "year-$year") {
                         Text(
@@ -222,7 +227,7 @@ fun TradesScreen(
                         )
                     }
                     items(inYear, key = { it.id }) { trade ->
-                        RemovableTradeRow(trade, quote, formats, times, delete, onOpen = { sheet = trade.id }, Modifier.animateItem(fadeOutSpec = null))
+                        RemovableTradeRow(trade, holding?.sells?.get(trade.id), quote, formats, times, delete, onOpen = { sheet = trade.id }, Modifier.animateItem(fadeOutSpec = null))
                     }
                 }
             }
@@ -252,15 +257,22 @@ fun TradesScreen(
     }
 }
 
-/** "130 shares · avg 40.70 EUR · 13 trades" under the top bar, with a divider. */
+/** "130 shares · avg 40.70 EUR · 13 trades" under the top bar, with a divider; sold out, the realized total (0047). */
 @Composable
-private fun Summary(trades: List<Trade>, quote: Quote, formats: QuoteFormats) {
-    val holding = (replay(trades) as? Replay.Ok)?.holding ?: return
+private fun Summary(holding: Holding, quote: Quote, formats: QuoteFormats) {
     val average = holding.average
     Column(Modifier.padding(horizontal = 16.dp)) {
         Text(
             if (average == null) {
-                pluralStringResource(R.plurals.trades_summary_sold_out, holding.count, holding.count)
+                val realized = holding.realized?.gain ?: 0.0
+                val amount = formats.amountChange(quote, realized)
+                val text = formats.price(quote, abs(realized))
+                val signed = when {
+                    amount.rounded > 0 -> stringResource(R.string.change_up_amount, text)
+                    amount.rounded < 0 -> stringResource(R.string.change_down_amount, text)
+                    else -> text
+                }
+                pluralStringResource(R.plurals.trades_summary_sold_out, holding.count, holding.count, signed)
             } else {
                 pluralStringResource(
                     R.plurals.trades_summary, holding.count,
@@ -279,6 +291,7 @@ private fun Summary(trades: List<Trade>, quote: Quote, formats: QuoteFormats) {
 @Composable
 private fun RemovableTradeRow(
     trade: Trade,
+    realized: Realized?,
     quote: Quote,
     formats: QuoteFormats,
     times: TimeFormats,
@@ -307,7 +320,7 @@ private fun RemovableTradeRow(
         },
     ) {
         TradeRow(
-            trade, quote, formats, times,
+            trade, realized, quote, formats, times,
             Modifier
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable(onClick = onOpen)
@@ -317,11 +330,12 @@ private fun RemovableTradeRow(
 }
 
 /**
- * Doop component TradeRow rev 2: a 72dp row with the date tile, "Buy · 10 shares" (the side in tertiary or primary,
- * never gain or loss colours: a sell is not a loss), the time when known, the price and the amount (no fees).
+ * Doop component TradeRow rev 3: a 72dp row with the date tile, "Buy · 10 shares" (the side in tertiary or primary,
+ * never gain or loss colours: a sell is not a loss), the time when known, the price and the amount (no fees). A sell
+ * shows its [realized] gain in place of the amount (decision 0047).
  */
 @Composable
-private fun TradeRow(trade: Trade, quote: Quote, formats: QuoteFormats, times: TimeFormats, modifier: Modifier = Modifier) {
+private fun TradeRow(trade: Trade, realized: Realized?, quote: Quote, formats: QuoteFormats, times: TimeFormats, modifier: Modifier = Modifier) {
     Row(
         modifier.fillMaxWidth().height(72.dp).padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -357,11 +371,15 @@ private fun TradeRow(trade: Trade, quote: Quote, formats: QuoteFormats, times: T
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(withCurrency(quote, formats.exact(quote, trade.price)), style = MaterialTheme.typography.bodyLarge)
-            Text(
-                formats.price(quote, trade.amount),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            if (realized != null) {
+                ChangeBadge(realized.percent, formats, Modifier.padding(top = 2.dp), absolute = formats.amountChange(quote, realized.gain))
+            } else {
+                Text(
+                    formats.price(quote, trade.amount),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

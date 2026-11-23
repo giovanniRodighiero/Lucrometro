@@ -26,8 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -60,6 +61,7 @@ import com.lucrometro.data.Side
 import com.lucrometro.data.Trade
 import com.lucrometro.data.TradeChange
 import com.lucrometro.data.replay
+import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.marketZone
@@ -207,15 +209,39 @@ fun TradeSheet(
                 )
             }
             Spacer(Modifier.height(8.dp))
-            Text(
-                when {
-                    saveFailed -> stringResource(R.string.trade_error_save)
-                    quantity != null && unitPrice != null -> stringResource(R.string.trade_amount, formats.price(quote, quantity * unitPrice))
-                    else -> ""
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (saveFailed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            // A sell previews its realized gain (decision 0047), from the average at that moment.
+            val realized = candidate?.takeIf { side == Side.SELL && unitPrice != null && !saveFailed }
+                ?.let { (replay(others + it) as? Replay.Ok)?.holding?.sells?.get(it.id) }
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    when {
+                        saveFailed -> stringResource(R.string.trade_error_save)
+                        quantity != null && unitPrice != null -> stringResource(R.string.trade_amount, formats.price(quote, quantity * unitPrice))
+                        else -> ""
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (saveFailed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                if (realized != null) {
+                    Row(
+                        Modifier.semantics(mergeDescendants = true) {},
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            stringResource(R.string.position_realized),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        ChangeBadge(null, formats, absolute = formats.amountChange(quote, realized.gain))
+                    }
+                }
+            }
             Spacer(Modifier.height(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (editing != null) {

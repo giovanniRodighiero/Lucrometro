@@ -43,9 +43,17 @@ fun changeDirection(percent: Double, absolute: AmountChange? = null): ChangeDire
     }
 }
 
-/** A change as signed text: "+4.03%", or with the amount "+0.86 (+2.14%)". Also what TalkBack reads. */
+/** A change as signed text: "+4.03%", with the amount "+0.86 (+2.14%)", or the amount alone "+0.86" (null [percent]). */
 @Composable
-fun changeLabel(percent: Double, formats: QuoteFormats, absolute: AmountChange? = null): String {
+fun changeLabel(percent: Double?, formats: QuoteFormats, absolute: AmountChange? = null): String {
+    if (percent == null) {
+        val amount = requireNotNull(absolute) { "a change needs a percent or an amount" }
+        return when {
+            amount.rounded > 0 -> stringResource(R.string.change_up_amount, amount.text)
+            amount.rounded < 0 -> stringResource(R.string.change_down_amount, amount.text)
+            else -> amount.text
+        }
+    }
     val magnitude = formats.changeMagnitude(percent)
     val direction = changeDirection(percent, absolute)
     return if (absolute != null) {
@@ -78,14 +86,21 @@ fun ChangeDirection.color(): Color = when (this) {
  */
 @Composable
 fun ChangeBadge(
-    percent: Double,
+    /** Null shows the [absolute] amount alone ("+0.86"). */
+    percent: Double?,
     formats: QuoteFormats,
     modifier: Modifier = Modifier,
     /** The change in price units, shown before the percent ("+0.86 (+2.14%)"); null for the percent alone. */
     absolute: AmountChange? = null,
 ) {
     val colors = MaterialTheme.gainLoss
-    val (container, content, icon) = when (changeDirection(percent, absolute)) {
+    val direction = if (percent == null) {
+        val amount = absolute?.rounded ?: 0.0
+        if (amount > 0) ChangeDirection.Up else if (amount < 0) ChangeDirection.Down else ChangeDirection.Flat
+    } else {
+        changeDirection(percent, absolute)
+    }
+    val (container, content, icon) = when (direction) {
         ChangeDirection.Up -> Triple(colors.gainContainer, colors.onGainContainer, R.drawable.ic_change_up)
         ChangeDirection.Down -> Triple(colors.lossContainer, colors.onLossContainer, R.drawable.ic_change_down)
         ChangeDirection.Flat -> Triple(

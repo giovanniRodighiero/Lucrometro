@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,15 +34,17 @@ import androidx.compose.ui.unit.dp
 import com.lucrometro.R
 import com.lucrometro.data.Position
 import com.lucrometro.data.Quote
+import com.lucrometro.data.Realized
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
 
 /**
- * Doop component PositionCard rev 8 (decisions 0033, 0040, 0042), under the range bar.
+ * Doop component PositionCard rev 10, compact layout (decisions 0033, 0040, 0042, 0047), under the range bar.
  * Public: empty ("Add average price"), avg (typed average, pencil) or avg-traded (from the trades, no pencil); hidden
  * when the trades are sold out (decision 0043). Private adds shares, value and the whole position's gain when there are
- * trades, and a footer that opens the trades screen.
+ * trades, the realized total (gross) once there are sells, and a footer that opens the trades screen. Sold out
+ * (private): "No shares held" and the realized total.
  */
 @Composable
 fun PositionCard(
@@ -63,7 +66,7 @@ fun PositionCard(
             .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.large)
             .padding(start = 16.dp, end = 16.dp, top = 4.dp),
     ) {
-        Row(Modifier.fillMaxWidth().height(48.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 stringResource(R.string.position_title),
                 style = MaterialTheme.typography.titleMedium,
@@ -82,12 +85,15 @@ fun PositionCard(
             }
         }
         when {
-            state.soldOut -> Text(
-                stringResource(R.string.position_no_shares),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
+            state.soldOut -> {
+                Text(
+                    stringResource(R.string.position_no_shares),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                )
+                holding?.realized?.let { RealizedField(it, quote, formats, Modifier.padding(bottom = 16.dp)) }
+            }
             average == null -> {
                 Text(
                     stringResource(if (private) R.string.position_empty_private else R.string.position_empty),
@@ -98,40 +104,35 @@ fun PositionCard(
                     Text(stringResource(R.string.position_add))
                 }
             }
+            // Compact (decision 0047): avg, shares and value in a row of three, then "Since avg" and "Realized" halves.
             private && holding != null -> {
                 val gain = (quote.price - average.averagePrice) * holding.shares
-                Row(Modifier.padding(bottom = 24.dp)) {
-                    Column(Modifier.weight(1f)) { AverageField(state, quote, formats) }
-                    Column(Modifier.weight(1f)) {
-                        Field(stringResource(R.string.position_shares)) {
-                            Text(formats.shares(holding.shares), style = MaterialTheme.typography.bodyMedium)
-                        }
+                Row(Modifier.padding(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AverageField(state, quote, formats, Modifier.weight(1f))
+                    Field(stringResource(R.string.position_shares), Modifier.weight(1f)) {
+                        Text(formats.shares(holding.shares), style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Field(stringResource(R.string.position_value), Modifier.weight(1f)) {
+                        Text(formats.price(quote, quote.price * holding.shares), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
-                Row(Modifier.padding(bottom = 16.dp)) {
-                    Column(Modifier.weight(1f)) {
-                        Field(stringResource(R.string.position_value)) {
-                            Text(formats.price(quote, quote.price * holding.shares), style = MaterialTheme.typography.bodyMedium)
-                        }
+                Row(Modifier.padding(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Field(stringResource(R.string.position_since_average), Modifier.weight(1f)) {
+                        ChangeBadge(
+                            (quote.price - average.averagePrice) / average.averagePrice * 100, formats,
+                            absolute = formats.amountChange(quote, gain),
+                        )
                     }
-                    Column(Modifier.weight(1f)) {
-                        Field(stringResource(R.string.position_since_average)) {
-                            ChangeBadge(
-                                (quote.price - average.averagePrice) / average.averagePrice * 100, formats,
-                                absolute = formats.amountChange(quote, gain),
-                            )
-                        }
-                    }
+                    val realized = holding.realized
+                    if (realized != null) RealizedField(realized, quote, formats, Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
                 }
             }
             else -> {
                 val perShare = quote.price - average.averagePrice
                 Row(Modifier.padding(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Column(Modifier.weight(1f)) { AverageField(state, quote, formats) }
-                    Column(Modifier.weight(1f)) {
-                        Field(stringResource(R.string.position_since_average)) {
-                            ChangeBadge(perShare / average.averagePrice * 100, formats, absolute = formats.amountChange(quote, perShare))
-                        }
+                    AverageField(state, quote, formats, Modifier.weight(1f))
+                    Field(stringResource(R.string.position_since_average), Modifier.weight(1f)) {
+                        ChangeBadge(perShare / average.averagePrice * 100, formats, absolute = formats.amountChange(quote, perShare))
                     }
                 }
             }
@@ -147,7 +148,7 @@ fun PositionCard(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .heightIn(min = 48.dp)
                     .clickable(onClickLabel = stringResource(R.string.position_open_trades), onClick = onOpenTrades),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -163,9 +164,9 @@ fun PositionCard(
 
 /** A typed average is shown as typed; one from the trades in the quote's decimals, like a price. */
 @Composable
-private fun AverageField(state: PositionState, quote: Quote, formats: QuoteFormats) {
+private fun AverageField(state: PositionState, quote: Quote, formats: QuoteFormats, modifier: Modifier = Modifier) {
     val average = state.average?.averagePrice ?: return
-    Field(stringResource(R.string.position_average), swatch = true) {
+    Field(stringResource(R.string.position_average), modifier, swatch = true) {
         Text(
             if (state.holding != null) formats.price(quote, average) else price(quote, formats.exact(quote, average)),
             style = MaterialTheme.typography.bodyMedium,
@@ -178,22 +179,34 @@ private fun AverageField(state: PositionState, quote: Quote, formats: QuoteForma
 internal fun price(quote: Quote, number: String): String =
     quote.currency?.let { stringResource(R.string.quote_price, number, it) } ?: number
 
-/** A label over its value; [swatch] puts the chart's dotted average line before the label. */
+/** The ticker's gross realized total (decision 0047): signed amount and percent. */
 @Composable
-private fun Field(label: String, swatch: Boolean = false, value: @Composable () -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (swatch) {
-            val color = MaterialTheme.colorScheme.tertiary
-            Canvas(Modifier.size(14.dp, 4.dp)) {
-                drawLine(
-                    color, Offset(2.dp.toPx(), center.y), Offset(13.dp.toPx(), center.y), 1.5.dp.toPx(), StrokeCap.Round,
-                    PathEffect.dashPathEffect(floatArrayOf(0.1f, 4.dp.toPx())),
-                )
-            }
-        }
-        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun RealizedField(realized: Realized, quote: Quote, formats: QuoteFormats, modifier: Modifier = Modifier) {
+    Field(stringResource(R.string.position_realized), modifier) {
+        ChangeBadge(realized.percent, formats, absolute = formats.amountChange(quote, realized.gain))
     }
-    Spacer(Modifier.height(2.dp))
-    value()
 }
 
+/**
+ * A label over its value, read together by TalkBack; [swatch] puts the chart's dotted average line before the label.
+ * Values wrap, never cut (decision 0047).
+ */
+@Composable
+private fun Field(label: String, modifier: Modifier = Modifier, swatch: Boolean = false, value: @Composable () -> Unit) {
+    Column(modifier.semantics(mergeDescendants = true) {}) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (swatch) {
+                val color = MaterialTheme.colorScheme.tertiary
+                Canvas(Modifier.size(14.dp, 4.dp)) {
+                    drawLine(
+                        color, Offset(2.dp.toPx(), center.y), Offset(13.dp.toPx(), center.y), 1.5.dp.toPx(), StrokeCap.Round,
+                        PathEffect.dashPathEffect(floatArrayOf(0.1f, 4.dp.toPx())),
+                    )
+                }
+            }
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Spacer(Modifier.height(2.dp))
+        value()
+    }
+}

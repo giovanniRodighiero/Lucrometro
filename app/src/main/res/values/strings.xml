@@ -20,6 +20,8 @@
     <string name="change_up_abs">+%1$s (+%2$s%%)</string>
     <string name="change_down_abs">-%1$s (-%2$s%%)</string>
     <string name="change_flat_abs">%1$s (%2$s%%)</string>
+    <string name="change_up_amount">+%1$s</string>
+    <string name="change_down_amount">-%1$s</string>
 
     <string name="ticker_removed">%1$s removed</string>
     <string name="undo_failed">Couldn\'t restore %1$s</string>
@@ -142,6 +144,7 @@
     <string name="position_shares">Shares</string>
     <string name="position_value">Value</string>
     <string name="position_no_shares">No shares held</string>
+    <string name="position_realized">Realized (gross)</string>
     <!-- Card footer: %1$d trades, %2$s the day of the last buy ("20 Nov 2026"). -->
     <plurals name="position_trades">
         <item quantity="one">%1$d trade · last buy %2$s</item>
@@ -160,9 +163,10 @@
         <item quantity="one">%1$s shares · avg %2$s · %3$d trade</item>
         <item quantity="other">%1$s shares · avg %2$s · %3$d trades</item>
     </plurals>
+    <!-- Sold out: %1$d trades, %2$s the realized total, signed, with currency ("+631.60 EUR"). -->
     <plurals name="trades_summary_sold_out">
-        <item quantity="one">No shares held · %1$d trade</item>
-        <item quantity="other">No shares held · %1$d trades</item>
+        <item quantity="one">No shares held · realized %2$s (gross) · %1$d trade</item>
+        <item quantity="other">No shares held · realized %2$s (gross) · %1$d trades</item>
     </plurals>
     <string name="trade_buy">Buy</string>
     <string name="trade_sell">Sell</string>

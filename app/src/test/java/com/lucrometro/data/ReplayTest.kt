@@ -8,8 +8,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class ReplayTest {
-    private fun t(side: Side, date: String, qty: Double, price: Double, time: String? = null) =
-        Trade(code = "ENI.MI", side = side, date = LocalDate.parse(date), time = time?.let(LocalTime::parse), quantity = qty, price = price)
+    private fun t(side: Side, date: String, qty: Double, price: Double, time: String? = null, id: Long = 0) =
+        Trade(id = id, code = "ENI.MI", side = side, date = LocalDate.parse(date), time = time?.let(LocalTime::parse), quantity = qty, price = price)
 
     private fun ok(trades: List<Trade>) = (replay(trades) as Replay.Ok).holding
 
@@ -18,6 +18,22 @@ class ReplayTest {
         val h = ok(listOf(t(Side.BUY, "2026-01-02", 10.0, 10.0), t(Side.BUY, "2026-02-02", 30.0, 14.0), t(Side.SELL, "2026-03-02", 20.0, 20.0)))
         assertEquals(20.0, h.shares, 1e-9)
         assertEquals(13.0, h.average!!, 1e-9)
+    }
+
+    @Test
+    fun `each sell realizes against the average then, and the total survives a sell-out`() {
+        val h = ok(
+            listOf(
+                t(Side.BUY, "2026-01-02", 10.0, 10.0, id = 1), t(Side.BUY, "2026-02-02", 30.0, 14.0, id = 2),
+                t(Side.SELL, "2026-03-02", 20.0, 20.0, id = 3), t(Side.SELL, "2026-04-02", 20.0, 12.0, id = 4),
+                t(Side.BUY, "2026-05-02", 5.0, 7.0, id = 5),
+            ),
+        )
+        assertEquals(140.0, h.sells.getValue(3).gain, 1e-9)
+        assertEquals(-20.0 / 260 * 100, h.sells.getValue(4).percent, 1e-9)
+        assertEquals(120.0, h.realized!!.gain, 1e-9)
+        assertEquals(120.0 / 520 * 100, h.realized!!.percent, 1e-9)
+        assertNull(ok(listOf(t(Side.BUY, "2026-01-02", 1.0, 1.0))).realized)
     }
 
     @Test
