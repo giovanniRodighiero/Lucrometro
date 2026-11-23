@@ -119,16 +119,20 @@ sealed interface ImportCheck {
 
     /** With the new trades the shares go below 0: older trades are missing from the file. */
     data class BelowZero(val replay: Replay.BelowZero) : ImportCheck
+
+    /** [trade] is dated after today: a typo, since no trade happens in the future. */
+    data class Future(val trade: Trade) : ImportCheck
 }
 
-/** Picks [code]'s new rows out of a parsed file and checks them against the [saved] trades. */
-fun checkImport(code: String, rows: List<Trade>, saved: List<Trade>): ImportCheck {
+/** Picks [code]'s new rows out of a parsed file and checks them against the [saved] trades; [today] in the exchange's zone. */
+fun checkImport(code: String, rows: List<Trade>, saved: List<Trade>, today: LocalDate): ImportCheck {
     val mine = rows.filter { it.code == code }
     if (mine.isEmpty()) return ImportCheck.NoRows
     val seen = saved.mapNotNull { it.brokerId }.toMutableSet()
     // A row with an id seen before (saved, or earlier in the file) is skipped; rows without an id are always new.
     val new = mine.filter { it.brokerId == null || seen.add(it.brokerId) }
     if (new.isEmpty()) return ImportCheck.NothingNew
+    new.firstOrNull { it.date.isAfter(today) }?.let { return ImportCheck.Future(it) }
     return when (val replay = replay(saved + new)) {
         is Replay.BelowZero -> ImportCheck.BelowZero(replay)
         is Replay.Ok -> ImportCheck.Ready(new, rows.size - mine.size, mine.size - new.size, replay.holding)

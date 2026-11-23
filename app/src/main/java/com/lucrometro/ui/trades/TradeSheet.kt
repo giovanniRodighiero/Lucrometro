@@ -345,7 +345,7 @@ private fun NumberField(
     )
 }
 
-/** A number as plain text for a field to edit ("2.5", never "2.50" or "1,000"): it parses back the same. */
-/** As the owner would type it: no trailing zeros, the phone's decimal separator (parseDecimal reads both). */
+/** A number as plain text to edit ("2.5" or "2,5", never "2.50" or "1,000"): parseDecimal reads it back the same. */
 private fun plain(value: Double): String = BigDecimal.valueOf(value).stripTrailingZeros().toPlainString()
-    .replace('.', DecimalFormatSymbols.getInstance().decimalSeparator)
+    // Only a comma: parseDecimal reads no other decimal mark (an Arabic "٫" would not parse back).
+    .let { if (DecimalFormatSymbols.getInstance().decimalSeparator == ',') it.replace('.', ',') else it }

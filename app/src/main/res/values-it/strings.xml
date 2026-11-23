@@ -229,5 +229,6 @@
     <string name="import_error_positive">Riga %1$d: %2$s deve essere maggiore di 0.</string>
     <string name="import_error_no_rows">Il file non ha operazioni per %1$s.</string>
     <string name="import_error_below_zero">Con queste operazioni avresti meno di 0 quote il %1$s: nel file mancano operazioni più vecchie.</string>
+    <string name="import_error_future">Il file ha un\'operazione il %1$s, cioè dopo oggi. Controlla la data.</string>
     <string name="import_save_failed">Impossibile salvare le operazioni. Riprova.</string>
 </resources>

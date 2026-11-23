@@ -150,6 +150,7 @@ private fun problemText(problem: ImportProblem, code: String, times: TimeFormats
     ImportProblem.NoRows -> stringResource(R.string.import_error_no_rows, code)
     ImportProblem.SaveFailed -> stringResource(R.string.import_save_failed)
     is ImportProblem.BelowZero -> stringResource(R.string.import_error_below_zero, times.date("dMMMyyyy", problem.trade.date))
+    is ImportProblem.Future -> stringResource(R.string.import_error_future, times.date("dMMMyyyy", problem.trade.date))
     is ImportProblem.Csv -> when (val e = problem.error) {
         is CsvError.Missing -> stringResource(R.string.import_error_missing, e.column)
         is CsvError.Columns -> stringResource(R.string.import_error_columns, e.line)

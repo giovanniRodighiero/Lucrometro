@@ -244,5 +244,6 @@
     <string name="import_error_positive">Line %1$d: the %2$s must be more than 0.</string>
     <string name="import_error_no_rows">The file has no trades for %1$s.</string>
     <string name="import_error_below_zero">With these trades you would hold fewer than 0 shares on %1$s: older trades are missing from the file.</string>
+    <string name="import_error_future">The file has a trade on %1$s, which is after today. Check its date.</string>
     <string name="import_save_failed">Couldn\'t save the trades. Try again.</string>
 </resources>

@@ -17,6 +17,7 @@ import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.WatchlistRepository
 import com.lucrometro.data.checkImport
 import com.lucrometro.data.parseTradeCsv
+import com.lucrometro.ui.common.marketZone
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 sealed interface ImportState {
     data class Confirm(val fileName: String?, val check: ImportCheck.Ready) : ImportState
@@ -39,6 +41,9 @@ sealed interface ImportProblem {
 
     /** [trade] would take the shares below 0. */
     data class BelowZero(val trade: Trade) : ImportProblem
+
+    /** [trade] is dated after today. */
+    data class Future(val trade: Trade) : ImportProblem
     data object SaveFailed : ImportProblem
 }
 
@@ -106,10 +111,12 @@ class TradesViewModel(
             }
             is CsvParse.Ok -> parsed.rows
         }
-        when (val check = checkImport(code, rows, list.value.orEmpty())) {
+        val today = LocalDate.now(marketZone(entry.value?.saved?.quote?.exchangeZone))
+        when (val check = checkImport(code, rows, list.value.orEmpty(), today)) {
             is ImportCheck.Ready -> _import.value = ImportState.Confirm(fileName, check)
             ImportCheck.NoRows -> _import.value = ImportState.Failed(ImportProblem.NoRows)
             is ImportCheck.BelowZero -> _import.value = ImportState.Failed(ImportProblem.BelowZero(check.replay.trade))
+            is ImportCheck.Future -> _import.value = ImportState.Failed(ImportProblem.Future(check.trade))
             ImportCheck.NothingNew -> _notice.value = ImportNotice.NothingNew
         }
     }

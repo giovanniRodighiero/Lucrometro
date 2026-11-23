@@ -9,6 +9,8 @@ import java.time.LocalTime
 class TradeCsvTest {
     private fun rows(text: String) = (parseTradeCsv(text) as CsvParse.Ok).rows
     private fun error(text: String) = (parseTradeCsv(text) as CsvParse.Bad).error
+    private val today = LocalDate.of(2026, 11, 23)
+    private fun checkImport(code: String, rows: List<Trade>, saved: List<Trade>) = checkImport(code, rows, saved, today)
 
     @Test
     fun `reads the documented example with a BOM, columns in any order and unknown ones`() {
@@ -45,5 +47,13 @@ class TradeCsvTest {
         assertEquals(ImportCheck.NoRows, checkImport("UCG.MI", file, saved))
         val sell = rows(head + "ENI.MI,sell,2026-01-01,5,10,\n")
         assert(checkImport("ENI.MI", sell, emptyList()) is ImportCheck.BelowZero)
+    }
+
+    @Test
+    fun `an import refuses a trade dated after today, and takes today itself`() {
+        val head = "ticker,side,date,quantity,price\n"
+        val future = rows(head + "ENI.MI,buy,2026-11-23,1,10\nENI.MI,buy,2027-11-23,1,10\n")
+        assertEquals(ImportCheck.Future(future[1]), checkImport("ENI.MI", future, emptyList()))
+        assert(checkImport("ENI.MI", future.take(1), emptyList()) is ImportCheck.Ready)
     }
 }
