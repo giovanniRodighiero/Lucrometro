@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.cronet.embedded)
     implementation(libs.androidx.room3.runtime)
     implementation(libs.androidx.sqlite.framework)
