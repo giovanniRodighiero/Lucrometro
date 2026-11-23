@@ -66,9 +66,14 @@ class QuoteFormats(private val locale: Locale) {
     /** A number of shares as typed: "120", "2.5". */
     fun shares(value: Double): String = shares.format(value)
 
-    /** A change in price units with the quote's own decimals, rounded the way it is shown. */
+    private val whole = fixed(0)
+
+    /**
+     * A change in price units with the quote's own decimals, rounded the way it is shown; from 10,000 up without
+     * decimals, so a gain badge stays on one line (decision 0048).
+     */
     fun amountChange(quote: Quote, value: Double): AmountChange {
-        val format = priceFormat(quote)
+        val format = if (abs(value) >= 10_000) whole else priceFormat(quote)
         val scale = 10.0.pow(format.maximumFractionDigits)
         return AmountChange(round(value * scale) / scale, format.format(abs(value)))
     }
