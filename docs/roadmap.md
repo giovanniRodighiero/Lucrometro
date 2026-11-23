@@ -56,7 +56,8 @@ Portfolio track (decision 0040): one branch per milestone, from main
   2026-11-23 (edit, sold out, import errors, rotation, process death, dark, Italian, 1D/5D last buy); untested:
   TalkBack on the new screens, the picker with files from other apps (Drive).
 - M3, realized gains (decision 0043): gross realized gain per sell and per ticker, sold-out tickers kept with no
-  shares (card hidden in public). To design in Doop after M2 is built.
+  shares (card hidden in public). Designed in Doop 2026-11-23 (decision 0047: compact private card, realized badge on
+  sell rows, sold-out card and summary, sell sheet preview), snapshotted on branch `realized-gains`; to build.
 - M4, portfolio overview: totals and allocation across tickers.
 
 Later (v2 candidates, not in v1 scope)
