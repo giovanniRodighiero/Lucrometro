@@ -51,8 +51,9 @@ Portfolio track (decision 0040): one branch per milestone, from main
 - M1, average only: `PositionCard`, sheets and chart without the date, the diamond and the shares. Designed in Doop
   2026-11-22, built and merged into main 2026-11-22 (Room v5 keeps the latest average per ticker). Ships in the next release.
 - M2, trade log and private view: the wallet switch, private position card, last buy on the chart, per-ticker
-  trades screen, add/edit sheet, per-ticker CSV import (decisions 0041, 0042). Designed in Doop 2026-11-22 and
-  snapshotted on branch `trade-log`; to build. It adds a third screen, so it moves to Navigation 3 (0024).
+  trades screen, add/edit sheet, per-ticker CSV import (decisions 0041, 0042). Designed in Doop 2026-11-22, built
+  on branch `trade-log` 2026-11-23 (Room v6, Navigation 3: decisions 0044, 0045); to merge. Untested: TalkBack on the
+  new screens, Italian on a device, the last buy on 1D/5D with live data, the picker with files from other apps.
 - M3, realized gains (decision 0043): gross realized gain per sell and per ticker, sold-out tickers kept with no
   shares (card hidden in public). To design in Doop after M2 is built.
 - M4, portfolio overview: totals and allocation across tickers.
