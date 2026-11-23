@@ -37,6 +37,13 @@ class ReplayTest {
     }
 
     @Test
+    fun `an unsaved trade comes after a stored one at the same moment`() {
+        val stored = t(Side.BUY, "2026-01-02", 10.0, 10.0, "10:00", id = 61)
+        val typed = t(Side.SELL, "2026-01-02", 10.0, 12.0, "10:00")
+        assertEquals(20.0, ok(listOf(typed, stored)).sells.getValue(0).gain, 1e-9)
+    }
+
+    @Test
     fun `selling out resets the average for later buys`() {
         val h = ok(listOf(t(Side.BUY, "2026-01-02", 2.5, 10.0), t(Side.SELL, "2026-01-03", 2.5, 12.0), t(Side.BUY, "2026-01-04", 4.0, 7.0)))
         assertEquals(7.0, h.average!!, 1e-9)

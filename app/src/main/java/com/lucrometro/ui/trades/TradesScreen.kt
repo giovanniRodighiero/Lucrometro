@@ -72,9 +72,11 @@ import com.lucrometro.data.TRADE_ORDER
 import com.lucrometro.data.Trade
 import com.lucrometro.data.TradeChange
 import com.lucrometro.data.replay
+import com.lucrometro.ui.common.AmountChange
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
+import com.lucrometro.ui.common.changeLabel
 import com.lucrometro.ui.common.rememberQuoteFormats
 import com.lucrometro.ui.common.rememberTimeFormats
 import kotlin.math.abs
@@ -265,13 +267,9 @@ private fun Summary(holding: Holding, quote: Quote, formats: QuoteFormats) {
         Text(
             if (average == null) {
                 val realized = holding.realized?.gain ?: 0.0
-                val amount = formats.amountChange(quote, realized)
-                val text = formats.price(quote, abs(realized))
-                val signed = when {
-                    amount.rounded > 0 -> stringResource(R.string.change_up_amount, text)
-                    amount.rounded < 0 -> stringResource(R.string.change_down_amount, text)
-                    else -> text
-                }
+                // The sign from the badge's rounding, the text as a price with its currency: "+631.60 EUR".
+                val amount = AmountChange(formats.amountChange(quote, realized).rounded, formats.price(quote, abs(realized)))
+                val signed = changeLabel(null, formats, amount)
                 pluralStringResource(R.plurals.trades_summary_sold_out, holding.count, holding.count, signed)
             } else {
                 pluralStringResource(

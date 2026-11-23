@@ -62,7 +62,12 @@ private const val EPSILON = 1e-9
  * Oldest first on the trade's day and time. A trade without a time is unknown within its day: a buy counts at the start
  * of the day and a sell at its end, so a missing time never makes a complete history look short of shares.
  */
-val TRADE_ORDER: Comparator<Trade> = compareBy<Trade>({ it.date }, { it.time ?: if (it.side == Side.BUY) LocalTime.MIN else LocalTime.MAX }, { it.id })
+val TRADE_ORDER: Comparator<Trade> = compareBy<Trade>(
+    { it.date },
+    { it.time ?: if (it.side == Side.BUY) LocalTime.MIN else LocalTime.MAX },
+    // An unsaved trade (id 0) gets the next id when saved: it comes after the stored ones at the same moment.
+    { if (it.id == 0L) Long.MAX_VALUE else it.id },
+)
 
 /**
  * Replays [trades] oldest first with the weighted average cost without fees (decision 0041): a buy moves the average, a

@@ -32,10 +32,11 @@ fun roundPercent(percent: Double): Double = round(percent * 100) / 100
 
 /**
  * The direction of a change as it is shown, so a rounded 0.00% is flat; with an [absolute] amount, a 0.00% that is
- * not zero in price units follows the amount.
+ * not zero in price units follows the amount, and with no [percent] the amount alone decides.
  */
-fun changeDirection(percent: Double, absolute: AmountChange? = null): ChangeDirection {
-    val shown = roundPercent(percent).let { if (it == 0.0 && absolute != null) absolute.rounded else it }
+fun changeDirection(percent: Double?, absolute: AmountChange? = null): ChangeDirection {
+    val rounded = percent?.let(::roundPercent)
+    val shown = if ((rounded == null || rounded == 0.0) && absolute != null) absolute.rounded else rounded ?: 0.0
     return when {
         shown > 0 -> ChangeDirection.Up
         shown < 0 -> ChangeDirection.Down
@@ -48,10 +49,10 @@ fun changeDirection(percent: Double, absolute: AmountChange? = null): ChangeDire
 fun changeLabel(percent: Double?, formats: QuoteFormats, absolute: AmountChange? = null): String {
     if (percent == null) {
         val amount = requireNotNull(absolute) { "a change needs a percent or an amount" }
-        return when {
-            amount.rounded > 0 -> stringResource(R.string.change_up_amount, amount.text)
-            amount.rounded < 0 -> stringResource(R.string.change_down_amount, amount.text)
-            else -> amount.text
+        return when (changeDirection(null, amount)) {
+            ChangeDirection.Up -> stringResource(R.string.change_up_amount, amount.text)
+            ChangeDirection.Down -> stringResource(R.string.change_down_amount, amount.text)
+            ChangeDirection.Flat -> amount.text
         }
     }
     val magnitude = formats.changeMagnitude(percent)
@@ -94,13 +95,7 @@ fun ChangeBadge(
     absolute: AmountChange? = null,
 ) {
     val colors = MaterialTheme.gainLoss
-    val direction = if (percent == null) {
-        val amount = absolute?.rounded ?: 0.0
-        if (amount > 0) ChangeDirection.Up else if (amount < 0) ChangeDirection.Down else ChangeDirection.Flat
-    } else {
-        changeDirection(percent, absolute)
-    }
-    val (container, content, icon) = when (direction) {
+    val (container, content, icon) = when (changeDirection(percent, absolute)) {
         ChangeDirection.Up -> Triple(colors.gainContainer, colors.onGainContainer, R.drawable.ic_change_up)
         ChangeDirection.Down -> Triple(colors.lossContainer, colors.onLossContainer, R.drawable.ic_change_down)
         ChangeDirection.Flat -> Triple(

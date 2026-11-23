@@ -73,7 +73,10 @@ class QuoteFormats(private val locale: Locale) {
      * decimals, so a gain badge stays on one line (decision 0048).
      */
     fun amountChange(quote: Quote, value: Double): AmountChange {
-        val format = if (abs(value) >= 10_000) whole else priceFormat(quote)
+        val decimals = priceFormat(quote)
+        val shown = 10.0.pow(decimals.maximumFractionDigits).let { round(value * it) / it }
+        // Checked after rounding: 9,999.996 would show as 10,000.00.
+        val format = if (abs(shown) >= 10_000) whole else decimals
         val scale = 10.0.pow(format.maximumFractionDigits)
         return AmountChange(round(value * scale) / scale, format.format(abs(value)))
     }
