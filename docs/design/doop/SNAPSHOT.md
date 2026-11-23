@@ -88,14 +88,17 @@ deleted from the canvas.
 
 M3, realized gains (decisions 0043 and 0047, 2026-11-23): page "M3 · Realized gains". All eight M3 frames are marked
 ready for dev, signed off by the owner on 2026-11-23. `PositionCard` is rev 10: state `sold-out`, prop `realized`
-(hidden|shown) with a `realized` slot, and prop `layout` (regular|compact). The M3 frames set `layout="compact"`; the
-"Screens" frames keep `regular`, the M2 card as built, until M3 merges and compact becomes the default. `TradeRow` is
+(hidden|shown) with a `realized` slot, and prop `layout` (regular|compact). M3 merged on 2026-11-23 (rev 11): compact is
+the default, so every private card in the frames is compact, and the M2 private frames' PNGs were re-rendered
+(their HTML is unchanged); only `position-card-font-130` keeps a `layout="regular"` card, for comparison. The M3 frames
+moved to the "Screens" page and the M3 page was deleted. Change amounts from 10,000 up drop the decimals (decision
+0048); no frame shows one. `TradeRow` is
 rev 3: prop `realized` (off|on) and a `realized` slot, which replace the amount on sell rows. The example history is
 self-consistent (weighted average, replayed): 95 shares at 36.72 EUR, realized +139.76; sold out, +631.60.
 `details-private-worst-case-compact` uses stress values (1,250.5 shares, 51,608.14 EUR) on the 1M chart of the M2 frame.
 `position-card-font-130` is a reference board: the wrappers scale the text tokens by 1.3 to simulate the system font
-size. The rejected frame (worst case with the regular layout, the footer below the screen) stays on the canvas, not
-exported. The M3 frame HTML was written from the markup sent to Doop and from the M2 snapshot frames it edits.
+size. The rejected frame (worst case with the regular layout, the footer below the screen) moved to "Exploration ·
+Position", not exported. The M3 frame HTML was written from the markup sent to Doop and from the M2 snapshot frames it edits.
 
 ## Tokens and components
 
