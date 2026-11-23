@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
