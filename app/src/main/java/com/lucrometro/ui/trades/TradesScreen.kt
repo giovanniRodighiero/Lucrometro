@@ -74,6 +74,7 @@ import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.rememberQuoteFormats
 import com.lucrometro.ui.common.rememberTimeFormats
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 /** No sheet open. */
@@ -103,7 +104,6 @@ fun TradesScreen(
     val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val importState by viewModel.import.collectAsStateWithLifecycle()
-    val notice by viewModel.notice.collectAsStateWithLifecycle()
     val typed by viewModel.typed.collectAsStateWithLifecycle()
     val context = LocalContext.current
     // The system file picker; the file is read and checked before anything is saved.
@@ -112,15 +112,17 @@ fun TradesScreen(
     }
     // CSV files come with different types depending on the app that saved them.
     val openCsv = { pickFile.launch(arrayOf("text/*", "application/csv", "application/vnd.ms-excel")) }
-    LaunchedEffect(notice) {
-        val shown = notice ?: return@LaunchedEffect
-        snackbar.showSnackbar(
-            when (shown) {
-                ImportNotice.NothingNew -> resources.getString(R.string.import_nothing_new, code)
-                is ImportNotice.Imported -> resources.getQuantityString(R.plurals.import_done, shown.count, shown.count)
-            },
-        )
-        viewModel.noticeShown(shown)
+    // Taken as soon as it arrives: the ViewModel outlives this screen, and an unconsumed notice would show again.
+    LaunchedEffect(viewModel) {
+        viewModel.notice.filterNotNull().collect { shown ->
+            viewModel.noticeShown(shown)
+            snackbar.showSnackbar(
+                when (shown) {
+                    ImportNotice.NothingNew -> resources.getString(R.string.import_nothing_new, code)
+                    is ImportNotice.Imported -> resources.getQuantityString(R.plurals.import_done, shown.count, shown.count)
+                },
+            )
+        }
     }
     // The trade the sheet edits (by id), NEW_TRADE for a new one, NO_SHEET when closed; kept on rotation.
     var sheet by rememberSaveable { mutableStateOf(NO_SHEET) }

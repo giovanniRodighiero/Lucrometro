@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
@@ -66,6 +67,7 @@ import com.lucrometro.ui.common.parseDecimal
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.text.DecimalFormatSymbols
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -234,7 +236,20 @@ fun TradeSheet(
     }
 
     if (pickingDate) {
-        val state = rememberDatePickerState(initialSelectedDateMillis = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
+        // No trade happens after today (in the exchange's zone): later days can't be picked.
+        val today = LocalDate.now(zone)
+        val upToToday = remember(today) {
+            object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long) =
+                    !Instant.ofEpochMilli(utcTimeMillis).atZone(ZoneOffset.UTC).toLocalDate().isAfter(today)
+
+                override fun isSelectableYear(year: Int) = year <= today.year
+            }
+        }
+        val state = rememberDatePickerState(
+            initialSelectedDateMillis = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+            selectableDates = upToToday,
+        )
         DatePickerDialog(
             onDismissRequest = { pickingDate = false },
             confirmButton = {
@@ -331,4 +346,6 @@ private fun NumberField(
 }
 
 /** A number as plain text for a field to edit ("2.5", never "2.50" or "1,000"): it parses back the same. */
+/** As the owner would type it: no trailing zeros, the phone's decimal separator (parseDecimal reads both). */
 private fun plain(value: Double): String = BigDecimal.valueOf(value).stripTrailingZeros().toPlainString()
+    .replace('.', DecimalFormatSymbols.getInstance().decimalSeparator)
