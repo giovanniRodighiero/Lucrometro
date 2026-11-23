@@ -1,5 +1,7 @@
 package com.lucrometro.ui.trades
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +35,7 @@ import androidx.compose.material3.SwipeToDismissBoxDefaults
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -98,6 +102,26 @@ fun TradesScreen(
     val snackbar = remember { SnackbarHostState() }
     val resources = LocalResources.current
     val scope = rememberCoroutineScope()
+    val importState by viewModel.import.collectAsStateWithLifecycle()
+    val notice by viewModel.notice.collectAsStateWithLifecycle()
+    val typed by viewModel.typed.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    // The system file picker; the file is read and checked before anything is saved.
+    val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch { readPickedFile(context, uri).let { (name, text) -> viewModel.onFileRead(name, text) } }
+    }
+    // CSV files come with different types depending on the app that saved them.
+    val openCsv = { pickFile.launch(arrayOf("text/*", "application/csv", "application/vnd.ms-excel")) }
+    LaunchedEffect(notice) {
+        val shown = notice ?: return@LaunchedEffect
+        snackbar.showSnackbar(
+            when (shown) {
+                ImportNotice.NothingNew -> resources.getString(R.string.import_nothing_new, code)
+                is ImportNotice.Imported -> resources.getQuantityString(R.plurals.import_done, shown.count, shown.count)
+            },
+        )
+        viewModel.noticeShown(shown)
+    }
     // The trade the sheet edits (by id), NEW_TRADE for a new one, NO_SHEET when closed; kept on rotation.
     var sheet by rememberSaveable { mutableStateOf(NO_SHEET) }
 
@@ -150,6 +174,15 @@ fun TradesScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = openCsv) {
+                        Icon(
+                            painterResource(R.drawable.ic_upload_file),
+                            contentDescription = stringResource(R.string.trades_import),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.back))
@@ -168,7 +201,7 @@ fun TradesScreen(
         val list = trades
         if (list == null || quote == null) return@Scaffold // loading: blank for a moment, no empty-state flash
         if (list.isEmpty()) {
-            EmptyTrades(onAdd = { sheet = NEW_TRADE }, modifier = Modifier.padding(padding))
+            EmptyTrades(onAdd = { sheet = NEW_TRADE }, onImport = openCsv, modifier = Modifier.padding(padding))
         } else {
             val newestFirst = remember(list) { list.sortedWith(TRADE_ORDER.reversed()) }
             LazyColumn(
@@ -207,6 +240,13 @@ fun TradesScreen(
                 onClose = { sheet = NO_SHEET },
             )
         }
+        importState?.let {
+            ImportDialog(
+                it, code, typed, hasTrades = list.isNotEmpty(), quote, formats, times,
+                onConfirm = viewModel::confirmImport,
+                onDismiss = viewModel::dismissImport,
+            )
+        }
     }
 }
 
@@ -222,7 +262,7 @@ private fun Summary(trades: List<Trade>, quote: Quote, formats: QuoteFormats) {
             } else {
                 pluralStringResource(
                     R.plurals.trades_summary, holding.count,
-                    formats.shares(holding.shares), withCurrency(quote, formats.exact(quote, average)), holding.count,
+                    formats.shares(holding.shares), formats.price(quote, average), holding.count,
                 )
             },
             style = MaterialTheme.typography.bodyMedium,
@@ -325,7 +365,7 @@ private fun TradeRow(trade: Trade, quote: Quote, formats: QuoteFormats, times: T
 }
 
 @Composable
-private fun EmptyTrades(onAdd: () -> Unit, modifier: Modifier = Modifier) {
+private fun EmptyTrades(onAdd: () -> Unit, onImport: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier.fillMaxSize().padding(horizontal = 32.dp),
         verticalArrangement = Arrangement.Center,
@@ -342,7 +382,10 @@ private fun EmptyTrades(onAdd: () -> Unit, modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(24.dp))
-        Button(onClick = onAdd) { Text(stringResource(R.string.trades_add)) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onImport) { Text(stringResource(R.string.trades_import_button)) }
+            Button(onClick = onAdd) { Text(stringResource(R.string.trades_add)) }
+        }
     }
 }
 

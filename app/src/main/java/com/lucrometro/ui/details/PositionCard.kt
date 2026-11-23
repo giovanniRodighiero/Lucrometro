@@ -101,7 +101,7 @@ fun PositionCard(
             private && holding != null -> {
                 val gain = (quote.price - average.averagePrice) * holding.shares
                 Row(Modifier.padding(bottom = 24.dp)) {
-                    Column(Modifier.weight(1f)) { AverageField(average, quote, formats) }
+                    Column(Modifier.weight(1f)) { AverageField(state, quote, formats) }
                     Column(Modifier.weight(1f)) {
                         Field(stringResource(R.string.position_shares)) {
                             Text(formats.shares(holding.shares), style = MaterialTheme.typography.bodyMedium)
@@ -127,7 +127,7 @@ fun PositionCard(
             else -> {
                 val perShare = quote.price - average.averagePrice
                 Row(Modifier.padding(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Column(Modifier.weight(1f)) { AverageField(average, quote, formats) }
+                    Column(Modifier.weight(1f)) { AverageField(state, quote, formats) }
                     Column(Modifier.weight(1f)) {
                         Field(stringResource(R.string.position_since_average)) {
                             ChangeBadge(perShare / average.averagePrice * 100, formats, absolute = formats.amountChange(quote, perShare))
@@ -161,11 +161,17 @@ fun PositionCard(
     }
 }
 
+/** A typed average is shown as typed; one from the trades in the quote's decimals, like a price. */
 @Composable
-private fun AverageField(average: Position, quote: Quote, formats: QuoteFormats) =
+private fun AverageField(state: PositionState, quote: Quote, formats: QuoteFormats) {
+    val average = state.average?.averagePrice ?: return
     Field(stringResource(R.string.position_average), swatch = true) {
-        Text(price(quote, formats.exact(quote, average.averagePrice)), style = MaterialTheme.typography.bodyMedium)
+        Text(
+            if (state.holding != null) formats.price(quote, average) else price(quote, formats.exact(quote, average)),
+            style = MaterialTheme.typography.bodyMedium,
+        )
     }
+}
 
 /** A price the owner typed, with the quote's currency when known. */
 @Composable
