@@ -13,6 +13,8 @@ data class StoredTicker(
     val position: Long = 0,
     val addedAt: Long = 0,
     val average: Position? = null,
+    /** The ticker's trades; filled only by [WatchlistStore.remove]. */
+    val trades: List<Trade> = emptyList(),
 )
 
 /**
@@ -42,9 +44,19 @@ interface WatchlistStore {
     /** Saves the average price of [code], replacing the old one. False if [code] is not stored (removed meanwhile). */
     suspend fun savePosition(code: String, position: Position): Boolean
 
-    /** Deletes [code] with its saved quote and average price. Returns what was deleted, for undo; null if it wasn't stored. */
+    /** The trades of [code], in no order; emits again on every change. */
+    fun observeTrades(code: String): Flow<List<Trade>>
+
+    suspend fun trades(code: String): List<Trade>
+
+    /** Adds (id 0) or replaces (same id) [trades] of [code] at once. False if [code] is not stored. */
+    suspend fun saveTrades(code: String, trades: List<Trade>): Boolean
+
+    suspend fun deleteTrade(id: Long)
+
+    /** Deletes [code] with its saved quote, average price and trades. Returns what was deleted, for undo; null if it wasn't stored. */
     suspend fun remove(code: String): StoredTicker?
 
-    /** Puts back a removed ticker at its old place, with its average price. False if its code was added again meanwhile. */
+    /** Puts back a removed ticker at its old place, with its average price and trades. False if its code was added again meanwhile. */
     suspend fun restore(ticker: StoredTicker): Boolean
 }

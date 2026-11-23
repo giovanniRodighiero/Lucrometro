@@ -39,14 +39,16 @@ interface WatchlistDao {
     @Query("DELETE FROM watchlist WHERE code = :code")
     suspend fun delete(code: String)
 
-    /** Deletes [code] with its average price and returns them, in one transaction; null if it wasn't stored. */
+    /** Deletes [code] with its average price and trades and returns them, in one transaction; null if it wasn't stored. */
     @Transaction
     suspend fun take(code: String): RemovedTicker? {
         val ticker = get(code) ?: return null
         val position = position(code)
+        val trades = trades(code)
         delete(code)
         deletePosition(code)
-        return RemovedTicker(ticker, position)
+        deleteTrades(code)
+        return RemovedTicker(ticker, position, trades)
     }
 
     /** Moves every row at or after [position] one place down the list, to make room for a restored row. */
@@ -59,11 +61,12 @@ interface WatchlistDao {
      * positions stay unique and the restored row comes back before them. False if its code is stored again.
      */
     @Transaction
-    suspend fun putBack(ticker: TickerEntity, position: PositionEntity?): Boolean {
+    suspend fun putBack(ticker: TickerEntity, position: PositionEntity?, trades: List<TradeEntity>): Boolean {
         if (contains(ticker.code)) return false
         shiftFrom(ticker.position)
         insert(ticker)
         position?.let { upsertPosition(it) }
+        upsertTrades(trades)
         return true
     }
 
@@ -90,7 +93,30 @@ interface WatchlistDao {
         upsertPosition(position)
         return true
     }
+
+    @Query("SELECT * FROM trade WHERE code = :code")
+    fun observeTrades(code: String): Flow<List<TradeEntity>>
+
+    @Query("SELECT * FROM trade WHERE code = :code")
+    suspend fun trades(code: String): List<TradeEntity>
+
+    @Upsert
+    suspend fun upsertTrades(trades: List<TradeEntity>)
+
+    @Query("DELETE FROM trade WHERE code = :code")
+    suspend fun deleteTrades(code: String)
+
+    @Query("DELETE FROM trade WHERE id = :id")
+    suspend fun deleteTrade(id: Long)
+
+    /** Adds or replaces (same id) [trades] of [code] in one transaction with the check that it is stored. */
+    @Transaction
+    suspend fun saveTrades(code: String, trades: List<TradeEntity>): Boolean {
+        if (!contains(code)) return false
+        upsertTrades(trades)
+        return true
+    }
 }
 
-/** A deleted watchlist row with its average price, for undo. */
-class RemovedTicker(val ticker: TickerEntity, val position: PositionEntity?)
+/** A deleted watchlist row with its average price and trades, for undo. */
+class RemovedTicker(val ticker: TickerEntity, val position: PositionEntity?, val trades: List<TradeEntity>)

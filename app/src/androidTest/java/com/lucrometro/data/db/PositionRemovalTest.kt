@@ -7,6 +7,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.lucrometro.data.Position
 import com.lucrometro.data.Quote
 import com.lucrometro.data.SavedQuote
+import com.lucrometro.data.Side
+import com.lucrometro.data.Trade
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -16,9 +18,11 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
+import java.time.LocalTime
 
 /**
- * Removing a ticker deletes its average price in the same transaction, and undo brings it back (decisions 0033, 0040).
+ * Removing a ticker deletes its average price and trades in the same transaction, and undo brings it back (decisions 0033, 0040).
  * Runs on the real Room database, where the transactions live; the unit tests use a fake.
  */
 @RunWith(AndroidJUnit4::class)
@@ -46,6 +50,21 @@ class PositionRemovalTest {
 
         assertTrue(store.restore(removed))
         assertEquals(Position(41.02), store.observePosition("SMH.MI").first())
+    }
+
+    @Test
+    fun removeTakesTheTradesAndUndoBringsThemBack() = runBlocking {
+        store.add("SMH.MI", quote)
+        val buy = Trade(code = "SMH.MI", side = Side.BUY, date = LocalDate.of(2026, 11, 6), time = LocalTime.of(10, 41), quantity = 2.5, price = 42.85)
+        assertTrue(store.saveTrades("SMH.MI", listOf(buy)))
+        val saved = store.trades("SMH.MI").single()
+
+        val removed = store.remove("SMH.MI")!!
+        assertEquals(listOf(saved), removed.trades)
+        assertTrue(store.trades("SMH.MI").isEmpty())
+
+        assertTrue(store.restore(removed))
+        assertEquals(listOf(saved), store.trades("SMH.MI"))
     }
 
     @Test

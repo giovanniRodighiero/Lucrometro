@@ -12,7 +12,9 @@ object DataGraph {
     private class Graph(context: Context) {
         private val source = YahooQuoteSource(CronetHttp(context))
         private val gate = SourceGate()
-        val watchlist = WatchlistRepository(source, RoomWatchlistStore(LucrometroDatabase.create(context).watchlist()), gate)
+        private val store = RoomWatchlistStore(LucrometroDatabase.create(context).watchlist())
+        val watchlist = WatchlistRepository(source, store, gate)
+        val trades = TradeRepository(store)
         val history = HistoryRepository(source, gate, watchlist)
     }
 
@@ -24,4 +26,6 @@ object DataGraph {
     fun watchlist(context: Context): WatchlistRepository = graph(context).watchlist
 
     fun history(context: Context): HistoryRepository = graph(context).history
+
+    fun trades(context: Context): TradeRepository = graph(context).trades
 }

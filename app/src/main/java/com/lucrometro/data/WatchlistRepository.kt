@@ -173,13 +173,13 @@ class WatchlistRepository(
         if (last != null && clock() - last < minGapMillis) return
         refresh()
     }
+}
 
-    /** Runs a storage call; a storage failure (I/O, disk full) becomes null instead of crashing the app. */
-    private inline fun <T> storeCall(block: () -> T): T? = try {
-        block()
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        null
-    }
+/** Runs a storage call; a storage failure (I/O, disk full) becomes null instead of crashing the app. */
+internal inline fun <T> storeCall(block: () -> T): T? = try {
+    block()
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Exception) {
+    null
 }

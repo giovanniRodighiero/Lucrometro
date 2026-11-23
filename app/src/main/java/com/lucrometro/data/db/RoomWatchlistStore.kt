@@ -3,6 +3,7 @@ package com.lucrometro.data.db
 import com.lucrometro.data.Position
 import com.lucrometro.data.SavedQuote
 import com.lucrometro.data.StoredTicker
+import com.lucrometro.data.Trade
 import com.lucrometro.data.WatchlistStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,11 +27,21 @@ class RoomWatchlistStore(private val dao: WatchlistDao) : WatchlistStore {
 
     override suspend fun savePosition(code: String, position: Position): Boolean = dao.savePosition(position.toEntity(code))
 
-    override suspend fun remove(code: String): StoredTicker? =
-        dao.take(code)?.let { removed -> removed.ticker.toStored().copy(average = removed.position?.toPosition()) }
+    override suspend fun remove(code: String): StoredTicker? = dao.take(code)?.let { removed ->
+        removed.ticker.toStored().copy(average = removed.position?.toPosition(), trades = removed.trades.map { it.toTrade() })
+    }
 
     override suspend fun restore(ticker: StoredTicker): Boolean = dao.putBack(
         TickerEntity(ticker.code, ticker.position, ticker.addedAt, ticker.saved?.toColumns()),
         ticker.average?.toEntity(ticker.code),
+        ticker.trades.map { it.toEntity() },
     )
+
+    override fun observeTrades(code: String): Flow<List<Trade>> = dao.observeTrades(code).map { rows -> rows.map { it.toTrade() } }
+
+    override suspend fun trades(code: String): List<Trade> = dao.trades(code).map { it.toTrade() }
+
+    override suspend fun saveTrades(code: String, trades: List<Trade>): Boolean = dao.saveTrades(code, trades.map { it.toEntity() })
+
+    override suspend fun deleteTrade(id: Long) = dao.deleteTrade(id)
 }

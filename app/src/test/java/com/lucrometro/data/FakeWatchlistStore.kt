@@ -51,4 +51,19 @@ class FakeWatchlistStore : WatchlistStore {
     override suspend fun saveQuote(code: String, saved: SavedQuote) {
         rows.update { list -> list.map { if (it.code == code) it.copy(saved = saved) else it } }
     }
+
+    val trades = MutableStateFlow<List<Trade>>(emptyList())
+    private var nextTradeId = 1L
+
+    override fun observeTrades(code: String): Flow<List<Trade>> = trades.map { list -> list.filter { it.code == code } }
+    override suspend fun trades(code: String) = trades.value.filter { it.code == code }
+
+    override suspend fun saveTrades(code: String, trades: List<Trade>): Boolean {
+        if (!contains(code)) return false
+        val saved = trades.map { if (it.id == 0L) it.copy(id = nextTradeId++) else it }
+        this.trades.update { list -> list.filter { old -> saved.none { it.id == old.id } } + saved }
+        return true
+    }
+
+    override suspend fun deleteTrade(id: Long) = trades.update { list -> list.filter { it.id != id } }
 }

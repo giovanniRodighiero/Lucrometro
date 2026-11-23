@@ -11,13 +11,13 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.Dispatchers
 
-/** The app database: the watchlist with each ticker's last quote (PRD section 5), and each one's average price (0040). */
+/** The app database: the watchlist with each ticker's last quote (PRD section 5), and each one's average price (0040) and trades (0042). */
 @Database(
-    entities = [TickerEntity::class, PositionEntity::class],
-    version = 5,
+    entities = [TickerEntity::class, PositionEntity::class, TradeEntity::class],
+    version = 6,
     exportSchema = true,
-    // v4 only adds the position table.
-    autoMigrations = [AutoMigration(from = 3, to = 4)],
+    // v4 only adds the position table, v6 the trade table (decision 0042).
+    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 5, to = 6)],
 )
 abstract class LucrometroDatabase : RoomDatabase() {
     abstract fun watchlist(): WatchlistDao
