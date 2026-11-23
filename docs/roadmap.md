@@ -52,7 +52,7 @@ Portfolio track (decision 0040): one branch per milestone, from main
   2026-11-22, built and merged into main 2026-11-22 (Room v5 keeps the latest average per ticker). Ships in the next release.
 - M2, trade log and private view: the wallet switch, private position card, last buy on the chart, per-ticker
   trades screen, add/edit sheet, per-ticker CSV import (decisions 0041, 0042). Designed in Doop 2026-11-22, built
-  on branch `trade-log` 2026-11-23 (Room v6, Navigation 3: decisions 0044, 0045); to merge. Checked on the emulator
+  and merged into main 2026-11-23 (Room v6, Navigation 3: decisions 0044, 0045). Ships in the next release. Checked on the emulator
   2026-11-23 (edit, sold out, import errors, rotation, process death, dark, Italian, 1D/5D last buy); untested:
   TalkBack on the new screens, the picker with files from other apps (Drive).
 - M3, realized gains (decision 0043): gross realized gain per sell and per ticker, sold-out tickers kept with no
