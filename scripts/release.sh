@@ -90,9 +90,7 @@ fi
 
 step "Committing, tagging and pushing"
 git add "$GRADLE_FILE"
-git commit -q -m "Release $VERSION" -m "Bump versionName to $VERSION and versionCode to $NEW_CODE.
-
-Co-Authored-By: Claude Haiku 5.5 <noreply@anthropic.com>"
+git commit -q -m "Release $VERSION" -m "Bump versionName to $VERSION and versionCode to $NEW_CODE."
 COMMITTED=1
 git tag -a "$TAG" -m "Lucrometro $VERSION"
 git push -q origin main
@@ -103,7 +101,9 @@ cp "$APK_BUILT" "$APK_OUT"
 NOTES=$(mktemp)
 awk -v h="## [$VERSION]" 'index($0, h) == 1 { f = 1; next } /^## / { f = 0 } f' CHANGELOG.md \
   | sed '/./,$!d' > "$NOTES"
-gh release create "$TAG" "$APK_OUT" --title "Lucrometro $VERSION" --notes-file "$NOTES" --verify-tag
+# The tag is already pushed, so a rerun of this script would stop at "tag already exists": say how to finish instead.
+gh release create "$TAG" "$APK_OUT" --title "Lucrometro $VERSION" --notes-file "$NOTES" --verify-tag \
+  || die "GitHub release failed; the tag is pushed. Finish by hand: gh release create $TAG $APK_OUT --title \"Lucrometro $VERSION\" --notes-file <the [$VERSION] section of CHANGELOG.md> --verify-tag"
 
 step "Released $TAG"
 echo "APK for your phone: $APK_OUT"

@@ -9,6 +9,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.net.SocketTimeoutException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -105,13 +106,18 @@ class WatchlistRepositoryTest {
     }
 
     // CLAUDE.md: stop at the first 429. The rest of the list is not fetched and shows its last quote as stale.
-    @Test fun refreshStopsAtTheFirstRateLimit() = runBlocking {
+    @Test fun refreshStopsAtTheFirstRateLimit() = assertRefreshStopsAt(RateLimitedException())
+
+    // A network failure stops it too: otherwise each ticker waits its own 20 s timeout behind the gate.
+    @Test fun refreshStopsAtTheFirstNetworkFailure() = assertRefreshStopsAt(SocketTimeoutException())
+
+    private fun assertRefreshStopsAt(failure: Exception) = runBlocking {
         val asked = mutableListOf<String>()
-        var limited = false
+        var failing = false
         val source = object : QuoteSource {
             override fun quote(symbol: String): Result<Quote> {
                 asked += symbol
-                return if (limited) Result.failure(RateLimitedException()) else Result.success(quote(symbol, 10.0))
+                return if (failing) Result.failure(failure) else Result.success(quote(symbol, 10.0))
             }
             override fun history(symbol: String, range: HistoryRange) = Result.success(History(emptyList()))
         }
@@ -119,7 +125,7 @@ class WatchlistRepositoryTest {
         listOf("ENI.MI", "ISP.MI", "SWDA.MI").forEach { repo.add(it) }
         asked.clear()
 
-        limited = true
+        failing = true
         repo.refresh()
         assertEquals(listOf("ENI.MI"), asked)
         assertTrue(repo.entries.first().all { it.failed && it.stale })

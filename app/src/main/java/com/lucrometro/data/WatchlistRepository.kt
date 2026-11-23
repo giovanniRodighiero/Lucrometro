@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import java.io.IOException
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -136,7 +137,7 @@ class WatchlistRepository(
     /**
      * Fetches a fresh quote for every ticker, one at a time (PRD). A failed fetch (or a failed save)
      * keeps the last saved quote and marks the entry failed, so the UI shows it as stale; it never
-     * substitutes data. A rate limit (429) stops it: the remaining entries are marked failed without a request. Does
+     * substitutes data. A rate limit (429) or a network failure stops it: the remaining entries are marked failed without a request. Does
      * nothing if a refresh is already running.
      */
     suspend fun refresh() {
@@ -145,8 +146,10 @@ class WatchlistRepository(
             val codes = storeCall { store.codes() } ?: return
             for ((i, code) in codes.withIndex()) {
                 val result = gate.request { source.quote(code) }
-                if (result.exceptionOrNull() is RateLimitedException) {
-                    // Stop at the first 429: the rest keep their last quote, shown stale.
+                val error = result.exceptionOrNull()
+                if (error is RateLimitedException || error is IOException) {
+                    // Stop at the first 429, or a network failure (timeout, offline) that would make every other
+                    // ticker wait its own timeout behind the gate: the rest keep their last quote, shown stale.
                     val rest = codes.drop(i).filter { isTracked(it) }
                     failed.update { it + rest }
                     break

@@ -6,6 +6,7 @@ import org.chromium.net.CronetException
 import org.chromium.net.UrlRequest
 import org.chromium.net.UrlResponseInfo
 import java.io.ByteArrayOutputStream
+import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -81,7 +82,8 @@ class CronetHttp(context: Context) : HttpClient {
         }
         if (!done) {
             request.cancel()
-            error("Timeout fetching $url")
+            // An IOException like Cronet's own network errors: a refresh stops on it (WatchlistRepository).
+            throw SocketTimeoutException("Timeout fetching $url")
         }
         error?.let { throw it }
         return HttpResult(status, out.toString("UTF-8"), cookies)
