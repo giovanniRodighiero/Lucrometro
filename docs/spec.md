@@ -7,7 +7,8 @@ was [prd.md](prd.md) (v1); where they disagree, this file wins.
 ## Principles
 - **Correct over available.** When data can't be fetched, say so and show the last saved value as stale.
   Never show wrong or substitute data.
-- **All local.** No accounts, no own server, no analytics. Everything stays on the phone.
+- **All local.** No accounts, no own server, no analytics, no Android backup. Everything stays on the phone; a new
+  phone starts empty and the trades are imported again from the broker's CSV (0046).
 - **Free data.** Yahoo Finance's unofficial endpoints, behind `QuoteSource` so the provider can be swapped (0001).
 - **Native.** Material 3 components and system behaviour; custom drawing only for the chart (0003).
 - **Gentle on Yahoo.** One request at a time across the whole app, and a 429 always stops, never retries.
@@ -19,7 +20,8 @@ was [prd.md](prd.md) (v1); where they disagree, this file wins.
 - An "Updated" stamp shows the newest fetch time, in the phone's clock (0016, 0031).
 - **Refresh**: when the app is opened or brought back (skipped within 60 s of the last refresh), and by
   pull-to-refresh, which always fetches. Coming back from a ticker's details is not a refresh. Tickers are fetched one
-  at a time. The first 429 stops the refresh and marks the remaining tickers stale. (0014, 0016, audit after 0.3)
+  at a time. The first 429 or network failure (timeout, offline) stops the refresh and marks the remaining tickers
+  stale, so one dead connection doesn't make every ticker wait its own 20 s timeout. (0014, 0016, audits after 0.3)
 - **Stale**: a quote is current only if it was fetched in this app session. Otherwise, or when its fetch failed, the
   row keeps it and shows "Stale since <time>" (0016).
 - **Add**: a bottom sheet where the code is pasted (no search). Input is trimmed and upper-cased, the format checked,
