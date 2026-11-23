@@ -57,7 +57,11 @@ Portfolio track (decision 0040): one branch per milestone, from main
   TalkBack on the new screens, the picker with files from other apps (Drive).
 - M3, realized gains (decision 0043): gross realized gain per sell and per ticker, sold-out tickers kept with no
   shares (card hidden in public). Designed in Doop 2026-11-23 (decision 0047: compact private card, realized badge on
-  sell rows, sold-out card and summary, sell sheet preview), snapshotted on branch `realized-gains`; to build.
+  sell rows, sold-out card and summary, sell sheet preview), built and merged into main 2026-11-23 (no schema change;
+  change amounts from 10,000 up without decimals: decision 0048). Ships in the next release. Checked on the emulator
+  2026-11-23 (compact card with and without sells, 5-figure gains, sold out private and public, sell rows, sold-out
+  summary, sell sheet preview, Italian at 200% font); untested: TalkBack, dark theme on the new card states. To do in
+  Doop: make the compact card the default and re-export the "Screens" frames.
 - M4, portfolio overview: totals and allocation across tickers.
 
 Later (v2 candidates, not in v1 scope)
