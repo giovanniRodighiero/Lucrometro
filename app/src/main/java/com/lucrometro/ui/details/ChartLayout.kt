@@ -3,6 +3,8 @@ package com.lucrometro.ui.details
 import com.lucrometro.data.HistoryRange
 import com.lucrometro.ui.common.TimeFormats
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 
 enum class LabelAnchor { Start, Center, End }
 
@@ -64,6 +66,44 @@ fun chartLayout(data: ChartData, times: TimeFormats): ChartLayout {
                     0f to LabelAnchor.Start, 1f / 3 to LabelAnchor.Center, 2f / 3 to LabelAnchor.Center, 1f to LabelAnchor.End,
                 ).map { (f, anchor) -> AxisLabel(f, times.format(skeleton, first + (span * f).toLong(), zone), anchor) },
             )
+        }
+    }
+}
+
+/**
+ * Where a trade at [date] and [time] (the exchange's clock) falls across the plot (0..1), or null when it is outside the
+ * range (decision 0042). 1D and 5D need the time; the other ranges place it by its day.
+ */
+fun tradeFraction(data: ChartData, date: LocalDate, time: LocalTime?): Float? {
+    val points = data.points
+    val first = points.first().epochSeconds
+    val last = points.last().epochSeconds
+    return when (data.range) {
+        HistoryRange.DAY_1 -> {
+            val t = date.atTime(time ?: return null).atZone(data.zone).toEpochSecond()
+            val start = data.session?.startEpoch ?: first
+            val end = (data.session?.endEpoch ?: last).coerceAtLeast(start + 1)
+            if (t !in start..end) null else (t - start).toFloat() / (end - start)
+        }
+        HistoryRange.DAYS_5 -> {
+            val t = date.atTime(time ?: return null).atZone(data.zone).toEpochSecond()
+            val n = points.size
+            if (n < 2) return null
+            // The last bar covers one bar's length after its start.
+            val step = last - points[n - 2].epochSeconds
+            if (t < first || t > last + step) return null
+            val i = points.indexOfLast { it.epochSeconds <= t }
+            val within = if (i < n - 1) (t - points[i].epochSeconds).toFloat() / (points[i + 1].epochSeconds - points[i].epochSeconds) else 0f
+            (i + within) / (n - 1)
+        }
+        else -> {
+            val zone = data.zone
+            val firstDay = Instant.ofEpochSecond(first).atZone(zone).toLocalDate()
+            val lastDay = Instant.ofEpochSecond(last).atZone(zone).toLocalDate()
+            if (date < firstDay || date > lastDay) return null
+            // A bar's time is its session's start: a day's trade goes at its bar, never past the first or last one.
+            val t = date.atTime(time ?: LocalTime.NOON).atZone(zone).toEpochSecond().coerceIn(first, last)
+            (t - first).toFloat() / (last - first).coerceAtLeast(1)
         }
     }
 }

@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +44,7 @@ import com.lucrometro.R
 import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.Position
 import com.lucrometro.data.Quote
+import com.lucrometro.data.Trade
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.ChangeDirection
 import com.lucrometro.ui.common.QuoteFormats
@@ -125,8 +127,10 @@ fun DetailsScreen(
             if (quote != null) {
                 // The halo: polling runs and the 1D chart (what a poll refreshes) is shown.
                 val live = autoRefresh.on && status is MarketStatus.Open && range == HistoryRange.DAY_1
+                // Private only, and only while shares are held (decision 0043).
+                val lastBuy = positionState?.holding?.lastBuy?.takeIf { private && positionState?.soldOut == false }
                 ChartSection(
-                    code, quote, position, chart, range, formats, times, live,
+                    code, quote, position, lastBuy, chart, range, formats, times, live,
                     viewModel::selectRange, viewModel::retry, viewModel::onScrubbing,
                 )
                 positionState?.let {
@@ -154,6 +158,7 @@ private fun ChartSection(
     code: String,
     quote: Quote,
     position: Position?,
+    lastBuy: Trade?,
     chart: ChartState,
     range: HistoryRange,
     formats: QuoteFormats,
@@ -170,8 +175,17 @@ private fun ChartSection(
     LaunchedEffect(scrubbing) { onScrubbing(scrubbing) }
     val scrub = data?.scrubAt(scrubIndex)
     val scrubDate = if (data != null && scrub != null) scrubLabel(data, scrub.point, times) else null
+    val buyMark = if (data != null && lastBuy != null) tradeFraction(data, lastBuy.date, lastBuy.time)?.let { BuyMark(it, lastBuy.price) } else null
+    val buyReadout = if (buyMark != null && lastBuy != null) lastBuyReadout(lastBuy, quote, formats, times) else null
+    val onBuy = buyMark != null && scrubIndex == data?.points?.size
 
-    if (scrub != null && scrubDate != null) {
+    if (onBuy && buyReadout != null && lastBuy != null) {
+        // On the last buy: when and what, and the change from it to now.
+        val change = quote.price - lastBuy.price
+        ChartReadout(label = buyReadout.first, value = buyReadout.second, scrubbing = true) {
+            ChangeBadge(change / lastBuy.price * 100, formats, absolute = formats.amountChange(quote, change))
+        }
+    } else if (scrub != null && scrubDate != null) {
         // Scrub mode: the date and price at the finger, and the change from the range start (1D: the previous close).
         ChartReadout(label = scrubDate, value = formats.price(quote, scrub.point.price), scrubbing = true) {
             scrub.percent?.let { ChangeBadge(it, formats, absolute = formats.amountChange(quote, scrub.change)) }
@@ -228,10 +242,12 @@ private fun ChartSection(
                     formats.price(quote, chart.data.baseline ?: points.first().price),
                     formats.price(quote, points.last().price),
                     percent?.let { changeLabel(it, formats) }.orEmpty(),
-                ) + positionDescription(position, points, quote, formats),
+                ) + positionDescription(position, points, quote, formats) +
+                    (buyReadout?.takeIf { buyMark != null }?.let { ". ${it.first}, ${it.second}" }.orEmpty()),
                 average = position?.let {
                     AverageMark(it.averagePrice, stringResource(R.string.chart_average), formats.number(quote, it.averagePrice))
                 },
+                lastBuy = buyMark,
                 live = live,
             )
         }
@@ -257,6 +273,15 @@ private fun AutoRefreshButton(on: Boolean, enabled: Boolean, onToggle: () -> Uni
     ) {
         Icon(painterResource(R.drawable.ic_sync), description)
     }
+}
+
+/** "Your last buy · 6 Nov, 10:41" and "10 shares at 42.85 EUR" (decision 0042); the time only when known. */
+@Composable
+private fun lastBuyReadout(trade: Trade, quote: Quote, formats: QuoteFormats, times: TimeFormats): Pair<String, String> {
+    val day = times.date("dMMM", trade.date)
+    val label = stringResource(R.string.chart_last_buy, trade.time?.let { "$day, ${times.time(it)}" } ?: day)
+    val shares = pluralStringResource(R.plurals.trade_shares, if (trade.quantity == 1.0) 1 else 2, formats.shares(trade.quantity))
+    return label to stringResource(R.string.chart_last_buy_value, shares, price(quote, formats.exact(quote, trade.price)))
 }
 
 /** TalkBack: the average and where it is (decision 0033). */

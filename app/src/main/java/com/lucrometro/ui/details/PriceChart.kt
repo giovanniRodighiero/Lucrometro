@@ -63,6 +63,12 @@ private fun Density.plotRight(width: Float) = width - PriceGutter.toPx()
 /** The owner's average price on the chart (decision 0033): [label] "Your avg", [price] formatted for the gutter. */
 class AverageMark(val value: Double, val label: String, val price: String)
 
+/**
+ * The owner's last buy on the chart (decision 0042, private only): at [fraction] across the plot and its own [price], so it
+ * can sit off the line. While scrubbing, index `points.size` means the finger is on it.
+ */
+data class BuyMark(val fraction: Float, val price: Double)
+
 /** Labels of the TalkBack actions that step the scrub through the points. */
 class StepLabels(val previous: String, val next: String, val latest: String)
 
@@ -94,6 +100,8 @@ fun PriceChart(
     stepLabels: StepLabels? = null,
     /** The owner's average price: a dotted line, or a stub at the plot edge when it is outside the axis (decision 0033). */
     average: AverageMark? = null,
+    /** The last buy: a tertiary diamond that the axis stretches to include, and that the scrub snaps to. */
+    lastBuy: BuyMark? = null,
     /** Auto-refresh is polling: a soft pulsing halo behind the end dot (decision 0035). */
     live: Boolean = false,
 ) {
@@ -118,9 +126,9 @@ fun PriceChart(
     } else {
         null
     }
-    val axis = remember(points, baseline) {
-        val low = listOfNotNull(points.minOf { it.price }, baseline).min()
-        val high = listOfNotNull(points.maxOf { it.price }, baseline).max()
+    val axis = remember(points, baseline, lastBuy?.price) {
+        val low = listOfNotNull(points.minOf { it.price }, baseline, lastBuy?.price).min()
+        val high = listOfNotNull(points.maxOf { it.price }, baseline, lastBuy?.price).max()
         PriceAxis.of(low, high, minTickStep)
     }
 
@@ -144,13 +152,16 @@ fun PriceChart(
                     )
                 }
             }
-            .pointerInput(layout) {
+            .pointerInput(layout, lastBuy) {
                 // The plot bounds are read per event: the width changes on rotation while the layout does not.
                 fun indexAt(px: Float): Int {
                     val left = plotLeft()
                     val right = plotRight(size.width.toFloat())
                     val fraction = ((px - left) / (right - left)).coerceIn(0f, 1f)
-                    return layout.xs.indices.minByOrNull { abs(layout.xs[it] - fraction) } ?: 0
+                    val nearest = layout.xs.indices.minByOrNull { abs(layout.xs[it] - fraction) } ?: 0
+                    // The last buy is one more snap target, past the points' indices. It wins a tie: on the last bar's day
+                    // it shares that bar's x, and the bar's price is already in the header.
+                    return if (lastBuy != null && abs(lastBuy.fraction - fraction) <= abs(layout.xs[nearest] - fraction)) points.size else nearest
                 }
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -255,7 +266,8 @@ fun PriceChart(
 
         // A guard: the index belongs to the parent's state, the points to this call.
         val scrubbed = scrubIndex?.takeIf { it in points.indices && it in xs.indices }
-        if (scrubbed == null) {
+        val onBuy = lastBuy != null && scrubIndex == points.size
+        if (scrubbed == null && !onBuy) {
             val end = Offset(x(xs.last()), y(points.last().price))
             halo?.let { drawCircle(color.copy(alpha = it.value), 12.dp.toPx(), end) }
             drawCircle(color, 5.dp.toPx(), end)
@@ -267,6 +279,25 @@ fun PriceChart(
             val dot = Offset(sx, y(points[scrubbed].price))
             drawCircle(color, 6.dp.toPx(), dot)
             drawCircle(surface, 6.dp.toPx(), dot, style = Stroke(2.dp.toPx()))
+        }
+
+        if (lastBuy != null) {
+            val center = Offset(x(lastBuy.fraction), y(lastBuy.price))
+            if (onBuy) {
+                drawLine(scrubColor, Offset(center.x, top), Offset(center.x, bottom), strokeWidth = 1.dp.toPx())
+                drawCircle(tertiary.copy(alpha = 0.2f), 14.dp.toPx(), center)
+            }
+            // A 15dp diamond (a square on its point) with a 2dp surface outline.
+            val r = 7.5.dp.toPx()
+            val diamond = Path().apply {
+                moveTo(center.x, center.y - r)
+                lineTo(center.x + r, center.y)
+                lineTo(center.x, center.y + r)
+                lineTo(center.x - r, center.y)
+                close()
+            }
+            drawPath(diamond, tertiary)
+            drawPath(diamond, surface, style = Stroke(2.dp.toPx(), join = StrokeJoin.Round))
         }
 
         val labelY = TimeLabelsY.toPx()
