@@ -56,7 +56,7 @@ if ! grep -q "^## \[$VERSION\]" CHANGELOG.md; then
 fi
 grep -q "^Up to date with: \*\*$VERSION\*\*" docs/spec.md \
   || die "docs/spec.md is not up to date with $VERSION: fold this release's decisions into it first (decision 0039)"
-grep -q "^lucrometro.releaseStoreFile=""$HOME/.gradle/gradle.properties" 2>/dev/null \
+grep -q "^lucrometro.releaseStoreFile=" "$HOME/.gradle/gradle.properties" 2>/dev/null \
   || die "release signing is not configured in ~/.gradle/gradle.properties (decision 0020)"
 if [ "$DRY_RUN" = 0 ]; then
   gh auth status >/dev/null 2>&1 || die "gh is not logged in"
