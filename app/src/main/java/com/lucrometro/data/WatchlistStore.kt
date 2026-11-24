@@ -58,6 +58,9 @@ interface WatchlistStore {
     /** Adds (id 0) or replaces (same id) [trades] of [code] at once. False if [code] is not stored. */
     suspend fun saveTrades(code: String, trades: List<Trade>): Boolean
 
+    /** [saveTrades] for several tickers in one transaction: all or nothing. False if any ticker is not stored. */
+    suspend fun saveTrades(byCode: Map<String, List<Trade>>): Boolean
+
     suspend fun deleteTrade(id: Long)
 
     /** Deletes [code] with its saved quote, average price and trades. Returns what was deleted, for undo; null if it wasn't stored. */

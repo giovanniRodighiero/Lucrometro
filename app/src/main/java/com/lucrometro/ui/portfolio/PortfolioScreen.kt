@@ -1,5 +1,19 @@
 package com.lucrometro.ui.portfolio
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Button
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
+import com.lucrometro.ui.common.CSV_TYPES
+import com.lucrometro.ui.common.readPickedFile
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -79,7 +93,34 @@ fun PortfolioScreen(
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     val times = rememberTimeFormats()
     val formats = rememberQuoteFormats()
+    val importState by viewModel.import.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    // The system file picker; the file is read and checked for every ticker before anything is saved (decision 0054).
+    val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch { readPickedFile(context, uri).let { (name, text) -> viewModel.onFileRead(name, text) } }
+    }
+    val openCsv = { pickFile.launch(CSV_TYPES) }
+    // Taken as soon as it arrives: the ViewModel outlives this tab, and an unconsumed notice would show again.
+    LaunchedEffect(viewModel) {
+        viewModel.notice.filterNotNull().collect { shown ->
+            viewModel.noticeShown(shown)
+            snackbar.showSnackbar(
+                when (shown) {
+                    GlobalImportNotice.NothingNew -> resources.getString(R.string.global_import_nothing_new)
+                    is GlobalImportNotice.Imported -> resources.getString(
+                        R.string.global_import_done,
+                        resources.getQuantityString(R.plurals.import_done, shown.trades, shown.trades),
+                        resources.getQuantityString(R.plurals.global_import_tickers, shown.tickers, shown.tickers),
+                    )
+                },
+            )
+        }
+    }
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.portfolio_title)) },
@@ -91,6 +132,16 @@ fun PortfolioScreen(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                    // Private only: the review shows shares and averages.
+                    if (private) {
+                        IconButton(onClick = openCsv) {
+                            Icon(
+                                painterResource(R.drawable.ic_upload_file),
+                                contentDescription = stringResource(R.string.trades_import),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                     WalletButton(private, onPrivateChange)
                 },
@@ -107,9 +158,12 @@ fun PortfolioScreen(
                 Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 16.dp),
             ) {
-                content(current, private, formats, times, onOpenTicker, onOpenYear)
+                content(current, private, formats, times, onOpenTicker, onOpenYear, openCsv)
             }
         }
+    }
+    importState?.let {
+        GlobalImportDialog(it, formats, times, onConfirm = viewModel::confirmImport, onDismiss = viewModel::dismissImport)
     }
 }
 
@@ -120,10 +174,11 @@ private fun LazyListScope.content(
     times: TimeFormats,
     onOpenTicker: (String) -> Unit,
     onOpenYear: (Int) -> Unit,
+    onImport: () -> Unit,
 ) {
     val portfolio = state.portfolio
     if (portfolio.counted.isEmpty()) {
-        item { EmptyCard() }
+        item { EmptyCard(onImport.takeIf { private }) }
         if (private) notCounted(portfolio, onOpenTicker)
         return
     }
@@ -201,8 +256,9 @@ private fun LazyListScope.notCounted(portfolio: Portfolio, onOpenTicker: (String
     }
 }
 
+/** [onImport] adds the "Import trades" button (private only, decision 0054). */
 @Composable
-private fun EmptyCard() {
+private fun EmptyCard(onImport: (() -> Unit)?) {
     Column(
         Modifier
             .padding(start = 16.dp, end = 16.dp, top = 8.dp)
@@ -217,10 +273,15 @@ private fun EmptyCard() {
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            stringResource(R.string.portfolio_empty_body),
+            stringResource(if (onImport != null) R.string.portfolio_empty_body_private else R.string.portfolio_empty_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (onImport != null) {
+            Button(onClick = onImport, modifier = Modifier.align(Alignment.End).padding(top = 16.dp)) {
+                Text(stringResource(R.string.global_import_button))
+            }
+        }
     }
 }
 

@@ -74,7 +74,9 @@ import com.lucrometro.data.TradeChange
 import com.lucrometro.data.replay
 import com.lucrometro.ui.common.AmountChange
 import com.lucrometro.ui.common.ChangeBadge
+import com.lucrometro.ui.common.CSV_TYPES
 import com.lucrometro.ui.common.QuoteFormats
+import com.lucrometro.ui.common.readPickedFile
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.changeLabel
 import com.lucrometro.ui.common.rememberQuoteFormats
@@ -116,8 +118,7 @@ fun TradesScreen(
     val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch { readPickedFile(context, uri).let { (name, text) -> viewModel.onFileRead(name, text) } }
     }
-    // CSV files come with different types depending on the app that saved them.
-    val openCsv = { pickFile.launch(arrayOf("text/*", "application/csv", "application/vnd.ms-excel")) }
+    val openCsv = { pickFile.launch(CSV_TYPES) }
     // Taken as soon as it arrives: the ViewModel outlives this screen, and an unconsumed notice would show again.
     LaunchedEffect(viewModel) {
         viewModel.notice.filterNotNull().collect { shown ->

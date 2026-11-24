@@ -300,4 +300,39 @@
     <string name="year_holdings_body_current">The market\'s return from 1 Jan to today, dividends included. Yours differs if you bought during the year.</string>
     <!-- A holding\'s weight in the total, one decimal ("34.5%"). -->
     <string name="portfolio_weight">%1$s%%</string>
+    <!-- Global CSV import from the Portfolio tab (decision 0054). -->
+    <string name="portfolio_empty_body_private">The portfolio counts the tickers you have trades for. Import them all from your broker\'s CSV, or add them from a ticker\'s trades.</string>
+    <string name="global_import_button">Import trades</string>
+    <string name="global_import_title">Import trades</string>
+    <string name="close">Close</string>
+    <plurals name="global_import_trades">
+        <item quantity="one">%1$d new trade</item>
+        <item quantity="other">%1$d new trades</item>
+    </plurals>
+    <plurals name="global_import_tickers">
+        <item quantity="one">for %1$d ticker</item>
+        <item quantity="other">for %1$d tickers</item>
+    </plurals>
+    <string name="global_import_summary">%1$s %2$s, from %3$s to %4$s. Shares and averages are after the import.</string>
+    <string name="global_import_summary_one_day">%1$s %2$s, on %3$s. Shares and averages are after the import.</string>
+    <string name="global_import_will">Will import</string>
+    <string name="global_import_after">After</string>
+    <string name="global_import_avg">avg %1$s</string>
+    <string name="global_import_replaces">Replaces your typed average, %1$s</string>
+    <plurals name="global_import_not_in_watchlist">
+        <item quantity="one">%1$d trade · not in your watchlist</item>
+        <item quantity="other">%1$d trades · not in your watchlist</item>
+    </plurals>
+    <plurals name="global_import_already_saved">
+        <item quantity="one">%1$d trade already saved</item>
+        <item quantity="other">%1$d trades already saved</item>
+    </plurals>
+    <string name="global_import_hint">To import a skipped ticker, add it to the watchlist, then import the same file again: trades already saved are skipped.</string>
+    <string name="global_import_below_zero">%1$s would go below 0 shares on %2$s: older buys are missing from the file.</string>
+    <string name="global_import_future">The file has a trade for %1$s on %2$s, which is after today. Check its date.</string>
+    <string name="global_import_nothing_saved">Nothing was saved, for any ticker. Fix the file and import it again.</string>
+    <string name="global_import_no_rows">None of the file\'s tickers are in your watchlist.</string>
+    <string name="global_import_nothing_new">Nothing new: every trade in the file is already saved.</string>
+    <!-- "21 trades imported" "for 5 tickers" -->
+    <string name="global_import_done">%1$s %2$s</string>
 </resources>

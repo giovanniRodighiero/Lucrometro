@@ -1,6 +1,7 @@
 package com.lucrometro.data
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 /** Outcome of a change to a ticker's trades. */
 sealed interface TradeChange {
@@ -32,6 +33,24 @@ class TradeRepository(private val store: WatchlistStore) {
 
     /** Adds [new] trades of [code] in one go (the CSV import), after the same check. */
     suspend fun addAll(code: String, new: List<Trade>): TradeChange = change(code, new) { it + new }
+
+    /** Every ticker's trades, for the global import (decision 0054); null if storage failed. */
+    suspend fun allTrades(): List<Trade>? = storeCall { store.observeAllTrades().first() }
+
+    /** Every typed average by ticker; null if storage failed. */
+    suspend fun typedAverages(): Map<String, Position>? = storeCall { store.observePositions().first() }
+
+    /**
+     * Adds the [new] trades of several tickers in one transaction (the global import, decision 0054), each ticker checked
+     * as [addAll] does: if any fails, nothing is saved.
+     */
+    suspend fun addAll(new: Map<String, List<Trade>>): TradeChange {
+        for ((code, trades) in new) {
+            val result = check(code) { it + trades } ?: return TradeChange.Failed
+            if (result != TradeChange.Saved) return result
+        }
+        return if (storeCall { store.saveTrades(new) } == true) TradeChange.Saved else TradeChange.Failed
+    }
 
     /** Saves [toSave] if the trades after [edit] (the same change, applied to the stored list) pass the check. */
     private suspend fun change(code: String, toSave: List<Trade>, edit: (List<Trade>) -> List<Trade>): TradeChange {

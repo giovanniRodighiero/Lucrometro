@@ -138,3 +138,58 @@ fun checkImport(code: String, rows: List<Trade>, saved: List<Trade>, today: Loca
         is Replay.Ok -> ImportCheck.Ready(new, rows.size - mine.size, mine.size - new.size, replay.holding)
     }
 }
+
+/** What importing a file with mixed tickers would do (decision 0054). */
+sealed interface GlobalImportCheck {
+    data class Ready(
+        /** Each watchlist ticker with new trades, in watchlist order. */
+        val tickers: List<Pair<String, ImportCheck.Ready>>,
+        /** Row count of each ticker not on the watchlist, in file order: skipped. */
+        val notInWatchlist: Map<String, Int>,
+        /** Rows of watchlist tickers whose id is already saved (or repeated in the file), skipped. */
+        val alreadySaved: Int,
+    ) : GlobalImportCheck
+
+    /** No row is for a watchlist ticker. */
+    data object NoWatchlistRows : GlobalImportCheck
+
+    /** Every row for a watchlist ticker is already saved. */
+    data object NothingNew : GlobalImportCheck
+
+    /** One ticker's shares would go below 0 ([Replay.BelowZero.trade] names it): nothing is saved. */
+    data class BelowZero(val replay: Replay.BelowZero) : GlobalImportCheck
+
+    /** [trade] is dated after today: nothing is saved. */
+    data class Future(val trade: Trade) : GlobalImportCheck
+}
+
+/**
+ * [checkImport] for every [watchlist] ticker (in its order) with rows in the file; [saved] is every ticker's trades,
+ * [today] gives the date in a ticker's exchange zone. The first ticker that fails fails the whole file.
+ */
+fun checkGlobalImport(watchlist: List<String>, rows: List<Trade>, saved: List<Trade>, today: (String) -> LocalDate): GlobalImportCheck {
+    val savedByCode = saved.groupBy { it.code }
+    val ready = mutableListOf<Pair<String, ImportCheck.Ready>>()
+    var alreadySaved = 0
+    for (code in watchlist) {
+        when (val check = checkImport(code, rows, savedByCode[code].orEmpty(), today(code))) {
+            ImportCheck.NoRows -> {}
+            ImportCheck.NothingNew -> alreadySaved += rows.count { it.code == code }
+            is ImportCheck.Ready -> {
+                ready += code to check
+                alreadySaved += check.alreadySaved
+            }
+            is ImportCheck.BelowZero -> return GlobalImportCheck.BelowZero(check.replay)
+            is ImportCheck.Future -> return GlobalImportCheck.Future(check.trade)
+        }
+    }
+    return when {
+        ready.isNotEmpty() -> GlobalImportCheck.Ready(
+            ready,
+            rows.filter { it.code !in watchlist }.groupingBy { it.code }.eachCount(),
+            alreadySaved,
+        )
+        alreadySaved > 0 -> GlobalImportCheck.NothingNew
+        else -> GlobalImportCheck.NoWatchlistRows
+    }
+}

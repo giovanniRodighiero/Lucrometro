@@ -56,4 +56,26 @@ class TradeCsvTest {
         assertEquals(ImportCheck.Future(future[1]), checkImport("ENI.MI", future, emptyList()))
         assert(checkImport("ENI.MI", future.take(1), emptyList()) is ImportCheck.Ready)
     }
+
+    @Test
+    fun `a global import keeps watchlist order, counts what it skips, and fails whole on one ticker`() {
+        val head = "ticker,side,date,quantity,price,id\n"
+        val file = rows(
+            head + "ENI.MI,buy,2026-01-02,10,10,A\nCSSPX.MI,buy,2026-01-02,1,500,B\nISP.MI,buy,2026-01-02,5,3,C\n" +
+                "ISP.MI,buy,2026-01-03,5,3,C\nENI.MI,buy,2026-01-05,10,12,D\nCSSPX.MI,sell,2026-01-06,1,510,E\n",
+        )
+        val saved = listOf(file[0].copy(id = 1))
+        val watchlist = listOf("ISP.MI", "SWDA.MI", "ENI.MI")
+        val ready = checkGlobalImport(watchlist, file, saved) { today } as GlobalImportCheck.Ready
+        assertEquals(listOf("ISP.MI", "ENI.MI"), ready.tickers.map { it.first })
+        assertEquals(mapOf("CSSPX.MI" to 2), ready.notInWatchlist)
+        assertEquals(2, ready.alreadySaved) // ENI.MI's A, and ISP.MI's repeated C
+
+        val short = rows(head + "ISP.MI,buy,2026-01-02,5,3,\nENI.MI,sell,2026-01-02,5,3,\n")
+        val below = checkGlobalImport(watchlist, short, emptyList()) { today } as GlobalImportCheck.BelowZero
+        assertEquals("ENI.MI", below.replay.trade.code)
+
+        assertEquals(GlobalImportCheck.NothingNew, checkGlobalImport(watchlist, file.take(1), saved) { today })
+        assertEquals(GlobalImportCheck.NoWatchlistRows, checkGlobalImport(listOf("UCG.MI"), file, saved) { today })
+    }
 }

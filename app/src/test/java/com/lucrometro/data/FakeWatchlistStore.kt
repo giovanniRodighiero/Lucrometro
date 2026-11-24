@@ -67,5 +67,11 @@ class FakeWatchlistStore : WatchlistStore {
         return true
     }
 
+    override suspend fun saveTrades(byCode: Map<String, List<Trade>>): Boolean {
+        if (byCode.keys.any { !contains(it) }) return false
+        byCode.forEach { (code, trades) -> saveTrades(code, trades) }
+        return true
+    }
+
     override suspend fun deleteTrade(id: Long) = trades.update { list -> list.filter { it.id != id } }
 }

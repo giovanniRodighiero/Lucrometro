@@ -75,7 +75,7 @@ Portfolio track (decision 0040): one branch per milestone, from main
   watchlist frames (row 1) still have no nav bar; row 9 holds the watchlist as built.
 - Global CSV import (between M4 and M5): one trade CSV with mixed tickers, imported from the Portfolio tab (private
   only); the per-ticker import stays. Designed in Doop 2026-11-24 (decision 0054: five frames, snapshot on branch
-  `global-import`). Next: build it there.
+  `global-import`). Built on that branch 2026-11-24. Next: merge, then move the five Doop frames to "Screens" (0054).
 - To investigate, maybe a milestone between M4 and M5: BTPs (0049). Check Yahoo's data for them first; they are
   quoted per 100 of face value, held as a face value, pay coupons and accrue interest.
 - M5, asset types (0049): type per ticker (ETF, single stock) and breakdown by type.

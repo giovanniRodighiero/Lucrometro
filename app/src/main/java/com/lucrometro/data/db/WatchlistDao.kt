@@ -122,6 +122,14 @@ interface WatchlistDao {
         upsertTrades(trades)
         return true
     }
+
+    /** [saveTrades] for several tickers in one transaction: nothing is saved if any of them is not stored. */
+    @Transaction
+    suspend fun saveTrades(byCode: Map<String, List<TradeEntity>>): Boolean {
+        if (byCode.keys.any { !contains(it) }) return false
+        upsertTrades(byCode.values.flatten())
+        return true
+    }
 }
 
 /** A deleted watchlist row with its average price and trades, for undo. */

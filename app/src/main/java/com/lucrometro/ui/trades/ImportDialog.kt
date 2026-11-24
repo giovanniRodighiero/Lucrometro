@@ -1,8 +1,5 @@
 package com.lucrometro.ui.trades
 
-import android.content.Context
-import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,40 +17,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lucrometro.R
-import com.lucrometro.data.CsvError
 import com.lucrometro.data.Position
 import com.lucrometro.data.Quote
 import com.lucrometro.data.Side
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
-
-/** A trade CSV is a few kilobytes: anything past this is not one, and is refused instead of filling the memory. */
-private const val MAX_FILE_BYTES = 2 * 1024 * 1024
-
-/** The picked file's name and its text (UTF-8); a null text when it can't be read or is too big. */
-internal suspend fun readPickedFile(context: Context, uri: Uri): Pair<String?, String?> = withContext(Dispatchers.IO) {
-    val resolver = context.contentResolver
-    val name = runCatching {
-        resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
-    }.getOrNull()
-    val text = runCatching {
-        resolver.openInputStream(uri)?.use { input ->
-            val out = ByteArrayOutputStream()
-            val buffer = ByteArray(8192)
-            while (true) {
-                val n = input.read(buffer)
-                if (n < 0) break
-                if (out.size() + n > MAX_FILE_BYTES) return@use null
-                out.write(buffer, 0, n)
-            }
-            out.toString(Charsets.UTF_8.name())
-        }
-    }.getOrNull()
-    name to text
-}
+import com.lucrometro.ui.common.csvErrorText
 
 /**
  * The import dialog (Doop Dialog, decision 0042): before saving, what the file adds (buys and sells, dates, what was
@@ -151,13 +120,5 @@ private fun problemText(problem: ImportProblem, code: String, times: TimeFormats
     ImportProblem.SaveFailed -> stringResource(R.string.import_save_failed)
     is ImportProblem.BelowZero -> stringResource(R.string.import_error_below_zero, times.date("dMMMyyyy", problem.trade.date))
     is ImportProblem.Future -> stringResource(R.string.import_error_future, times.date("dMMMyyyy", problem.trade.date))
-    is ImportProblem.Csv -> when (val e = problem.error) {
-        is CsvError.Missing -> stringResource(R.string.import_error_missing, e.column)
-        is CsvError.Columns -> stringResource(R.string.import_error_columns, e.line)
-        is CsvError.BadSide -> stringResource(R.string.import_error_side, e.line, e.value)
-        is CsvError.BadDate -> stringResource(R.string.import_error_date, e.line, e.value)
-        is CsvError.BadTime -> stringResource(R.string.import_error_time, e.line, e.value)
-        is CsvError.NotANumber -> stringResource(R.string.import_error_number, e.line, e.column, e.value)
-        is CsvError.NotPositive -> stringResource(R.string.import_error_positive, e.line, e.column)
-    }
+    is ImportProblem.Csv -> csvErrorText(problem.error)
 }
