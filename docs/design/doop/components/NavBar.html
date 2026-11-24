@@ -1,0 +1,17 @@
+<!--
+  Component: NavBar (Doop id c3kdqot8np, rev 1)
+  M4 (decision 0049): Material 3 navigation bar, 80dp, surface-container, two destinations: Watchlist (show_chart
+  icon) and Portfolio (pie_chart icon). Shown in public and private alike; the wallet stays in the top bar.
+  Props: selected watchlist|portfolio = watchlist: the selected item gets a 64x32 secondary-container indicator pill
+         (icon on-secondary-container) and an on-surface label; the other is on-surface-variant.
+         nvb-label ("Watchlist"), nvb-label-2 ("Portfolio"): the two labels (translated in the app).
+  In frames it sits at the bottom inside a surface-container strip that also covers the 24dp gesture area; the
+  watchlist FAB moves up above it.
+-->
+<nav class="nvb" data-selected="watchlist" aria-label="Main" style="display:flex;height:80px;background:var(--color-surface-container);font-family:var(--font-sans);"><a class="nvb-item nvb-watch" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-xs);text-decoration:none;"><span class="nvb-ind" style="width:64px;height:32px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"></path></svg></span><span class="nvb-label" data-doop-prop="nvb-label" style="font-size:var(--text-label-medium);line-height:var(--leading-label-medium);">Watchlist</span></a><a class="nvb-item nvb-port" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spacing-xs);text-decoration:none;"><span class="nvb-ind" style="width:64px;height:32px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"></path></svg></span><span class="nvb-label" data-doop-prop="nvb-label-2" style="font-size:var(--text-label-medium);line-height:var(--leading-label-medium);">Portfolio</span></a></nav>
+<style>
+.nvb .nvb-ind { background: transparent; color: var(--color-on-surface-variant); }
+.nvb .nvb-label { color: var(--color-on-surface-variant); font-weight: var(--font-weight-medium); }
+.nvb[data-selected="watchlist"] .nvb-watch .nvb-ind, .nvb[data-selected="portfolio"] .nvb-port .nvb-ind { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+.nvb[data-selected="watchlist"] .nvb-watch .nvb-label, .nvb[data-selected="portfolio"] .nvb-port .nvb-label { color: var(--color-on-surface); }
+</style>

@@ -1,0 +1,27 @@
+<!--
+  Component: PortfolioSummary (Doop id c9cyps4s3t, rev 3)
+  M4 (decisions 0049, 0050): the total card at the top of the Portfolio tab.
+  Props: view private|public = private.
+           private: "Total value" (shares x latest price, summed) in display-small; today's change (slot today, a
+           ChangeBadge with amount and %); then "Invested" (what the shares still held cost, at their averages) and
+           "Since you bought" (slot since: value - invested, amount and %; was "Since avg", renamed by 0050).
+           public: no amounts: "Your portfolio" / the number of holdings (prop holdings), today's and since-you-bought
+           change in % only.
+         freshness fresh|stale = fresh: stale adds a tertiary line under today's change (prop stale, "2 prices stale
+           since 10:41") when any price in the total is stale.
+         value, invested, holdings, stale: text.
+  The "realized" slot is retired (0050) and always hidden: realized gains are one quiet line at the page's bottom.
+  Wrap in a div with 16px side margins.
+-->
+<section class="pfs" data-view="private" data-freshness="fresh" aria-label="Portfolio total" style="padding:var(--spacing-md);border-radius:var(--radius-lg);background:var(--color-surface-container-low);font-family:var(--font-sans);color:var(--color-on-surface);font-variant-numeric:tabular-nums;"><p class="pfs-priv" style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">Total value</p><p class="pfs-priv" data-doop-prop="value" style="font-size:var(--text-display-small);line-height:var(--leading-display-small);">42,899.20 EUR</p><p class="pfs-pub" style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">Your portfolio</p><p class="pfs-pub" data-doop-prop="holdings" style="font-size:var(--text-headline-small);line-height:var(--leading-headline-small);">5 holdings</p><div style="display:flex;align-items:center;gap:var(--spacing-sm);margin-top:var(--spacing-sm);min-height:32px;"><span data-doop-slot="today" data-doop-slot-suggest="ChangeBadge"></span><span style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">Today</span></div><p class="pfs-stale" data-doop-prop="stale" style="margin-top:var(--spacing-sm);font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-tertiary);">2 prices stale since 10:41</p><dl class="pfs-grid" style="margin-top:var(--spacing-md);padding-top:var(--spacing-md);border-top:1px solid var(--color-outline-variant);"><div class="pfs-inv pfs-priv"><dt style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">Invested</dt><dd data-doop-prop="invested" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);">37,650.00 EUR</dd></div><div class="pfs-since"><dt style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);margin-bottom:2px;">Since you bought</dt><dd data-doop-slot="since" data-doop-slot-suggest="ChangeBadge"></dd></div><div class="pfs-real pfs-priv"><dt style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);margin-bottom:2px;">Realized (gross), all years</dt><dd data-doop-slot="realized" data-doop-slot-suggest="ChangeBadge"></dd></div></dl></section>
+<style>
+.pfs p, .pfs dl, .pfs dd { margin: 0; }
+.pfs .pfs-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--spacing-md); row-gap: var(--spacing-md); grid-template-areas: "inv since"; }
+.pfs .pfs-inv { grid-area: inv; } .pfs .pfs-since { grid-area: since; }
+.pfs .pfs-real { display: none !important; }
+.pfs .pfs-stale, .pfs .pfs-pub { display: none; }
+.pfs[data-freshness="stale"] .pfs-stale { display: block; }
+.pfs[data-view="public"] .pfs-priv { display: none; }
+.pfs[data-view="public"] .pfs-pub { display: block; }
+.pfs[data-view="public"] .pfs-grid { grid-template-areas: "since since"; }
+</style>

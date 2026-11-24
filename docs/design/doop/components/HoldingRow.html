@@ -1,0 +1,15 @@
+<!--
+  Component: HoldingRow (Doop id c9q6s133py, rev 1)
+  M4 (decision 0049), private only (0050: no composition in public): one held ticker in the Portfolio tab's
+  composition list, sorted by weight, largest first; tap opens its details. Ticker and name on the left (name
+  ellipsized), weight in % of the total on the right, value in EUR under it, and a 4dp bar whose primary fill is the
+  weight out of 100%.
+  Props: view private|public = private (public hides the value; unused since 0050); bar (CSS width, e.g. "34.5%"),
+         ticker, weight, name, value: text.
+  One role colour for every row: a donut with a colour per ticker would need fixed hues and break dynamic colour.
+-->
+<a class="hlr" data-view="private" data-doop-prop="--w:bar" style="--w:34.5%;display:block;padding:12px var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);text-decoration:none;font-variant-numeric:tabular-nums;"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--spacing-md);"><span data-doop-prop="ticker" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);font-weight:var(--font-weight-medium);">VWCE.MI</span><span data-doop-prop="weight" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);font-weight:var(--font-weight-medium);">34.5%</span></div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--spacing-md);"><span data-doop-prop="name" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">Vanguard FTSE All-World UCITS ETF</span><span class="hlr-value" data-doop-prop="value" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">14,803.80 EUR</span></div><div style="margin-top:var(--spacing-sm);height:4px;border-radius:var(--radius-full);background:var(--color-surface-container-highest);overflow:hidden;"><div style="width:var(--w);height:100%;border-radius:var(--radius-full);background:var(--color-primary);"></div></div></a>
+<style>
+.hlr .hlr-value { display: inline; }
+.hlr[data-view="public"] .hlr-value { display: none; }
+</style>

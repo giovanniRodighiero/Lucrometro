@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Portfolio · private" (Fdmktgb6q3), 412x892. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }</style></head>
+<body style="width:412px;height:892px;position:relative;overflow:hidden;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);">
+<doop-use component="StatusBar"></doop-use>
+<doop-use component="TopAppBar" privacy="private" title="Portfolio" stamp="Updated 14:32"></doop-use>
+<main style="display:flex;flex-direction:column;">
+<div style="padding:var(--spacing-sm) var(--spacing-md) 0;">
+<doop-use component="PortfolioSummary" view="private" freshness="fresh" value="42,899.20 EUR" invested="37,650.00 EUR"><template slot="today"><doop-use component="ChangeBadge" direction="up" value="+323.81 (+0.76%)"></doop-use></template><template slot="since"><doop-use component="ChangeBadge" direction="up" value="+5,249.20 (+13.94%)"></doop-use></template></doop-use>
+</div>
+<section style="padding:var(--spacing-lg) var(--spacing-md) var(--spacing-xs);">
+<h2 style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">Growth by year</h2>
+<p style="margin-top:2px;font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">New buys don't count as growth.</p>
+</section>
+<doop-use component="YearGrowthRow" view="private" year="2026" note="So far"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+1,490.40 (+3.62%)"></doop-use></template></doop-use>
+<doop-use component="YearGrowthRow" view="private" year="2025" note=""><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+3,980.70 (+14.29%)"></doop-use></template></doop-use>
+<doop-use component="YearGrowthRow" view="private" year="2024" note="From 12 Mar"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+1,650.20 (+9.85%)"></doop-use></template></doop-use>
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:var(--spacing-lg) var(--spacing-md) var(--spacing-xs);">
+<h2 style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">Composition</h2>
+<span style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">5 holdings, by value</span>
+</div>
+<doop-use component="HoldingRow" view="private" bar="34.5%" ticker="VWCE.MI" weight="34.5%" name="Vanguard FTSE All-World UCITS ETF" value="14,803.80 EUR"></doop-use>
+<doop-use component="HoldingRow" view="private" bar="24.1%" ticker="SWDA.MI" weight="24.1%" name="iShares Core MSCI World UCITS ETF" value="10,347.40 EUR"></doop-use>
+</main>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--color-surface-container);padding-bottom:24px;">
+<doop-use component="NavBar" selected="portfolio"></doop-use>
+<div style="position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;"><span style="width:108px;height:4px;border-radius:var(--radius-full);background:var(--color-on-surface);"></span></div>
+</div>
+</body></html>

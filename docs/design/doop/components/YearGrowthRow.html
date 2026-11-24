@@ -1,0 +1,16 @@
+<!--
+  Component: YearGrowthRow (Doop id c0x3ln5wr2, rev 1)
+  M4 (decision 0050): one year in the Portfolio tab's "Growth by year" list, right under the total card, newest first,
+  56dp rows. Left: the year and a note ("So far" for the current year, "From 12 Mar" for the first year when the
+  first buy was not on 1 Jan; empty hides it). Right: the portfolio's money-weighted return that year (slot change,
+  a ChangeBadge): new buys and sells are not growth.
+  Props: view private|public = private: private shows amount and % ("+3,980.70 (+14.29%)") and a chevron; tap opens
+         the year detail (portfolio figures + each ticker's calendar-year market return). public: % only, no chevron,
+         not tappable. year, note: text.
+-->
+<a class="ygr" data-view="private" style="display:flex;align-items:center;gap:var(--spacing-sm);min-height:56px;padding:var(--spacing-sm) var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);text-decoration:none;font-variant-numeric:tabular-nums;"><span style="flex:1;min-width:0;"><span data-doop-prop="year" style="display:block;font-size:var(--text-body-large);line-height:var(--leading-body-large);">2025</span><span class="ygr-note" data-doop-prop="note" style="display:block;font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);"></span></span><span data-doop-slot="change" data-doop-slot-suggest="ChangeBadge"></span><svg class="ygr-chev" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="var(--color-on-surface-variant)" style="margin-right:-4px;"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></a>
+<style>
+.ygr .ygr-note:empty { display: none; }
+.ygr .ygr-chev { display: block; }
+.ygr[data-view="public"] .ygr-chev { display: none; }
+</style>

@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -49,6 +49,15 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `trades-sell-sheet-realized` | Trades · sell sheet previews the realized gain | `jTYKq6gI_g` | `frames/trades-sell-sheet-realized.html`, `.png` |
 | `details-private-worst-case-compact` | Details · private · worst case, compact card fits | `pSW0q1c8cm` | `frames/details-private-worst-case-compact.html`, `.png` |
 | `position-card-font-130` | Font size 130% · compact vs regular card | `EccC2JjRax` | `frames/position-card-font-130.html`, `.png` |
+| `portfolio-private` | Portfolio · private | `Fdmktgb6q3` | `frames/portfolio-private.html`, `.png` |
+| `portfolio-public` | Portfolio · public (% only, no composition) | `TgalT-zMTl` | `frames/portfolio-public.html`, `.png` |
+| `portfolio-private-end` | Portfolio · private, scrolled to the end (not counted, realized as one quiet line) | `uNk56JYgbR` | `frames/portfolio-private-end.html`, `.png` |
+| `watchlist-private-nav` | Watchlist · private, with the nav bar | `L9Ae6FrvmT` | `frames/watchlist-private-nav.html`, `.png` |
+| `portfolio-year-detail` | Year detail · 2025 (yours, then each ETF's market return) | `Fv5w7QJ3B_` | `frames/portfolio-year-detail.html`, `.png` |
+| `portfolio-stale` | Portfolio · private, stale prices in the total | `-fRrvVmSll` | `frames/portfolio-stale.html`, `.png` |
+| `portfolio-empty` | Portfolio · private, empty (no trades yet) | `aJhrd2BqsW` | `frames/portfolio-empty.html`, `.png` |
+| `portfolio-dark` | Portfolio · private (dark) | `rKYy57nDYv` | `frames/portfolio-dark.html`, `.png` |
+| `portfolio-font-130` | Portfolio · private, font 130%, worst case (6-figure total) | `BFc74QOpvX` | `frames/portfolio-font-130.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
@@ -100,6 +109,18 @@ self-consistent (weighted average, replayed): 95 shares at 36.72 EUR, realized +
 size. The rejected frame (worst case with the regular layout, the footer below the screen) moved to "Exploration ·
 Position", not exported. The M3 frame HTML was written from the markup sent to Doop and from the M2 snapshot frames it edits.
 
+M4, portfolio overview (decisions 0049 and 0050, 2026-11-24): page "M4 · Portfolio". All nine M4 frames are marked
+ready for dev, signed off by the owner on 2026-11-24. New components: `NavBar` (Watchlist, Portfolio; the FAB moves
+above it), `PortfolioSummary` (rev 3: view private|public, freshness fresh|stale; "Since avg" renamed "Since you
+bought"; its `realized` slot is retired and hidden), `HoldingRow` (one primary bar per ticker instead of a donut, so
+dynamic colour keeps working) and `YearGrowthRow`. `PositionCard` still says "Since avg": it is renamed when M4 is
+built and merged (0050), since the "Screens" page shows the built app. The example numbers are invented and
+self-consistent: the yearly amounts (+1,650.20, +3,980.70, +1,490.40) add up to the gain since you bought (+5,249.20)
+plus the realized gains (+1,872.10); the 2025 detail adds up (26,300.00 + 6,200.00 + 3,980.70 = 36,480.70).
+The holdings' weights are rounded to one decimal and sum to 99.9%. `portfolio-font-130` scales the text tokens by 1.3
+like `position-card-font-130`; there the "Since you bought" badge wraps to two lines, accepted by the owner.
+The frame HTML was written from the markup sent to Doop.
+
 ## Tokens and components
 
 - `tokens.json`: all 66 tokens with light values and the `dark` theme override. The five `--color-icon-*`
@@ -108,7 +129,8 @@ Position", not exported. The M3 frame HTML was written from the markup sent to D
 - `components/`: `QuoteRow`, `ChangeBadge`, `TopAppBar`, `Fab`, `Button`, `TextField`, `BottomSheet`
   (the app UI), plus `StatusBar` and `Keyboard` (system chrome mocks: Android draws these, do not port).
   Details screen: `DetailsTopBar`, `QuoteHeader`, `ChartReadout`, `PriceChart`, `RangeTab`, `PositionCard`. Trades (M2):
-  `TradeRow`, `TradesTopBar`, `SegmentedButton`, `Dialog`. `PriceChart`'s
+  `TradeRow`, `TradesTopBar`, `SegmentedButton`, `Dialog`. Portfolio (M4): `NavBar`, `PortfolioSummary`, `HoldingRow`,
+  `YearGrowthRow`. `PriceChart`'s
   header comment holds the chart geometry; the chart lines in the frames are mock data.
 - Style guides: the canvas has none.
 

@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Portfolio · public (% only, no composition)" (TgalT-zMTl), 412x892. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }</style></head>
+<body style="width:412px;height:892px;position:relative;overflow:hidden;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);">
+<doop-use component="StatusBar"></doop-use>
+<doop-use component="TopAppBar" privacy="public" title="Portfolio" stamp="Updated 14:32"></doop-use>
+<main style="display:flex;flex-direction:column;">
+<div style="padding:var(--spacing-sm) var(--spacing-md) 0;">
+<doop-use component="PortfolioSummary" view="public" freshness="fresh" holdings="5 holdings"><template slot="today"><doop-use component="ChangeBadge" direction="up" value="+0.76%"></doop-use></template><template slot="since"><doop-use component="ChangeBadge" direction="up" value="+13.94%"></doop-use></template></doop-use>
+</div>
+<section style="padding:var(--spacing-lg) var(--spacing-md) var(--spacing-xs);">
+<h2 style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">Growth by year</h2>
+<p style="margin-top:2px;font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">New buys don't count as growth.</p>
+</section>
+<doop-use component="YearGrowthRow" view="public" year="2026" note="So far"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+3.62%"></doop-use></template></doop-use>
+<doop-use component="YearGrowthRow" view="public" year="2025" note=""><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+14.29%"></doop-use></template></doop-use>
+<doop-use component="YearGrowthRow" view="public" year="2024" note="From 12 Mar"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+9.85%"></doop-use></template></doop-use>
+<p style="padding:var(--spacing-lg) var(--spacing-md) 0;font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">Switch to private to see what you hold.</p>
+</main>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--color-surface-container);padding-bottom:24px;">
+<doop-use component="NavBar" selected="portfolio"></doop-use>
+<div style="position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;"><span style="width:108px;height:4px;border-radius:var(--radius-full);background:var(--color-on-surface);"></span></div>
+</div>
+</body></html>
