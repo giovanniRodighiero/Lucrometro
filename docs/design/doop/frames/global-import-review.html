@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<!-- Doop frame "Global import · review before saving (full screen)" (eNcs46xyp3), 412x892. Snapshot: instance ids and the <style data-doop-tokens>/webfonts blocks
+     are omitted; token values are in ../tokens.json, components in ../components/. -->
+<head><meta charset="utf-8"><style>* { margin: 0; box-sizing: border-box; }
+.sh { display:flex; align-items:flex-end; justify-content:space-between; height:48px; padding:0 var(--spacing-md) var(--spacing-sm); font-size:var(--text-label-large); line-height:var(--leading-label-large); font-weight:var(--font-weight-medium); color:var(--color-on-surface-variant); }
+</style></head>
+<body style="width:412px;height:892px;position:relative;overflow:hidden;background:var(--color-surface);font-family:var(--font-sans);color:var(--color-on-surface);">
+<doop-use component="StatusBar"></doop-use>
+<!-- Full-screen dialog header (Material 3): close, title and file name, the confirming text button. -->
+<header style="display:flex;align-items:center;height:64px;padding:0 var(--spacing-xs);">
+<span aria-label="Close" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></span>
+<div style="flex:1;min-width:0;margin-left:var(--spacing-xs);"><h1 style="font-size:var(--text-title-large);line-height:var(--leading-title-large);font-weight:var(--font-weight-regular);">Import trades</h1><p style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">trades.csv</p></div>
+<div style="margin-right:var(--spacing-xs);"><doop-use component="Button" tone="text" state="enabled" label="Import"></doop-use></div>
+</header>
+<p style="padding:var(--spacing-xs) var(--spacing-md) var(--spacing-sm);font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">21 new trades for 5 tickers, from 12 Mar 2024 to 21 Nov 2026. Shares and averages are after the import.</p>
+<div style="border-top:1px solid var(--color-outline-variant);margin:0 var(--spacing-md);"></div>
+<p class="sh"><span>Will import</span><span style="font-weight:var(--font-weight-regular);">After</span></p>
+<doop-use component="ImportTickerRow" kind="import" note="hidden" ticker="SWDA.MI" detail="6 buys · 12 Mar 2024 – 21 Nov 2026" shares="95 shares" avg="avg 98.42 EUR"></doop-use>
+<doop-use component="ImportTickerRow" kind="import" note="hidden" ticker="SMH.MI" detail="4 buys, 1 sell · 3 Jun 2024 – 6 Nov 2026" shares="180 shares" avg="avg 38.17 EUR"></doop-use>
+<doop-use component="ImportTickerRow" kind="import" note="hidden" ticker="ISP.MI" detail="3 buys · 14 Mar – 2 Oct 2025" shares="1,200 shares" avg="avg 4.613 EUR"></doop-use>
+<doop-use component="ImportTickerRow" kind="import" note="hidden" ticker="UCG.MI" detail="2 buys · 7 Oct 2025, 18 Feb 2026" shares="60 shares" avg="avg 52.40 EUR"></doop-use>
+<doop-use component="ImportTickerRow" kind="import" note="shown" ticker="ENI.MI" detail="5 buys · 8 Jan 2025 – 12 Sep 2026" notetext="Replaces your typed average, 13.90 EUR" shares="400 shares" avg="avg 14.12 EUR"></doop-use>
+<p class="sh">Skipped</p>
+<doop-use component="ImportTickerRow" kind="skipped" note="hidden" ticker="CSSPX.MI" detail="4 trades · not in your watchlist"></doop-use>
+<p style="padding:var(--spacing-sm) var(--spacing-md) 0;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">12 trades already saved</p>
+<p style="margin:var(--spacing-md) var(--spacing-md) 0;font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">To import a skipped ticker, add it to the watchlist, then import the same file again: trades already saved are skipped.</p>
+<div style="position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;"><span style="width:108px;height:4px;border-radius:var(--radius-full);background:var(--color-on-surface);"></span></div>
+</body>
+</html>

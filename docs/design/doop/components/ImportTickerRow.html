@@ -1,0 +1,19 @@
+<!--
+  Component: ImportTickerRow (Doop id crlzlj9ihl, rev 1)
+  Global CSV import review screen (decision 0054, private): one ticker of the file, a list item 72dp min.
+  Props: kind import|skipped = import;
+           import = ticker (body large) and what is added (body medium, on-surface-variant: "4 buys, 1 sell ·
+             3 Jun 2024 – 6 Nov 2026") on the left; on the right the shares ("180 shares", or "No shares held") and the
+             average AFTER the import ("avg 38.17 EUR", body small);
+           skipped = ticker and why ("4 trades · not in your watchlist"), no right column, 56dp min.
+         note hidden|shown = hidden: shown adds a tertiary body-small line under the detail, notetext "Replaces your
+           typed average, 13.90 EUR", when these are the ticker's first trades and it had a typed average (0040).
+         ticker; detail; notetext; shares; avg.
+-->
+<div class="itr" data-kind="import" data-note="hidden" style="display:flex;align-items:flex-start;gap:var(--spacing-md);min-height:72px;padding:12px var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);font-variant-numeric:tabular-nums;"><div style="flex:1;min-width:0;"><p data-doop-prop="ticker" style="margin:0;font-size:var(--text-body-large);line-height:var(--leading-body-large);">SWDA.MI</p><p data-doop-prop="detail" style="margin:0;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">6 buys · 12 Mar 2024 – 21 Nov 2026</p><p class="itr-note" data-doop-prop="notetext" style="margin:2px 0 0;font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-tertiary);">Replaces your typed average, 13.90 EUR</p></div><div class="itr-after" style="text-align:right;flex-shrink:0;"><p data-doop-prop="shares" style="margin:0;font-size:var(--text-body-medium);line-height:var(--leading-body-large);">95 shares</p><p data-doop-prop="avg" style="margin:0;font-size:var(--text-body-small);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">avg 98.42 EUR</p></div></div>
+<style>
+.itr .itr-note { display: none; }
+.itr[data-note="shown"] .itr-note { display: block; }
+.itr[data-kind="skipped"] .itr-after { display: none; }
+.itr[data-kind="skipped"] { min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
+</style>

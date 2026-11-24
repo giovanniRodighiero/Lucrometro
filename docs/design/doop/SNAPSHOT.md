@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -59,6 +59,11 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `portfolio-dark` | Portfolio · private (dark) | `rKYy57nDYv` | `frames/portfolio-dark.html`, `.png` |
 | `portfolio-font-130` | Portfolio · private, font 130%, worst case (6-figure total) | `BFc74QOpvX` | `frames/portfolio-font-130.html`, `.png` |
 | `portfolio-360dp` | Portfolio · private on a 360dp phone (total card fits) | `N3CkdgAjZg` | `frames/portfolio-360dp.html`, `.png` |
+| `global-import-top-bar` | Global import · icon in the Portfolio top bar (private only) | `Lc_wkl_c9P` | `frames/global-import-top-bar.html`, `.png` |
+| `global-import-empty` | Global import · empty portfolio, Import button in the card | `8fuFq_dzOK` | `frames/global-import-empty.html`, `.png` |
+| `global-import-review` | Global import · review before saving (full screen) | `eNcs46xyp3` | `frames/global-import-review.html`, `.png` |
+| `global-import-below-zero` | Global import · one ticker below 0, nothing saved | `P10BC2j3dq` | `frames/global-import-below-zero.html`, `.png` |
+| `global-import-saved` | Global import · saved, back on Portfolio with a snackbar | `lXlzEEnKyu` | `frames/global-import-saved.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
@@ -130,6 +135,13 @@ and "Invested" is one line below the divider. The PNGs of the five frames that u
 unchanged); `portfolio-360dp` (360x800, signed off) checks worst-case values on a narrow phone. At 130% the badges no
 longer wrap either.
 
+Global CSV import (decision 0054, 2026-11-24): page "Global import". All five frames are marked ready for dev, signed
+off by the owner on 2026-11-24. `TopAppBar` is rev 11: prop `action` (none|import, default none) puts the import icon
+before the wallet, used only on the private Portfolio tab. New component `ImportTickerRow` (kind import|skipped, note
+hidden|shown). The review's header is plain markup (a Material 3 full-screen dialog header), not a component.
+`global-import-empty` supersedes `portfolio-empty` once built. The example file is invented; the frame HTML was written
+from the markup sent to Doop. Rejected options (an overflow menu, a button at the end of the list) were deleted.
+
 ## Tokens and components
 
 - `tokens.json`: all 66 tokens with light values and the `dark` theme override. The five `--color-icon-*`
@@ -139,7 +151,7 @@ longer wrap either.
   (the app UI), plus `StatusBar` and `Keyboard` (system chrome mocks: Android draws these, do not port).
   Details screen: `DetailsTopBar`, `QuoteHeader`, `ChartReadout`, `PriceChart`, `RangeTab`, `PositionCard`. Trades (M2):
   `TradeRow`, `TradesTopBar`, `SegmentedButton`, `Dialog`. Portfolio (M4): `NavBar`, `PortfolioSummary`, `HoldingRow`,
-  `YearGrowthRow`. `PriceChart`'s
+  `YearGrowthRow`. Global import (0054): `ImportTickerRow`. `PriceChart`'s
   header comment holds the chart geometry; the chart lines in the frames are mock data.
 - Style guides: the canvas has none.
 
