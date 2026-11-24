@@ -71,7 +71,10 @@ Portfolio track (decision 0040): one branch per milestone, from main
   retry on reopen, stale line, pull-to-refresh, back to the Watchlist, holding and not-counted taps, process death on
   the year detail, dark, Italian, 130% and 200% font. Unit-tested only: a 429 during the fetch, the spacing after a
   restarted fetch, the January refetch. Untested: TalkBack read-out (tree checked only), a split (0052). Known: at 200% font the top bar titles wrap (Watchlist too, not new).
-  Doop follow-up: rename "Since avg" on `PositionCard` to "Since you bought", move the M4 frames to Screens at merge.
+  Doop synced 2026-11-24: `PositionCard` says "Since you bought", the M4 frames are row 9 of "Screens". The older
+  watchlist frames (row 1) still have no nav bar; row 9 holds the watchlist as built.
+- Global CSV import (between M4 and M5): one trade CSV with mixed tickers, imported from the Portfolio tab (private
+  only); the per-ticker import stays. Being designed in Doop, page "Global import", 2026-11-24.
 - To investigate, maybe a milestone between M4 and M5: BTPs (0049). Check Yahoo's data for them first; they are
   quoted per 100 of face value, held as a face value, pay coupons and accrue interest.
 - M5, asset types (0049): type per ticker (ETF, single stock) and breakdown by type.

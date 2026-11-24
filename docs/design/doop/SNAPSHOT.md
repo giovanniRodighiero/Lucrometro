@@ -114,8 +114,11 @@ M4, portfolio overview (decisions 0049 and 0050, 2026-11-24): page "M4 · Portfo
 ready for dev, signed off by the owner on 2026-11-24. New components: `NavBar` (Watchlist, Portfolio; the FAB moves
 above it), `PortfolioSummary` (rev 3: view private|public, freshness fresh|stale; "Since avg" renamed "Since you
 bought"; its `realized` slot is retired and hidden), `HoldingRow` (one primary bar per ticker instead of a donut, so
-dynamic colour keeps working) and `YearGrowthRow`. `PositionCard` still says "Since avg": it is renamed when M4 is
-built and merged (0050), since the "Screens" page shows the built app. The example numbers are invented and
+dynamic colour keeps working) and `YearGrowthRow`. M4 merged on 2026-11-24 (release 0.4): `PositionCard` is rev 12 and
+says "Since you bought" like the app (0050); the PNGs of the nine frames whose card shows the label were re-rendered
+(their HTML is unchanged; the board captions of `position-card-realized` and `position-card-font-130` still say "Since
+avg", left alone to keep their sign-off). The M4 frames moved to the "Screens" page as row 9 "Portfolio" and the M4
+page was deleted. The example numbers are invented and
 self-consistent: the yearly amounts (+1,650.20, +3,980.70, +1,490.40) add up to the gain since you bought (+5,249.20)
 plus the realized gains (+1,872.10); the 2025 detail adds up (26,300.00 + 6,200.00 + 3,980.70 = 36,480.70).
 The holdings' weights are rounded to one decimal and sum to 99.9%. `portfolio-font-130` scales the text tokens by 1.3
