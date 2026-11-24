@@ -63,7 +63,8 @@ Portfolio track (decision 0040): one branch per milestone, from main
   summary, sell sheet preview, Italian at 200% font); untested: TalkBack, dark theme on the new card states.
 - M4, portfolio overview (decisions 0049, 0050): bottom nav (Watchlist, Portfolio); grand total, growth by year
   (portfolio and each ticker), composition by ticker, realized as one line at the bottom; public shows % figures
-  only and no composition. Scoped 2026-11-23; frames being drawn on the Doop page "M4 · Portfolio".
+  only and no composition. Designed in Doop 2026-11-24 (decision 0051: nine frames, snapshot on branch
+  `portfolio-overview`); next: build it there.
 - To investigate, maybe a milestone between M4 and M5: BTPs (0049). Check Yahoo's data for them first; they are
   quoted per 100 of face value, held as a face value, pay coupons and accrue interest.
 - M5, asset types (0049): type per ticker (ETF, single stock) and breakdown by type.
