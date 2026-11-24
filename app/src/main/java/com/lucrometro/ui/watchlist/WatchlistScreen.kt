@@ -82,6 +82,8 @@ fun WatchlistScreen(
     onPrivateChange: (Boolean) -> Unit,
     /** Owned by the caller so the scroll position survives opening a ticker and coming back. */
     listState: LazyListState,
+    /** The navigation bar under the list (decision 0051). */
+    bottomBar: @Composable () -> Unit = {},
     viewModel: WatchlistViewModel = viewModel(factory = WatchlistViewModel.Factory),
 ) {
     val entries by viewModel.entries.collectAsStateWithLifecycle()
@@ -116,6 +118,7 @@ fun WatchlistScreen(
         onAddClick = viewModel::openAddSheet,
         private = private,
         onPrivateChange = onPrivateChange,
+        bottomBar = bottomBar,
     )
 
     addSheet?.let { sheet ->
@@ -141,10 +144,12 @@ private fun WatchlistContent(
     onAddClick: () -> Unit,
     private: Boolean,
     onPrivateChange: (Boolean) -> Unit,
+    bottomBar: @Composable () -> Unit,
 ) {
     val times = rememberTimeFormats()
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
+        bottomBar = bottomBar,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },

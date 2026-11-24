@@ -20,4 +20,12 @@ interface QuoteSource {
 
     /** Candles of the range, oldest first. Blocking; call from a background thread. */
     fun history(symbol: String, range: HistoryRange): Result<History>
+
+    /**
+     * Daily bars from [fromEpochSeconds] to now, oldest first, with the exchange's zone (decision 0052). Fails if the
+     * source answers with any other bar size. Blocking; call from a background thread. The default is for test fakes
+     * that never ask for it.
+     */
+    fun dailyHistory(symbol: String, fromEpochSeconds: Long): Result<History> =
+        Result.failure(UnsupportedOperationException("dailyHistory"))
 }

@@ -100,6 +100,12 @@ interface WatchlistDao {
     @Query("SELECT * FROM trade WHERE code = :code")
     suspend fun trades(code: String): List<TradeEntity>
 
+    @Query("SELECT * FROM trade")
+    fun observeAllTrades(): Flow<List<TradeEntity>>
+
+    @Query("SELECT * FROM position")
+    fun observePositions(): Flow<List<PositionEntity>>
+
     @Upsert
     suspend fun upsertTrades(trades: List<TradeEntity>)
 

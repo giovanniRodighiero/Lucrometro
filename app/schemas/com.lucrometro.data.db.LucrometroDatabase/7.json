@@ -1,0 +1,253 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 7,
+    "identityHash": "5831564661e5b220fbc9c336ceb0814c",
+    "entities": [
+      {
+        "tableName": "watchlist",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `position` INTEGER NOT NULL, `addedAt` INTEGER NOT NULL, `price` REAL, `currency` TEXT, `exchange` TEXT, `name` TEXT, `previousClose` REAL, `priceDecimals` INTEGER, `marketTime` INTEGER, `fetchedAt` INTEGER, `exchangeZone` TEXT, PRIMARY KEY(`code`))",
+        "fields": [
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addedAt",
+            "columnName": "addedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quote.price",
+            "columnName": "price",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "quote.currency",
+            "columnName": "currency",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quote.exchange",
+            "columnName": "exchange",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quote.name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quote.previousClose",
+            "columnName": "previousClose",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "quote.priceDecimals",
+            "columnName": "priceDecimals",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "quote.marketTime",
+            "columnName": "marketTime",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "quote.fetchedAt",
+            "columnName": "fetchedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "quote.exchangeZone",
+            "columnName": "exchangeZone",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "code"
+          ]
+        }
+      },
+      {
+        "tableName": "position",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `averagePrice` REAL NOT NULL, PRIMARY KEY(`code`))",
+        "fields": [
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "averagePrice",
+            "columnName": "averagePrice",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "code"
+          ]
+        }
+      },
+      {
+        "tableName": "trade",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `code` TEXT NOT NULL, `side` TEXT NOT NULL, `date` TEXT NOT NULL, `time` TEXT, `quantity` REAL NOT NULL, `price` REAL NOT NULL, `brokerId` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "side",
+            "columnName": "side",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "brokerId",
+            "columnName": "brokerId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_trade_code",
+            "unique": false,
+            "columnNames": [
+              "code"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trade_code` ON `${TABLE_NAME}` (`code`)"
+          }
+        ]
+      },
+      {
+        "tableName": "year_end",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `year` INTEGER NOT NULL, `date` TEXT NOT NULL, `close` REAL NOT NULL, `adjClose` REAL, PRIMARY KEY(`code`, `year`))",
+        "fields": [
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "year",
+            "columnName": "year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "close",
+            "columnName": "close",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "adjClose",
+            "columnName": "adjClose",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "code",
+            "year"
+          ]
+        }
+      },
+      {
+        "tableName": "year_end_fetch",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `fromYear` INTEGER NOT NULL, `throughYear` INTEGER NOT NULL, PRIMARY KEY(`code`))",
+        "fields": [
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromYear",
+            "columnName": "fromYear",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "throughYear",
+            "columnName": "throughYear",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "code"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5831564661e5b220fbc9c336ceb0814c')"
+    ]
+  }
+}

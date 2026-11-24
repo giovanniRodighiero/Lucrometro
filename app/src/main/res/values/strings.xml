@@ -100,7 +100,7 @@
     <string name="position_empty">Own this? Add the average price from your broker to see it on the chart.</string>
     <string name="position_add">Add average price</string>
     <string name="position_average">Avg price</string>
-    <string name="position_since_average">Since avg</string>
+    <string name="position_since_average">Since you bought</string>
     <string name="position_sheet_body_add">Copy it from your broker. It stays on this phone.</string>
     <string name="position_sheet_body_edit">Bought more? Copy the new average from your broker.</string>
     <string name="position_field_average_currency">Average price (%1$s)</string>
@@ -250,4 +250,54 @@
     <string name="import_error_below_zero">With these trades you would hold fewer than 0 shares on %1$s: older trades are missing from the file.</string>
     <string name="import_error_future">The file has a trade on %1$s, which is after today. Check its date.</string>
     <string name="import_save_failed">Couldn\'t save the trades. Try again.</string>
+    <!-- Navigation bar and Portfolio tab (decisions 0049-0051). -->
+    <string name="nav_watchlist">Watchlist</string>
+    <string name="nav_portfolio">Portfolio</string>
+    <string name="portfolio_title">Portfolio</string>
+    <string name="portfolio_total_value">Total value</string>
+    <string name="portfolio_today">Today</string>
+    <string name="portfolio_invested">Invested</string>
+    <string name="portfolio_yours">Your portfolio</string>
+    <!-- %1$d stale prices among the held tickers, %2$s the oldest fetch time ("10:41"). -->
+    <plurals name="portfolio_stale">
+        <item quantity="one">%1$d price stale since %2$s</item>
+        <item quantity="other">%1$d prices stale since %2$s</item>
+    </plurals>
+    <plurals name="portfolio_holdings">
+        <item quantity="one">%1$d holding</item>
+        <item quantity="other">%1$d holdings</item>
+    </plurals>
+    <string name="growth_title">Growth by year</string>
+    <string name="growth_subtitle">New buys don\'t count as growth.</string>
+    <string name="growth_so_far">So far</string>
+    <!-- %1$s the day of the first buy ("12 Mar"). -->
+    <string name="growth_from">From %1$s</string>
+    <string name="growth_loading">Fetching year-end prices</string>
+    <!-- %1$s the years left out ("2024, 2025"), %2$s the tickers ("ENI.MI, ISP.MI"). -->
+    <string name="growth_missing">Left out: %1$s. The year-end prices of %2$s couldn\'t be fetched; they are tried again when you next open the app.</string>
+    <string name="growth_unavailable">Left out: %1$s. Yahoo has no year-end price of %2$s for these years.</string>
+    <string name="growth_open_year">Open year detail</string>
+    <string name="composition_title">Composition</string>
+    <plurals name="composition_count">
+        <item quantity="one">%1$d holding, by value</item>
+        <item quantity="other">%1$d holdings, by value</item>
+    </plurals>
+    <string name="not_counted_title">Not counted</string>
+    <string name="not_counted_average_only">Average price only: add their trades to count them.</string>
+    <string name="not_counted_other_currency">Not in EUR: the total doesn\'t convert currencies yet.</string>
+    <string name="portfolio_realized">Realized from sells, all years (gross)</string>
+    <string name="portfolio_public_hint">Switch to private to see what you hold.</string>
+    <string name="portfolio_empty_title">Nothing to add up yet</string>
+    <string name="portfolio_empty_body">The portfolio counts the tickers you have trades for. Open a ticker, then its trades, to add them or import them from your broker.</string>
+    <!-- Year detail (decision 0051). %1$d the year. -->
+    <string name="year_yours">Your portfolio in %1$d</string>
+    <string name="year_added">Added</string>
+    <string name="year_today">Today</string>
+    <string name="year_note">EUR. Added = buys minus sells. The % weighs each buy by how long it was invested.</string>
+    <string name="year_holdings_title">Each holding, full year</string>
+    <string name="year_holdings_body">The market\'s return from 1 Jan to 31 Dec, dividends included. Yours differs if you bought during the year.</string>
+    <string name="year_holdings_title_current">Each holding, so far</string>
+    <string name="year_holdings_body_current">The market\'s return from 1 Jan to today, dividends included. Yours differs if you bought during the year.</string>
+    <!-- A holding\'s weight in the total, one decimal ("34.5%"). -->
+    <string name="portfolio_weight">%1$s%%</string>
 </resources>

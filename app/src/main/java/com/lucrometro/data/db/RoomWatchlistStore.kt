@@ -41,6 +41,11 @@ class RoomWatchlistStore(private val dao: WatchlistDao) : WatchlistStore {
 
     override suspend fun trades(code: String): List<Trade> = dao.trades(code).map { it.toTrade() }
 
+    override fun observeAllTrades(): Flow<List<Trade>> = dao.observeAllTrades().map { rows -> rows.map { it.toTrade() } }
+
+    override fun observePositions(): Flow<Map<String, Position>> =
+        dao.observePositions().map { rows -> rows.associate { it.code to it.toPosition() } }
+
     override suspend fun saveTrades(code: String, trades: List<Trade>): Boolean = dao.saveTrades(code, trades.map { it.toEntity() })
 
     override suspend fun deleteTrade(id: Long) = dao.deleteTrade(id)

@@ -64,7 +64,13 @@ Portfolio track (decision 0040): one branch per milestone, from main
 - M4, portfolio overview (decisions 0049, 0050): bottom nav (Watchlist, Portfolio); grand total, growth by year
   (portfolio and each ticker), composition by ticker, realized as one line at the bottom; public shows % figures
   only and no composition. Designed in Doop 2026-11-24 (decision 0051: nine frames, snapshot on branch
-  `portfolio-overview`); next: build it there.
+  `portfolio-overview`), built there 2026-11-24 (Room v7, year ends from daily bars: decision 0052). Checked on the
+  emulator 2026-11-24 with a 4-ticker trade log, every figure checked by hand: private and public tab, 2024 (first
+  year), 2025 and 2026 (current) detail, empty state, progress bar, offline failure with the "Left out" note and the
+  retry on reopen, stale line, pull-to-refresh, back to the Watchlist, holding and not-counted taps, process death on
+  the year detail, dark, Italian, 130% and 200% font. Unit-tested only: a 429 during the fetch, the spacing after a
+  restarted fetch, the January refetch. Untested: TalkBack read-out (tree checked only), a split (0052). Known: at 200% font the top bar titles wrap (Watchlist too, not new).
+  Doop follow-up: rename "Since avg" on `PositionCard` to "Since you bought", move the M4 frames to Screens at merge.
 - To investigate, maybe a milestone between M4 and M5: BTPs (0049). Check Yahoo's data for them first; they are
   quoted per 100 of face value, held as a face value, pay coupons and accrue interest.
 - M5, asset types (0049): type per ticker (ETF, single stock) and breakdown by type.

@@ -72,14 +72,32 @@ class QuoteFormats(private val locale: Locale) {
      * A change in price units with the quote's own decimals, rounded the way it is shown; from 10,000 up without
      * decimals, so a gain badge stays on one line (decision 0048).
      */
-    fun amountChange(quote: Quote, value: Double): AmountChange {
-        val decimals = priceFormat(quote)
+    fun amountChange(quote: Quote, value: Double): AmountChange = amountChange(priceFormat(quote), value)
+
+    private val cents = fixed(2)
+
+    /** An amount of money summed over tickers (the portfolio, decision 0051): 2 decimals, without the currency. */
+    fun money(value: Double): String = cents.format(value)
+
+    /** An amount of money with its currency: "42,899.20 EUR". */
+    @Composable
+    fun money(value: Double, currency: String): String = stringResource(R.string.quote_price, money(value), currency)
+
+    /** A change in money (2 decimals) as [amountChange] shows it: from 10,000 up without decimals (decision 0048). */
+    fun moneyChange(value: Double): AmountChange = amountChange(cents, value)
+
+    private fun amountChange(decimals: NumberFormat, value: Double): AmountChange {
         val shown = 10.0.pow(decimals.maximumFractionDigits).let { round(value * it) / it }
         // Checked after rounding: 9,999.996 would show as 10,000.00.
         val format = if (abs(shown) >= 10_000) whole else decimals
         val scale = 10.0.pow(format.maximumFractionDigits)
         return AmountChange(round(value * scale) / scale, format.format(abs(value)))
     }
+
+    private val tenths = fixed(1)
+
+    /** A share of a total in percent, one decimal, without the sign: "34.5" (decision 0051). */
+    fun weight(percent: Double): String = tenths.format(percent)
 
     /** The size of a change in percent, unsigned, 2 decimals: the sign comes from the string. */
     fun changeMagnitude(percent: Double): String = change.format(abs(roundPercent(percent)))

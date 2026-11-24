@@ -91,3 +91,18 @@ data class Position(
     /** In the ticker's currency, as the broker shows it. */
     val averagePrice: Double,
 )
+
+/**
+ * A ticker's last daily bar of a calendar year (decision 0051): [close] for the portfolio's values, [adjClose] (dividends
+ * and splits included, as of the fetch that saved it) for the market return. [date] is the bar's day in the exchange's clock.
+ */
+data class YearEnd(val year: Int, val date: java.time.LocalDate, val close: Double, val adjClose: Double?)
+
+/**
+ * The year ends saved for a ticker from one daily-history fetch: every year from [fromYear] through [throughYear] (the
+ * last year that had closed when it was fetched) that has a bar. All [ends] come from the same fetch, so their adjusted
+ * closes share one basis and can be divided by each other.
+ */
+data class TickerYears(val code: String, val fromYear: Int, val throughYear: Int, val ends: List<YearEnd>) {
+    fun end(year: Int): YearEnd? = ends.firstOrNull { it.year == year }
+}

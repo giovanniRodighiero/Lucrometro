@@ -49,6 +49,12 @@ interface WatchlistStore {
 
     suspend fun trades(code: String): List<Trade>
 
+    /** Every stored ticker's trades, in no order; emits again on every change (the portfolio, decision 0049). */
+    fun observeAllTrades(): Flow<List<Trade>>
+
+    /** Every typed average price by ticker code; emits again on every change. */
+    fun observePositions(): Flow<Map<String, Position>>
+
     /** Adds (id 0) or replaces (same id) [trades] of [code] at once. False if [code] is not stored. */
     suspend fun saveTrades(code: String, trades: List<Trade>): Boolean
 

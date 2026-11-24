@@ -79,4 +79,21 @@ class YahooQuoteSourceTest {
         val bars = YahooQuoteSource(FakeHttp(candles(null))).history("X.MI", HistoryRange.MONTH_1).getOrThrow().candles
         assertEquals(listOf(null, null), bars.map { it.adjClose })
     }
+
+    // Decision 0052: a weekly bar can run past 31 Dec, so the year ends take daily bars or nothing.
+    @Test fun dailyHistoryRefusesAnyOtherBarSize() {
+        fun chart(granularity: String) = HttpResult(
+            200,
+            """{"chart":{"result":[{"meta":{"dataGranularity":"$granularity","exchangeTimezoneName":"Europe/Rome"},
+               "timestamp":[1735545600],"indicators":{"quote":[{"close":[10.5]}],"adjclose":[{"adjclose":[10.1]}]}}],
+               "error":null}}""",
+            emptyList(),
+        )
+        assertTrue(YahooQuoteSource(FakeHttp(chart("1wk"))).dailyHistory("A.MI", 0).isFailure)
+        val http = FakeHttp(chart("1d"))
+        val daily = YahooQuoteSource(http).dailyHistory("A.MI", 1733011200).getOrThrow()
+        assertEquals(listOf(Candle(1735545600, 10.5, 10.1)), daily.candles)
+        assertTrue(http.chartUrls.single().contains("period1=1733011200&period2="))
+        assertTrue(http.chartUrls.single().contains("&interval=1d&"))
+    }
 }

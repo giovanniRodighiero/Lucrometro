@@ -57,6 +57,8 @@ class FakeWatchlistStore : WatchlistStore {
 
     override fun observeTrades(code: String): Flow<List<Trade>> = trades.map { list -> list.filter { it.code == code } }
     override suspend fun trades(code: String) = trades.value.filter { it.code == code }
+    override fun observeAllTrades(): Flow<List<Trade>> = trades
+    override fun observePositions(): Flow<Map<String, Position>> = positions
 
     override suspend fun saveTrades(code: String, trades: List<Trade>): Boolean {
         if (!contains(code)) return false

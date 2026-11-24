@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.lucrometro.R
 import com.lucrometro.ui.theme.gainLoss
+import kotlin.math.abs
 import kotlin.math.round
 
 /** A change in price units: [rounded] (signed, to the price's decimals) and its unsigned [text]. */
@@ -71,6 +72,11 @@ fun changeLabel(percent: Double?, formats: QuoteFormats, absolute: AmountChange?
         }
     }
 }
+
+/** An amount of money with its sign and all its decimals ("+1,872.10"), for text that is not a badge (no 0048 cut-off). */
+@Composable
+fun signedMoney(value: Double, formats: QuoteFormats): String =
+    changeLabel(null, formats, AmountChange(round(value * 100) / 100, formats.money(abs(value))))
 
 /** The colour of a line or mark that follows a change: gain, loss, or neutral. */
 @Composable

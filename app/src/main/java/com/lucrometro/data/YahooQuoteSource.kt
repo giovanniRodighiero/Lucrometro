@@ -15,7 +15,7 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
     @Synchronized
     override fun quote(symbol: String): Result<Quote> = runCatching {
         // A known symbol can still come back without a price (suspended, delisted, no trades yet).
-        val meta = chart(symbol, "1d").optJSONArray("result")?.optJSONObject(0)?.optJSONObject("meta")
+        val meta = chart(symbol, "range=1d&interval=1d").optJSONArray("result")?.optJSONObject(0)?.optJSONObject("meta")
             ?: throw NoPriceException(symbol)
         quoteFrom(symbol, meta) ?: throw NoPriceException(symbol)
     }
@@ -39,7 +39,23 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
     @Synchronized
     override fun history(symbol: String, range: HistoryRange): Result<History> = runCatching {
         val (yahooRange, interval) = range.yahoo
-        val result = chart(symbol, yahooRange, interval).getJSONArray("result").getJSONObject(0)
+        parseHistory(symbol, range, chart(symbol, "range=$yahooRange&interval=$interval").getJSONArray("result").getJSONObject(0))
+    }
+
+    @Synchronized
+    override fun dailyHistory(symbol: String, fromEpochSeconds: Long): Result<History> = runCatching {
+        // period2 in the future is fine: Yahoo ends at the last bar it has.
+        val period2 = System.currentTimeMillis() / 1000 + 86_400
+        val result = chart(symbol, "period1=$fromEpochSeconds&period2=$period2&interval=1d").getJSONArray("result").getJSONObject(0)
+        // Yahoo may answer a coarser or finer bar size than asked (VWCE.MI max/1mo came back weekly): a weekly bar can
+        // run past 31 Dec, so only daily bars give the year-end close (decision 0052).
+        val granularity = result.optJSONObject("meta")?.optString("dataGranularity").orEmpty()
+        if (granularity != "1d") error("daily history came back as '$granularity'")
+        parseHistory(symbol, null, result)
+    }
+
+    /** The bars of a chart `result`; [range] is null for a period request (no quote taken from it). */
+    private fun parseHistory(symbol: String, range: HistoryRange?, result: JSONObject): History {
         // No bars at all (1D before the first trade of the day): no "timestamp" key, an empty history.
         val ts = result.optJSONArray("timestamp") ?: JSONArray()
         val q = result.getJSONObject("indicators").optJSONArray("quote")?.optJSONObject(0) ?: JSONObject()
@@ -54,7 +70,7 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             )
         }
         val meta = result.optJSONObject("meta") ?: JSONObject()
-        History(
+        return History(
             candles = candles,
             previousClose = meta.optDouble("chartPreviousClose").takeIf { !it.isNaN() },
             sessions = regularSessions(meta.opt("tradingPeriods")),
@@ -90,21 +106,22 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
      * Returns the `chart` object of the response; throws on HTTP or API errors. A reused session that
      * Yahoo rejects (expired cookie or crumb: 401/403) is renewed and the request retried once.
      */
-    private fun chart(symbol: String, range: String, interval: String = "1d"): JSONObject {
+    private fun chart(symbol: String, query: String): JSONObject {
         val reused = cookie != null && crumb != null
-        val res = fetchChart(symbol, range, interval)
+        val res = fetchChart(symbol, query)
         if (reused && res.status in AUTH_FAILURES) {
             clearSession()
-            return parseChart(symbol, fetchChart(symbol, range, interval))
+            return parseChart(symbol, fetchChart(symbol, query))
         }
         return parseChart(symbol, res)
     }
 
-    private fun fetchChart(symbol: String, range: String, interval: String): HttpResult {
+    /** [query]: the bars asked for, "range=1d&interval=5m" or "period1=...&period2=...&interval=1d". */
+    private fun fetchChart(symbol: String, query: String): HttpResult {
         ensureSession()
         // Codes may hold ^ or = (indices, currencies), and the crumb any character: encode both.
         val url = "https://query1.finance.yahoo.com/v8/finance/chart/${encode(symbol)}" +
-            "?range=$range&interval=$interval&crumb=${encode(crumb.orEmpty())}"
+            "?$query&crumb=${encode(crumb.orEmpty())}"
         return http.get(url, mapOf("Cookie" to cookie.orEmpty(), "Accept" to "application/json"))
     }
 

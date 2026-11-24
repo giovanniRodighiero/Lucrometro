@@ -91,7 +91,7 @@
     <string name="position_empty">Ce l\'hai? Aggiungi il prezzo medio dal tuo broker per vederlo sul grafico.</string>
     <string name="position_add">Aggiungi prezzo medio</string>
     <string name="position_average">Prezzo medio</string>
-    <string name="position_since_average">Dal medio</string>
+    <string name="position_since_average">Da quando hai comprato</string>
     <string name="position_sheet_body_add">Copialo dal tuo broker. Resta su questo telefono.</string>
     <string name="position_sheet_body_edit">Hai comprato ancora? Copia il nuovo medio dal tuo broker.</string>
     <string name="position_field_average_currency">Prezzo medio (%1$s)</string>
@@ -234,4 +234,49 @@
     <string name="import_error_below_zero">Con queste operazioni avresti meno di 0 quote il %1$s: nel file mancano operazioni più vecchie.</string>
     <string name="import_error_future">Il file ha un\'operazione il %1$s, cioè dopo oggi. Controlla la data.</string>
     <string name="import_save_failed">Impossibile salvare le operazioni. Riprova.</string>
+    <!-- Barra di navigazione e scheda Portafoglio (decisioni 0049-0051). -->
+    <string name="nav_watchlist">Titoli</string>
+    <string name="nav_portfolio">Portafoglio</string>
+    <string name="portfolio_title">Portafoglio</string>
+    <string name="portfolio_total_value">Valore totale</string>
+    <string name="portfolio_today">Oggi</string>
+    <string name="portfolio_invested">Investito</string>
+    <string name="portfolio_yours">Il tuo portafoglio</string>
+    <plurals name="portfolio_stale">
+        <item quantity="one">%1$d prezzo non aggiornato (ultimo dato: %2$s)</item>
+        <item quantity="other">%1$d prezzi non aggiornati (ultimo dato: %2$s)</item>
+    </plurals>
+    <plurals name="portfolio_holdings">
+        <item quantity="one">%1$d titolo</item>
+        <item quantity="other">%1$d titoli</item>
+    </plurals>
+    <string name="growth_title">Crescita per anno</string>
+    <string name="growth_subtitle">I nuovi acquisti non contano come crescita.</string>
+    <string name="growth_so_far">Finora</string>
+    <string name="growth_from">Dal %1$s</string>
+    <string name="growth_loading">Recupero dei prezzi di fine anno</string>
+    <string name="growth_missing">Esclusi: %1$s. Non è stato possibile recuperare i prezzi di fine anno di %2$s; si riprova alla prossima apertura dell\'app.</string>
+    <string name="growth_unavailable">Esclusi: %1$s. Yahoo non ha il prezzo di fine anno di %2$s per questi anni.</string>
+    <string name="growth_open_year">Apri dettaglio anno</string>
+    <string name="composition_title">Composizione</string>
+    <plurals name="composition_count">
+        <item quantity="one">%1$d titolo, per valore</item>
+        <item quantity="other">%1$d titoli, per valore</item>
+    </plurals>
+    <string name="not_counted_title">Non conteggiati</string>
+    <string name="not_counted_average_only">Solo prezzo medio: aggiungi le operazioni per conteggiarli.</string>
+    <string name="not_counted_other_currency">Non in EUR: il totale non converte ancora le valute.</string>
+    <string name="portfolio_realized">Realizzato dalle vendite, tutti gli anni (lordo)</string>
+    <string name="portfolio_public_hint">Passa alla vista privata per vedere cosa possiedi.</string>
+    <string name="portfolio_empty_title">Ancora niente da sommare</string>
+    <string name="portfolio_empty_body">Il portafoglio conta i titoli di cui hai operazioni. Apri un titolo, poi le sue operazioni, per aggiungerle o importarle dal tuo broker.</string>
+    <string name="year_yours">Il tuo portafoglio nel %1$d</string>
+    <string name="year_added">Aggiunto</string>
+    <string name="year_today">Oggi</string>
+    <string name="year_note">EUR. Aggiunto = acquisti meno vendite. La % pesa ogni acquisto per quanto è rimasto investito.</string>
+    <string name="year_holdings_title">Ogni titolo, anno intero</string>
+    <string name="year_holdings_body">Il rendimento di mercato dal 1° gennaio al 31 dicembre, dividendi inclusi. Il tuo è diverso se hai comprato durante l\'anno.</string>
+    <string name="year_holdings_title_current">Ogni titolo, finora</string>
+    <string name="year_holdings_body_current">Il rendimento di mercato dal 1° gennaio a oggi, dividendi inclusi. Il tuo è diverso se hai comprato durante l\'anno.</string>
+    <string name="portfolio_weight">%1$s%%</string>
 </resources>

@@ -11,16 +11,21 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.Dispatchers
 
-/** The app database: the watchlist with each ticker's last quote (PRD section 5), and each one's average price (0040) and trades (0042). */
+/**
+ * The app database: the watchlist with each ticker's last quote (PRD section 5), and each one's average price (0040) and
+ * trades (0042); the year ends of the portfolio's tickers (0051).
+ */
 @Database(
-    entities = [TickerEntity::class, PositionEntity::class, TradeEntity::class],
-    version = 6,
+    entities = [TickerEntity::class, PositionEntity::class, TradeEntity::class, YearEndEntity::class, YearEndFetchEntity::class],
+    version = 7,
     exportSchema = true,
-    // v4 only adds the position table, v6 the trade table (decision 0042).
-    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 5, to = 6)],
+    // v4 only adds the position table, v6 the trade table (decision 0042), v7 the year-end tables (decision 0051).
+    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7)],
 )
 abstract class LucrometroDatabase : RoomDatabase() {
     abstract fun watchlist(): WatchlistDao
+
+    abstract fun yearEnds(): YearEndDao
 
     companion object {
         fun create(context: Context): LucrometroDatabase =
