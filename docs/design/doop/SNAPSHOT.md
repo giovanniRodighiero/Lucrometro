@@ -55,12 +55,11 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `watchlist-private-nav` | Watchlist · private, with the nav bar | `L9Ae6FrvmT` | `frames/watchlist-private-nav.html`, `.png` |
 | `portfolio-year-detail` | Year detail · 2025 (yours, then each ETF's market return) | `Fv5w7QJ3B_` | `frames/portfolio-year-detail.html`, `.png` |
 | `portfolio-stale` | Portfolio · private, stale prices in the total | `-fRrvVmSll` | `frames/portfolio-stale.html`, `.png` |
-| `portfolio-empty` | Portfolio · private, empty (no trades yet) | `aJhrd2BqsW` | `frames/portfolio-empty.html`, `.png` |
 | `portfolio-dark` | Portfolio · private (dark) | `rKYy57nDYv` | `frames/portfolio-dark.html`, `.png` |
 | `portfolio-font-130` | Portfolio · private, font 130%, worst case (6-figure total) | `BFc74QOpvX` | `frames/portfolio-font-130.html`, `.png` |
 | `portfolio-360dp` | Portfolio · private on a 360dp phone (total card fits) | `N3CkdgAjZg` | `frames/portfolio-360dp.html`, `.png` |
 | `global-import-top-bar` | Global import · icon in the Portfolio top bar (private only) | `Lc_wkl_c9P` | `frames/global-import-top-bar.html`, `.png` |
-| `global-import-empty` | Global import · empty portfolio, Import button in the card | `8fuFq_dzOK` | `frames/global-import-empty.html`, `.png` |
+| `global-import-empty` | Portfolio · private, empty (no trades yet, Import button) | `8fuFq_dzOK` | `frames/global-import-empty.html`, `.png` |
 | `global-import-review` | Global import · review before saving (full screen) | `eNcs46xyp3` | `frames/global-import-review.html`, `.png` |
 | `global-import-below-zero` | Global import · one ticker below 0, nothing saved | `P10BC2j3dq` | `frames/global-import-below-zero.html`, `.png` |
 | `global-import-saved` | Global import · saved, back on Portfolio with a snackbar | `lXlzEEnKyu` | `frames/global-import-saved.html`, `.png` |
@@ -139,8 +138,11 @@ Global CSV import (decision 0054, 2026-11-24): page "Global import". All five fr
 off by the owner on 2026-11-24. `TopAppBar` is rev 11: prop `action` (none|import, default none) puts the import icon
 before the wallet, used only on the private Portfolio tab. New component `ImportTickerRow` (kind import|skipped, note
 hidden|shown). The review's header is plain markup (a Material 3 full-screen dialog header), not a component.
-`global-import-empty` supersedes `portfolio-empty` once built. The example file is invented; the frame HTML was written
+`global-import-empty` supersedes `portfolio-empty`. The example file is invented; the frame HTML was written
 from the markup sent to Doop. Rejected options (an overflow menu, a button at the end of the list) were deleted.
+Merged into main 2026-11-24: the empty frame replaced `portfolio-empty` (`aJhrd2BqsW`, deleted, files removed) in
+row 9 "Portfolio" of "Screens" and was renamed; the other four were appended to row 8 "Import" (its label note now
+covers both imports). The "Global import" page was deleted. Frame HTML unchanged.
 
 ## Tokens and components
 
