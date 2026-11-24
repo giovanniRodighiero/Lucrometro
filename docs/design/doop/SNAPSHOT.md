@@ -58,6 +58,7 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `portfolio-empty` | Portfolio · private, empty (no trades yet) | `aJhrd2BqsW` | `frames/portfolio-empty.html`, `.png` |
 | `portfolio-dark` | Portfolio · private (dark) | `rKYy57nDYv` | `frames/portfolio-dark.html`, `.png` |
 | `portfolio-font-130` | Portfolio · private, font 130%, worst case (6-figure total) | `BFc74QOpvX` | `frames/portfolio-font-130.html`, `.png` |
+| `portfolio-360dp` | Portfolio · private on a 360dp phone (total card fits) | `N3CkdgAjZg` | `frames/portfolio-360dp.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
@@ -118,8 +119,13 @@ built and merged (0050), since the "Screens" page shows the built app. The examp
 self-consistent: the yearly amounts (+1,650.20, +3,980.70, +1,490.40) add up to the gain since you bought (+5,249.20)
 plus the realized gains (+1,872.10); the 2025 detail adds up (26,300.00 + 6,200.00 + 3,980.70 = 36,480.70).
 The holdings' weights are rounded to one decimal and sum to 99.9%. `portfolio-font-130` scales the text tokens by 1.3
-like `position-card-font-130`; there the "Since you bought" badge wraps to two lines, accepted by the owner.
+like `position-card-font-130`; with rev 3 the "Since you bought" badge wrapped there (see below).
 The frame HTML was written from the markup sent to Doop.
+After the build (2026-11-24, decision 0053): the "Since you bought" badge wrapped on the owner's phone, so
+`PortfolioSummary` is rev 4: today's change and the change since you bought are full-width lines (badge, then label),
+and "Invested" is one line below the divider. The PNGs of the five frames that use it were re-rendered (their HTML is
+unchanged); `portfolio-360dp` (360x800, signed off) checks worst-case values on a narrow phone. At 130% the badges no
+longer wrap either.
 
 ## Tokens and components
 
