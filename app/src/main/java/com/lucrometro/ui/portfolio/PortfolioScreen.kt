@@ -51,8 +51,6 @@ import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.YearGrowth
 import com.lucrometro.ui.common.AmountChange
 import com.lucrometro.ui.common.ChangeBadge
-import com.lucrometro.ui.common.MainNavBar
-import com.lucrometro.ui.common.MainTab
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.WalletButton
@@ -75,7 +73,6 @@ fun PortfolioScreen(
     onPrivateChange: (Boolean) -> Unit,
     onOpenTicker: (String) -> Unit,
     onOpenYear: (Int) -> Unit,
-    onSelectTab: (MainTab) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(viewModel) { viewModel.onShown() }
@@ -99,7 +96,6 @@ fun PortfolioScreen(
                 },
             )
         },
-        bottomBar = { MainNavBar(MainTab.Portfolio, onSelectTab) },
     ) { padding ->
         val current = state ?: return@Scaffold // loading from storage: blank for a moment, no empty-state flash
         PullToRefreshBox(

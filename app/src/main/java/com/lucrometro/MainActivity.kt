@@ -5,9 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
@@ -98,23 +109,37 @@ class MainActivity : ComponentActivity() {
                     entryProvider = { screen ->
                         NavEntry(screen) {
                             when (screen) {
-                                Screen.Home -> when (tab) {
-                                    MainTab.Watchlist -> WatchlistScreen(
-                                        onOpenTicker = { backStack.add(Screen.Details(it)) },
-                                        private = private,
-                                        onPrivateChange = { private = it },
-                                        listState = listState,
-                                        bottomBar = { MainNavBar(MainTab.Watchlist) { tab = it } },
-                                        viewModel = watchlist,
-                                    )
-                                    MainTab.Portfolio -> PortfolioScreen(
-                                        viewModel = portfolio,
-                                        private = private,
-                                        onPrivateChange = { private = it },
-                                        onOpenTicker = { backStack.add(Screen.Details(it)) },
-                                        onOpenYear = { backStack.add(Screen.Year(it)) },
-                                        onSelectTab = { tab = it },
-                                    )
+                                // One navigation bar under both tabs, so it stays still while the tab above it changes.
+                                Screen.Home -> Column {
+                                    AnimatedContent(
+                                        tab,
+                                        // The bar below takes the system navigation inset: the tabs' Scaffolds must not add it again.
+                                        Modifier.weight(1f).consumeWindowInsets(WindowInsets.navigationBars),
+                                        // Material fade-through between the tabs: out quickly, then in with a slight zoom.
+                                        transitionSpec = {
+                                            (fadeIn(tween(210, delayMillis = 90)) + scaleIn(tween(210, delayMillis = 90), initialScale = 0.92f))
+                                                .togetherWith(fadeOut(tween(90)))
+                                        },
+                                        label = "tabs",
+                                    ) { shown ->
+                                        when (shown) {
+                                            MainTab.Watchlist -> WatchlistScreen(
+                                                onOpenTicker = { backStack.add(Screen.Details(it)) },
+                                                private = private,
+                                                onPrivateChange = { private = it },
+                                                listState = listState,
+                                                viewModel = watchlist,
+                                            )
+                                            MainTab.Portfolio -> PortfolioScreen(
+                                                viewModel = portfolio,
+                                                private = private,
+                                                onPrivateChange = { private = it },
+                                                onOpenTicker = { backStack.add(Screen.Details(it)) },
+                                                onOpenYear = { backStack.add(Screen.Year(it)) },
+                                            )
+                                        }
+                                    }
+                                    MainNavBar(tab) { tab = it }
                                 }
                                 is Screen.Details -> DetailsScreen(
                                     screen.code,
