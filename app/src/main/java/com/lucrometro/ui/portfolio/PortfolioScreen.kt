@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +41,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucrometro.R
@@ -47,6 +49,7 @@ import com.lucrometro.data.HoldingLine
 import com.lucrometro.data.Portfolio
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.YearGrowth
+import com.lucrometro.ui.common.AmountChange
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.MainNavBar
 import com.lucrometro.ui.common.MainTab
@@ -225,7 +228,10 @@ private fun EmptyCard() {
     }
 }
 
-/** Doop component PortfolioSummary rev 3: private with the € figures, public with the percentages only. */
+/**
+ * Doop component PortfolioSummary rev 4 (decision 0053): the total, then today's change and the change since you bought
+ * as full-width lines (badge, then label), then "Invested" in private. Public shows the percentages only.
+ */
 @Composable
 private fun SummaryCard(portfolio: Portfolio, private: Boolean, formats: QuoteFormats, times: TimeFormats) {
     val label = MaterialTheme.typography.bodySmall
@@ -250,20 +256,17 @@ private fun SummaryCard(portfolio: Portfolio, private: Boolean, formats: QuoteFo
             }
         }
         portfolio.dayChange?.let { change ->
-            Row(
-                Modifier.padding(top = 8.dp).heightIn(min = 32.dp).semantics(mergeDescendants = true) {},
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val percent = portfolio.dayChangePercent
-                if (private) {
-                    ChangeBadge(percent, formats, absolute = formats.moneyChange(change))
-                } else if (percent != null) {
-                    ChangeBadge(percent, formats)
-                }
-                Text(stringResource(R.string.portfolio_today), style = label, color = variant)
-            }
+            ChangeLine(portfolio.dayChangePercent, formats.moneyChange(change), private, stringResource(R.string.portfolio_today), formats, 8.dp)
         }
+        ChangeLine(
+            portfolio.sinceBoughtPercent,
+            formats.moneyChange(portfolio.sinceBought),
+            private,
+            stringResource(R.string.position_since_average),
+            formats,
+            // The first line when there is no "Today" line: the same gap under the total.
+            if (portfolio.dayChange == null) 8.dp else 4.dp,
+        )
         val since = portfolio.staleSince
         if (portfolio.staleCount > 0 && since != null) {
             Text(
@@ -273,26 +276,42 @@ private fun SummaryCard(portfolio: Portfolio, private: Boolean, formats: QuoteFo
                 modifier = Modifier.padding(top = 8.dp),
             )
         }
-        HorizontalDivider(Modifier.padding(top = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-        Row(Modifier.padding(top = 16.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            if (private) {
-                // Its own width, not half the card: the badge beside it needs the rest to stay on one line.
-                Column(Modifier.semantics(mergeDescendants = true) {}) {
-                    Text(stringResource(R.string.portfolio_invested), style = label, color = variant)
-                    Text(formats.money(portfolio.invested, EUR), style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-            Column(Modifier.weight(1f).semantics(mergeDescendants = true) {}) {
-                Text(stringResource(R.string.position_since_average), style = label, color = variant)
-                Spacer(Modifier.height(2.dp))
-                val percent = portfolio.sinceBoughtPercent
-                if (private) {
-                    ChangeBadge(percent, formats, absolute = formats.moneyChange(portfolio.sinceBought))
-                } else if (percent != null) {
-                    ChangeBadge(percent, formats)
-                }
+        if (private) {
+            HorizontalDivider(Modifier.padding(top = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+            Row(
+                Modifier.padding(top = 16.dp).fillMaxWidth().semantics(mergeDescendants = true) {},
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(stringResource(R.string.portfolio_invested), style = label, color = variant, modifier = Modifier.weight(1f))
+                Text(formats.money(portfolio.invested, EUR), style = MaterialTheme.typography.bodyMedium)
             }
         }
+    }
+}
+
+/** One change line of the total card: the badge (amount and % in private, % only in public), then its label. */
+@Composable
+private fun ChangeLine(
+    percent: Double?,
+    amount: AmountChange,
+    private: Boolean,
+    text: String,
+    formats: QuoteFormats,
+    top: Dp,
+) {
+    // Public with no % (nothing invested) has nothing to show.
+    if (!private && percent == null) return
+    // The label goes under the badge only when both don't fit (large fonts), as in the Doop flex-wrap.
+    FlowRow(
+        Modifier.padding(top = top).fillMaxWidth().heightIn(min = 32.dp).semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        // Centred in the 32dp minimum, as the Doop line's align-items: center.
+        verticalArrangement = Arrangement.Center,
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        ChangeBadge(percent, formats, absolute = amount.takeIf { private })
+        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
