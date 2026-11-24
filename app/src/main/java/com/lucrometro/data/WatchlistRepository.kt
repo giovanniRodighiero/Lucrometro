@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import java.io.IOException
 import java.util.Locale
@@ -123,6 +124,9 @@ class WatchlistRepository(
         failed.update { it - code }
         return removed
     }
+
+    /** The entries as they are now, for a one-off read (the global import); null if storage failed. */
+    suspend fun currentEntries(): List<WatchlistEntry>? = storeCall { entries.first() }
 
     /** The average price of [code] (decision 0040), or null if none was saved. */
     fun position(code: String): Flow<Position?> = store.observePosition(code)

@@ -23,6 +23,7 @@ import com.lucrometro.data.Side
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.csvErrorText
+import com.lucrometro.ui.common.withCurrency
 
 /**
  * The import dialog (Doop Dialog, decision 0042): before saving, what the file adds (buys and sells, dates, what was

@@ -108,3 +108,8 @@ fun rememberQuoteFormats(): QuoteFormats {
     val locale = LocalConfiguration.current.locales[0]
     return remember(locale) { QuoteFormats(locale) }
 }
+
+/** A price as typed, with the quote's currency when known. */
+@Composable
+fun withCurrency(quote: Quote, number: String): String =
+    quote.currency?.let { stringResource(R.string.quote_price, number, it) } ?: number

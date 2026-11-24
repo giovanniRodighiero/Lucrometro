@@ -81,6 +81,7 @@ import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.changeLabel
 import com.lucrometro.ui.common.rememberQuoteFormats
 import com.lucrometro.ui.common.rememberTimeFormats
+import com.lucrometro.ui.common.withCurrency
 import kotlin.math.abs
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -407,11 +408,6 @@ private fun EmptyTrades(onAdd: () -> Unit, onImport: () -> Unit, modifier: Modif
         }
     }
 }
-
-/** A price as typed, with the quote's currency when known. */
-@Composable
-internal fun withCurrency(quote: Quote, number: String): String =
-    quote.currency?.let { stringResource(R.string.quote_price, number, it) } ?: number
 
 /** The plural form for [quantity] shares: "1 share", "2.5 shares". */
 internal fun shareCount(quantity: Double): Int = if (quantity == 1.0) 1 else 2

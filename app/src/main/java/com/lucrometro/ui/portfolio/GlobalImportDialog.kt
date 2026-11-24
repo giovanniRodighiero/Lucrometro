@@ -45,6 +45,7 @@ import com.lucrometro.data.Side
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.csvErrorText
+import com.lucrometro.ui.common.withCurrency
 import java.time.LocalDate
 
 /** The global import (decision 0054): the full-screen review before saving, or why nothing was saved. */
@@ -201,9 +202,8 @@ private fun TickerRow(code: String, ready: ImportCheck.Ready, quote: Quote?, rep
             Text(code, style = MaterialTheme.typography.bodyLarge)
             Text(detail, style = MaterialTheme.typography.bodyMedium, color = variant)
             if (replaces != null && quote != null) {
-                val typed = formats.exact(quote, replaces).let { n -> quote.currency?.let { stringResource(R.string.quote_price, n, it) } ?: n }
                 Text(
-                    stringResource(R.string.global_import_replaces, typed),
+                    stringResource(R.string.global_import_replaces, withCurrency(quote, formats.exact(quote, replaces))),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.padding(top = 2.dp),

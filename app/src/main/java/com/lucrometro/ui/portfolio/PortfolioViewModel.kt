@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -143,8 +142,8 @@ class PortfolioViewModel(
             is CsvParse.Bad -> return GlobalImport.Failed(GlobalImportProblem.Csv(parsed.error))
             is CsvParse.Ok -> parsed.rows
         }
-        val entries = watchlist.entries.first()
-        val saved = trades.allTrades() ?: return GlobalImport.Failed(GlobalImportProblem.Unreadable)
+        val entries = watchlist.currentEntries() ?: return GlobalImport.Failed(GlobalImportProblem.SaveFailed)
+        val saved = trades.allTrades() ?: return GlobalImport.Failed(GlobalImportProblem.SaveFailed)
         val zones = entries.associate { it.code to it.saved?.quote?.exchangeZone }
         return when (val check = checkGlobalImport(entries.map { it.code }, rows, saved) { LocalDate.now(marketZone(zones[it])) }) {
             is GlobalImportCheck.Ready -> {
