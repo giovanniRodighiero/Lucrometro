@@ -3,6 +3,49 @@
 All notable changes to Lucrometro are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions match the app's `versionName`.
 
+## [0.4] - 2026-11-24
+
+### Added
+- Public and private view: a wallet button in every top bar switches between them with one tap. Public shows only
+  prices and percentages; private adds your shares, values and gains in euros. The app always starts public.
+- Trades: in private, each ticker's position card opens its trades. Add, edit or delete buys and sells (with Undo);
+  the app keeps the shares from ever going below zero.
+- CSV import: load a ticker's trades from a file in the app's own format (ticker, side, date, time, quantity, price,
+  id). You see what will be added before anything is saved; rows with an id already saved are skipped, so the
+  same file can be imported again.
+- Private position card: average price, shares and value, the change since you bought, and the realized gains from
+  your sells. Your last buy shows on the chart as a diamond.
+- Realized gains (gross, before fees and taxes): on each sell, on the position card, and kept after a ticker is sold
+  out.
+- Portfolio tab, next to the Watchlist in a new bottom bar:
+  - the total value, today's change and the change since you bought, and what you invested;
+  - growth by year, which doesn't count new money as growth; tap a year to see each holding's market return;
+  - composition by value, and the tickers not counted (average price only, or not in euros);
+  - the realized gains of all years.
+  The public view shows the percentages only.
+
+### Changed
+- The average price you type is now the only thing on the public position card. Updating from 0.3 keeps each
+  ticker's latest average; the shares and the last-buy date typed in 0.3 are dropped (add your trades instead).
+- Once a ticker has trades, its average is computed from them, as the broker does, without fees.
+- "Since avg" is now "Since you bought".
+- Change amounts of 10,000 or more are shown without decimals, so a badge stays on one line.
+- Moving between the Watchlist and Portfolio tabs fades between them.
+- The app's data is no longer included in Android's cloud backup: everything stays on the phone.
+
+### Fixed
+- A refresh stops at the first network failure instead of waiting for every other ticker to time out.
+
+### Known limitations
+- The portfolio counts tickers in euros only; others are listed as not counted. There is no currency conversion.
+- Stock splits are not handled: a split after a trade makes the years before it wrong.
+- This year's market return per holding can miss dividends paid since the year-end prices were fetched.
+- The first opening of the Portfolio tab fetches each ticker's price history, about 5 seconds per ticker.
+- The private view has no fingerprint or PIN yet.
+- A typed average can't be removed on its own, except by removing the ticker.
+- Exchange holidays are not known, and Yahoo Finance is unofficial and can stop working.
+- Not yet tested with TalkBack on the new screens.
+
 ## [0.3] - 2026-11-20
 
 ### Added

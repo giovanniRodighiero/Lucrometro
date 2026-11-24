@@ -49,22 +49,23 @@ Next
 
 Portfolio track (decision 0040): one branch per milestone, from main
 - M1, average only: `PositionCard`, sheets and chart without the date, the diamond and the shares. Designed in Doop
-  2026-11-22, built and merged into main 2026-11-22 (Room v5 keeps the latest average per ticker). Ships in the next release.
+  2026-11-22, built and merged into main 2026-11-22 (Room v5 keeps the latest average per ticker). Shipped in 0.4.
 - M2, trade log and private view: the wallet switch, private position card, last buy on the chart, per-ticker
   trades screen, add/edit sheet, per-ticker CSV import (decisions 0041, 0042). Designed in Doop 2026-11-22, built
-  and merged into main 2026-11-23 (Room v6, Navigation 3: decisions 0044, 0045). Ships in the next release. Checked on the emulator
+  and merged into main 2026-11-23 (Room v6, Navigation 3: decisions 0044, 0045). Shipped in 0.4. Checked on the emulator
   2026-11-23 (edit, sold out, import errors, rotation, process death, dark, Italian, 1D/5D last buy); untested:
   TalkBack on the new screens, the picker with files from other apps (Drive).
 - M3, realized gains (decision 0043): gross realized gain per sell and per ticker, sold-out tickers kept with no
   shares (card hidden in public). Designed in Doop 2026-11-23 (decision 0047: compact private card, realized badge on
   sell rows, sold-out card and summary, sell sheet preview), built and merged into main 2026-11-23 (no schema change;
-  change amounts from 10,000 up without decimals: decision 0048). Ships in the next release. Checked on the emulator
+  change amounts from 10,000 up without decimals: decision 0048). Shipped in 0.4. Checked on the emulator
   2026-11-23 (compact card with and without sells, 5-figure gains, sold out private and public, sell rows, sold-out
   summary, sell sheet preview, Italian at 200% font); untested: TalkBack, dark theme on the new card states.
 - M4, portfolio overview (decisions 0049, 0050): bottom nav (Watchlist, Portfolio); grand total, growth by year
   (portfolio and each ticker), composition by ticker, realized as one line at the bottom; public shows % figures
   only and no composition. Designed in Doop 2026-11-24 (decision 0051: nine frames, snapshot on branch
-  `portfolio-overview`), built there 2026-11-24 (Room v7, year ends from daily bars: decision 0052). Checked on the
+  `portfolio-overview`), built there 2026-11-24 (Room v7, year ends from daily bars: decision 0052; total card as two
+  change lines: decision 0053), merged into main and shipped in 0.4. Checked on the
   emulator 2026-11-24 with a 4-ticker trade log, every figure checked by hand: private and public tab, 2024 (first
   year), 2025 and 2026 (current) detail, empty state, progress bar, offline failure with the "Left out" note and the
   retry on reopen, stale line, pull-to-refresh, back to the Watchlist, holding and not-counted taps, process death on
