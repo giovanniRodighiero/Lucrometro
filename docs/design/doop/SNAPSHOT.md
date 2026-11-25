@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. The pre-market strip added on 2026-11-25 (decision 0055), on branch `premarket`. Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -63,6 +63,10 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `global-import-review` | Global import · review before saving (full screen) | `eNcs46xyp3` | `frames/global-import-review.html`, `.png` |
 | `global-import-below-zero` | Global import · one ticker below 0, nothing saved | `P10BC2j3dq` | `frames/global-import-below-zero.html`, `.png` |
 | `global-import-saved` | Global import · saved, back on Portfolio with a snackbar | `lXlzEEnKyu` | `frames/global-import-saved.html`, `.png` |
+| `details-premarket` | C · Full screen · NVDA before the open (pre-market up) | `GHDZJy_qdx` | `frames/details-premarket.html`, `.png` |
+| `details-premarket-down` | C · Pre-market down (QQQ) | `iEKZ0k377t` | `frames/details-premarket-down.html`, `.png` |
+| `details-premarket-font-130` | C · Font 130%, worst case (BKNG, 4-digit price) | `Erlfs5u2Qp` | `frames/details-premarket-font-130.html`, `.png` |
+| `details-premarket-dark` | C · Dark | `BQ2xAJx5AN` | `frames/details-premarket-dark.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
@@ -172,3 +176,11 @@ covers both imports). The "Global import" page was deleted. Frame HTML unchanged
 - The icon frames (`IconCard`, `LayerCard`, `Icon master`, `Layer 1-3`, `Play Store icon`) are presentation
   boards for the app icon; the artwork lives in `docs/brand/` and `app/src/main/res/` (decisions 0008, 0010).
   The `IconCard` and `LayerCard` components are not saved either.
+
+Pre-market price (decision 0055, 2026-11-25): page "Exploration · Pre-market". The four C frames are marked ready for
+dev, signed off by the owner on 2026-11-25. New component `PreMarketStrip` (direction up|down|flat). Three of the
+frames are crops of the top of the details screen (412 wide, 340 or 440 tall), not full screens; `details-premarket`
+is the full screen, its 1D line the `details-1d` path stretched to the whole session. `details-premarket-font-130`
+scales the text tokens by 1.3 like `portfolio-font-130`. Prices are invented. The rejected directions (A, a column
+right of the price; B, a tonal block there) and the first C sketch stay on the page, not exported. The frame HTML was
+written from the markup sent to Doop.

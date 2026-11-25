@@ -1,0 +1,20 @@
+<!--
+  Component: PreMarketStrip (Doop id c3jxktw42i, rev 1)
+  Details screen (decision 0055): the US pre-market price as one tonal line directly under QuoteHeader (negative top
+  margin tucks it into the header's bottom padding). Left to right: "Pre-market" (label large, on-surface-variant),
+  the price in the quote's decimals without currency (title medium; the header shows the currency), the change from
+  the last regular close as arrow + % (body medium, gain/loss/neutral), and the time of the price in the exchange
+  clock with its zone (body small, pushed right). Surface-container-highest fill, 12dp corners. Wraps the time onto a
+  second line when the row does not fit (large font sizes).
+  Shown only while the market is closed AND Yahoo reports a pre-market price for the coming session. Never while the
+  market is open, never after hours, never for tickers without pre-market data (Milan). Not tappable.
+  Props: direction up|down|flat = up; price; change ("+0.96%"); time ("08:32 EST").
+-->
+<div class="pms" data-direction="up" style="display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--spacing-sm);row-gap:2px;margin:calc(-1 * var(--spacing-sm)) var(--spacing-md) var(--spacing-sm);padding:10px 12px;border-radius:12px;background:var(--color-surface-container-highest);font-family:var(--font-sans);font-variant-numeric:tabular-nums;white-space:nowrap;"><span style="font-size:var(--text-label-large);line-height:var(--leading-label-large);font-weight:var(--font-weight-medium);color:var(--color-on-surface-variant);">Pre-market</span><span data-doop-prop="price" style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);color:var(--color-on-surface);">184.30</span><span class="pms-chg" style="display:inline-flex;align-items:center;gap:2px;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);font-weight:var(--font-weight-medium);"><svg class="i-up" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"></path></svg><svg class="i-down" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"></path></svg><svg class="i-flat" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"></path></svg><span data-doop-prop="change">+0.96%</span></span><span data-doop-prop="time" style="margin-left:auto;font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-on-surface-variant);">08:32 EST</span></div>
+<style>
+.pms-chg { color: var(--color-on-surface-variant); }
+.pms[data-direction="up"] .pms-chg { color: var(--color-gain); }
+.pms[data-direction="down"] .pms-chg { color: var(--color-loss); }
+.pms-chg svg { display: none; }
+.pms[data-direction="up"] .i-up, .pms[data-direction="down"] .i-down, .pms[data-direction="flat"] .i-flat { display: block; }
+</style>
