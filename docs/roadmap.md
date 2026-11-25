@@ -88,7 +88,7 @@ Portfolio track (decision 0040): one branch per milestone, from main
   (public: % only). Designed in Doop 2026-11-25 (six frames, snapshot on branch `asset-types`). Built there 2026-11-25
   (Room v8, type from the chart's `instrumentType`; the details name line wraps, decision 0058). Checked on the emulator: v7 data migrated, watchlist, add, "By type"
   public and private, Composition, year detail, details name line, Italian at 200% font. Untested: dark theme, TalkBack,
-  a ticker of another type. Not merged yet; after the merge, update the Doop "Screens" frames and drop `portfolio-icon`
+  a ticker of another type. Merged into main 2026-11-25. Still to do: update the Doop "Screens" frames and drop `portfolio-icon`
   (0057), and let the `QuoteHeader` name wrap (0058). Sector, industry and an "Other" type are parked.
 - M6, projection (0049): expected yearly return per ticker, compound growth. Needs its own brainstorm.
 - M7, withdrawal simulation (0049): selling a share each year, net cash out vs. remaining growth.
