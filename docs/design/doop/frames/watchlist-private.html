@@ -7,13 +7,13 @@
 <doop-use component="StatusBar"></doop-use>
 <doop-use component="TopAppBar" privacy="private" title="Lucrometro" stamp="Updated 14:32"></doop-use>
 <main style="display:flex;flex-direction:column;">
-<doop-use component="QuoteRow" name="VanEck Semiconductor UCITS ETF" price="41.27 EUR" ticker="SMH.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+2.14%"></doop-use></template></doop-use>
-<doop-use component="QuoteRow" name="Vanguard FTSE All-World UCITS ETF" price="134.58 EUR" ticker="VWCE.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+0.42%"></doop-use></template></doop-use>
-<doop-use component="QuoteRow" name="iShares Core MSCI World UCITS ETF" price="108.92 EUR" ticker="SWDA.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+0.37%"></doop-use></template></doop-use>
-<doop-use component="QuoteRow"><template slot="change"><doop-use component="ChangeBadge" direction="down" value="-0.83%"></doop-use></template></doop-use>
-<doop-use component="QuoteRow" name="Intesa Sanpaolo S.p.A." price="5.412 EUR" ticker="ISP.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+1.06%"></doop-use></template></doop-use>
-<doop-use component="QuoteRow" name="UniCredit S.p.A." price="63.75 EUR" ticker="UCG.MI"><template slot="change"><doop-use component="ChangeBadge" direction="flat" value="0.00%"></doop-use></template></doop-use>
-<doop-use component="QuoteRow" name="Ferrari N.V." price="352.40 EUR" ticker="RACE.MI"><template slot="change"><doop-use component="ChangeBadge" direction="down" value="-1.48%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" kind="etf" name="VanEck Semiconductor UCITS ETF" price="41.27 EUR" ticker="SMH.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+2.14%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" kind="etf" name="Vanguard FTSE All-World UCITS ETF" price="134.58 EUR" ticker="VWCE.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+0.42%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" kind="etf" name="iShares Core MSCI World UCITS ETF" price="108.92 EUR" ticker="SWDA.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+0.37%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" kind="stock"><template slot="change"><doop-use component="ChangeBadge" direction="down" value="-0.83%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" kind="stock" name="Intesa Sanpaolo S.p.A." price="5.412 EUR" ticker="ISP.MI"><template slot="change"><doop-use component="ChangeBadge" direction="up" value="+1.06%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" kind="stock" name="UniCredit S.p.A." price="63.75 EUR" ticker="UCG.MI"><template slot="change"><doop-use component="ChangeBadge" direction="flat" value="0.00%"></doop-use></template></doop-use>
+<doop-use component="QuoteRow" kind="stock" name="Ferrari N.V." price="352.40 EUR" ticker="RACE.MI"><template slot="change"><doop-use component="ChangeBadge" direction="down" value="-1.48%"></doop-use></template></doop-use>
 </main>
 <div style="position:absolute;right:var(--spacing-md);bottom:40px;"><doop-use component="Fab"></doop-use></div>
 <div style="position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;"><span style="width:108px;height:4px;border-radius:var(--radius-full);background:var(--color-on-surface);"></span></div>

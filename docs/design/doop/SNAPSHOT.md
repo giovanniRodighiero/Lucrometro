@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. The pre-market strip added on 2026-11-25 (decision 0055), on branch `premarket`. The M5 asset type added on 2026-11-25 (decision 0057), on branch `asset-types`. Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. The pre-market strip added on 2026-11-25 (decision 0055), on branch `premarket`. The M5 asset type added on 2026-11-25 (decision 0057), on branch `asset-types`, and synced on main after the merge (decision 0058). Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -198,6 +198,14 @@ line); `NavBar` rev 6 has `portfolio-icon` (pie|savings, default pie). The defau
 when M5 merges, the "Screens" frames get their types and the piggy bank, and `portfolio-icon` goes. The two details
 frames are crops of the top of the screen (412x252). `portfolio-by-type` is the whole scrolled screen (412x1420), with
 the new "By type" section; the holdings use the M4 total (42,899.20) split into five invented values that add up to it.
+Merged into main 2026-11-25 (decision 0058: the details name line wraps). `QuoteHeader` is rev 8: the name line wraps
+on as many lines as it needs, "ETF · name" is one text and the icon sits beside its first line. `NavBar` is rev 7: the
+piggy bank is the only Portfolio icon and `portfolio-icon` is gone. Every "Screens" frame got its types (`kind`
+on `QuoteRow`, `QuoteHeader` and `HoldingRow`: SMH, VWCE, SWDA and QQQ are ETFs, the rest stocks; the "Added just now"
+error row and the plain "Not counted" rows have none); the frames that were ready for dev were signed off again on the
+owner's instruction. The frame HTML and PNGs were re-exported (PNGs also for the frames that only show the nav bar).
+The six M5 frames moved to "Screens" (watchlist and nav board to row 1, the details crops to row 2, the two Portfolio
+frames to row 9) and the M5 page was deleted.
 `nav-bar-piggy-bank` is a reference board. Rejected options (a tonal circle before the code, a text tag, the layers
 glyph; briefcase, banknotes, coins and euro for the tab) were deleted. The frame HTML was written from the markup sent
 to Doop.

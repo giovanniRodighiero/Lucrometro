@@ -1,16 +1,17 @@
 <!--
-  Component: QuoteHeader (Doop id ca637a8jm0, rev 7)
+  Component: QuoteHeader (Doop id ca637a8jm0, rev 8)
   Details screen header: instrument name, the last price on its own row (display size, tabular figures), then one row
   with the day change on the left and the stamp pushed to the right edge (space-between). The stamp wraps below the
   change if both do not fit (large font scale). Decisions 0022, 0023.
   Props: state fresh|stale = fresh; kind none|etf|stock = none (M5, decision 0057); name; price (with currency code);
          stamp: fresh = the quote's own time ("Today, 14:32", or the session day when the market is closed,
          "Fri 14 Nov, 17:35"); stale = "Stale since HH:mm" (tertiary colour, muted price).
-  kind: the name line starts with the 16dp type icon and the word, "ETF · " / "Stock · " (same colour as the name;
-        the name still ellipsizes). This is where the watchlist icon is explained. none = no prefix.
+  Name line (decision 0058): it wraps on as many lines as it needs, never cut. With kind etf|stock it reads
+        "ETF · name" / "Stock · name" as one text (same colour as the name), with the 16dp type icon beside its first
+        line. This is where the watchlist icon is explained. none = no icon, no prefix (any other Yahoo type).
   Slot: change (a ChangeBadge with the day change, abs and %)
 -->
-<section class="qh" data-state="fresh" data-kind="none" style="display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--spacing-sm);row-gap:var(--spacing-xs);padding:var(--spacing-sm) var(--spacing-md) var(--spacing-md);font-family:var(--font-sans);"><div style="flex-basis:100%;display:flex;align-items:center;gap:6px;min-width:0;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);"><span class="qh-kind"><svg class="qh-ic-etf" aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"></path></svg><svg class="qh-ic-stock" aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"></path></svg><span class="qh-lb-etf">ETF ·</span><span class="qh-lb-stock">Stock ·</span></span><p data-doop-prop="name" style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">VanEck Semiconductor UCITS ETF</p></div><p class="qh-price" data-doop-prop="price" style="flex-basis:100%;font-size:var(--text-display-small);line-height:var(--leading-display-small);font-weight:var(--font-weight-regular);font-variant-numeric:tabular-nums;white-space:nowrap;">41.27 EUR</p><span data-doop-slot="change" style="display:flex;margin-top:var(--spacing-xs);"></span><p class="qh-stamp" data-doop-prop="stamp" style="margin-top:var(--spacing-xs);margin-left:auto;font-size:var(--text-body-small);line-height:var(--leading-body-small);font-variant-numeric:tabular-nums;white-space:nowrap;">Today, 14:32</p></section>
+<section class="qh" data-state="fresh" data-kind="none" style="display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--spacing-sm);row-gap:var(--spacing-xs);padding:var(--spacing-sm) var(--spacing-md) var(--spacing-md);font-family:var(--font-sans);"><div style="flex-basis:100%;display:flex;align-items:flex-start;gap:6px;min-width:0;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);"><span class="qh-kind"><svg class="qh-ic-etf" aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"></path></svg><svg class="qh-ic-stock" aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"></path></svg></span><p style="min-width:0;"><span class="qh-lb-etf">ETF · </span><span class="qh-lb-stock">Stock · </span><span data-doop-prop="name">VanEck Semiconductor UCITS ETF</span></p></div><p class="qh-price" data-doop-prop="price" style="flex-basis:100%;font-size:var(--text-display-small);line-height:var(--leading-display-small);font-weight:var(--font-weight-regular);font-variant-numeric:tabular-nums;white-space:nowrap;">41.27 EUR</p><span data-doop-slot="change" style="display:flex;margin-top:var(--spacing-xs);"></span><p class="qh-stamp" data-doop-prop="stamp" style="margin-top:var(--spacing-xs);margin-left:auto;font-size:var(--text-body-small);line-height:var(--leading-body-small);font-variant-numeric:tabular-nums;white-space:nowrap;">Today, 14:32</p></section>
 <style>
 .qh { color: var(--color-on-surface); }
 .qh-price { color: var(--color-on-surface); }
@@ -18,6 +19,7 @@
 .qh[data-state="stale"] .qh-price { color: var(--color-on-surface-variant); }
 .qh[data-state="stale"] .qh-stamp { color: var(--color-tertiary); }
 .qh .qh-kind, .qh .qh-ic-etf, .qh .qh-ic-stock, .qh .qh-lb-etf, .qh .qh-lb-stock { display: none; }
-.qh[data-kind="etf"] .qh-kind, .qh[data-kind="stock"] .qh-kind { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.qh[data-kind="etf"] .qh-ic-etf, .qh[data-kind="etf"] .qh-lb-etf, .qh[data-kind="stock"] .qh-ic-stock, .qh[data-kind="stock"] .qh-lb-stock { display: block; }
+.qh[data-kind="etf"] .qh-kind, .qh[data-kind="stock"] .qh-kind { display: flex; flex-shrink: 0; height: var(--leading-body-medium); align-items: center; }
+.qh[data-kind="etf"] .qh-ic-etf, .qh[data-kind="stock"] .qh-ic-stock { display: block; }
+.qh[data-kind="etf"] .qh-lb-etf, .qh[data-kind="stock"] .qh-lb-stock { display: inline; }
 </style>
