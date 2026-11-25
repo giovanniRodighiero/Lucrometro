@@ -63,10 +63,10 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `global-import-review` | Global import · review before saving (full screen) | `eNcs46xyp3` | `frames/global-import-review.html`, `.png` |
 | `global-import-below-zero` | Global import · one ticker below 0, nothing saved | `P10BC2j3dq` | `frames/global-import-below-zero.html`, `.png` |
 | `global-import-saved` | Global import · saved, back on Portfolio with a snackbar | `lXlzEEnKyu` | `frames/global-import-saved.html`, `.png` |
-| `details-premarket` | C · Full screen · NVDA before the open (pre-market up) | `GHDZJy_qdx` | `frames/details-premarket.html`, `.png` |
-| `details-premarket-down` | C · Pre-market down (QQQ) | `iEKZ0k377t` | `frames/details-premarket-down.html`, `.png` |
-| `details-premarket-font-130` | C · Font 130%, worst case (BKNG, 4-digit price) | `Erlfs5u2Qp` | `frames/details-premarket-font-130.html`, `.png` |
-| `details-premarket-dark` | C · Dark | `BQ2xAJx5AN` | `frames/details-premarket-dark.html`, `.png` |
+| `details-premarket` | Details · pre-market, before the open (NVDA, up) | `GHDZJy_qdx` | `frames/details-premarket.html`, `.png` |
+| `details-premarket-down` | Details · pre-market down (QQQ) | `iEKZ0k377t` | `frames/details-premarket-down.html`, `.png` |
+| `details-premarket-font-130` | Details · pre-market, font 130%, worst case (BKNG, 4-digit price) | `Erlfs5u2Qp` | `frames/details-premarket-font-130.html`, `.png` |
+| `details-premarket-dark` | Details · pre-market (dark) | `BQ2xAJx5AN` | `frames/details-premarket-dark.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
@@ -177,10 +177,10 @@ covers both imports). The "Global import" page was deleted. Frame HTML unchanged
   boards for the app icon; the artwork lives in `docs/brand/` and `app/src/main/res/` (decisions 0008, 0010).
   The `IconCard` and `LayerCard` components are not saved either.
 
-Pre-market price (decision 0055, 2026-11-25): page "Exploration · Pre-market". The four C frames are marked ready for
-dev, signed off by the owner on 2026-11-25. New component `PreMarketStrip` (direction up|down|flat). Three of the
+Pre-market price (decision 0055, 2026-11-25): built and merged into main 2026-11-25; the four frames (signed off by the owner, ready for dev)
+moved to "Screens" row 2 on 2026-11-25 and the exploration page was deleted. New component `PreMarketStrip` (direction up|down|flat). Three of the
 frames are crops of the top of the details screen (412 wide, 340 or 440 tall), not full screens; `details-premarket`
 is the full screen, its 1D line the `details-1d` path stretched to the whole session. `details-premarket-font-130`
 scales the text tokens by 1.3 like `portfolio-font-130`. Prices are invented. The rejected directions (A, a column
-right of the price; B, a tonal block there) and the first C sketch stay on the page, not exported. The frame HTML was
+right of the price; B, a tonal block there) and the first C sketch were deleted with the page. The frame HTML was
 written from the markup sent to Doop.
