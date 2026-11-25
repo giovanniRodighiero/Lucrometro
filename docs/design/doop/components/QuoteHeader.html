@@ -3,7 +3,7 @@
   Details screen header: instrument name, the last price on its own row (display size, tabular figures), then one row
   with the day change on the left and the stamp pushed to the right edge (space-between). The stamp wraps below the
   change if both do not fit (large font scale). Decisions 0022, 0023.
-  Props: state fresh|stale = fresh; kind none|etf|stock = none (M5, decision 0056); name; price (with currency code);
+  Props: state fresh|stale = fresh; kind none|etf|stock = none (M5, decision 0057); name; price (with currency code);
          stamp: fresh = the quote's own time ("Today, 14:32", or the session day when the market is closed,
          "Fri 14 Nov, 17:35"); stale = "Stale since HH:mm" (tertiary colour, muted price).
   kind: the name line starts with the 16dp type icon and the word, "ETF · " / "Stock · " (same colour as the name;

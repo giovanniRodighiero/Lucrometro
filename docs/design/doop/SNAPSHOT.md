@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. The pre-market strip added on 2026-11-25 (decision 0055), on branch `premarket`. The M5 asset type added on 2026-11-25 (decision 0056), on branch `asset-types`. Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. The pre-market strip added on 2026-11-25 (decision 0055), on branch `premarket`. The M5 asset type added on 2026-11-25 (decision 0057), on branch `asset-types`. Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -191,7 +191,7 @@ scales the text tokens by 1.3 like `portfolio-font-130`. Prices are invented. Th
 right of the price; B, a tonal block there) and the first C sketch were deleted with the page. The frame HTML was
 written from the markup sent to Doop.
 
-M5, asset type (decision 0056, 2026-11-25): page "M5 · Asset type". All six frames are marked ready for dev, signed
+M5, asset type (decision 0057, 2026-11-25): page "M5 · Asset type". All six frames are marked ready for dev, signed
 off by the owner on 2026-11-25. `QuoteRow` rev 4, `QuoteHeader` rev 7 and `HoldingRow` rev 2 have a `kind` prop
 (none|etf|stock, default none: the 16dp pie or building icon; in `QuoteHeader` the icon and the word start the name
 line); `NavBar` rev 6 has `portfolio-icon` (pie|savings, default pie). The defaults leave every older frame as built;

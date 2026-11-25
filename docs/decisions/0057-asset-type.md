@@ -1,4 +1,4 @@
-# 0056: Asset type (ETF or stock) and the breakdown by type
+# 0057: Asset type (ETF or stock) and the breakdown by type
 
 Status: accepted (2026-11-25), refines M5 of 0049
 
