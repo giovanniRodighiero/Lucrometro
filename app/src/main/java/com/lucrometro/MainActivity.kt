@@ -6,10 +6,13 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -78,6 +81,13 @@ private val BackStackSaver = listSaver<SnapshotStateList<Screen>, String>(
 
 private fun List<Screen>.toMutableStateList() = mutableStateListOf<Screen>().also { it.addAll(this) }
 
+// Material shared axis: both screens move a short way, the old one fading out before the new one fades in.
+private fun sharedAxis(forward: Boolean): ContentTransform {
+    val direction = if (forward) 1 else -1
+    return (slideInHorizontally(tween(300)) { direction * it / 10 } + fadeIn(tween(210, delayMillis = 90)))
+        .togetherWith(slideOutHorizontally(tween(300)) { -direction * it / 10 } + fadeOut(tween(90)))
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -106,6 +116,10 @@ class MainActivity : ComponentActivity() {
                 NavDisplay(
                     backStack = backStack,
                     onBack = { backStack.removeLastOrNull() },
+                    // Material shared axis, not the library's default, whose back swipe shrinks the screen into the center.
+                    transitionSpec = { sharedAxis(forward = true) },
+                    popTransitionSpec = { sharedAxis(forward = false) },
+                    predictivePopTransitionSpec = { sharedAxis(forward = false) },
                     entryProvider = { screen ->
                         NavEntry(screen) {
                             when (screen) {
