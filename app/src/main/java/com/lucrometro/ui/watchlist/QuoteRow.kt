@@ -19,6 +19,7 @@ import com.lucrometro.R
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
+import com.lucrometro.ui.common.TickerCode
 import com.lucrometro.ui.common.TimeFormats
 
 /**
@@ -44,7 +45,7 @@ fun QuoteRow(entry: WatchlistEntry, formats: QuoteFormats, times: TimeFormats, m
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(entry.code, style = MaterialTheme.typography.titleMedium)
+            TickerCode(entry.code, quote?.assetType, MaterialTheme.typography.titleMedium)
             quote?.name?.let {
                 Text(
                     it,

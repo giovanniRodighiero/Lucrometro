@@ -25,7 +25,10 @@ fun MainNavBar(selected: MainTab, onSelect: (MainTab) -> Unit) {
         NavigationBarItem(
             selected = selected == MainTab.Portfolio,
             onClick = { onSelect(MainTab.Portfolio) },
-            icon = { Icon(painterResource(R.drawable.ic_pie_chart), contentDescription = null) },
+            icon = {
+                val icon = if (selected == MainTab.Portfolio) R.drawable.ic_savings_filled else R.drawable.ic_savings
+                Icon(painterResource(icon), contentDescription = null)
+            },
             label = { Text(stringResource(R.string.nav_portfolio)) },
         )
     }

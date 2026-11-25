@@ -36,6 +36,7 @@ import com.lucrometro.data.TickerYear
 import com.lucrometro.data.YearGrowth
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
+import com.lucrometro.ui.common.TickerCode
 import com.lucrometro.ui.common.rememberQuoteFormats
 import com.lucrometro.ui.common.rememberTimeFormats
 import com.lucrometro.ui.common.signedMoney
@@ -142,7 +143,7 @@ private fun TickerRow(ticker: TickerYear, formats: QuoteFormats) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(ticker.code, style = MaterialTheme.typography.titleMedium)
+            TickerCode(ticker.code, ticker.quote.assetType, MaterialTheme.typography.titleMedium)
             ticker.quote.name?.let {
                 Text(
                     it,

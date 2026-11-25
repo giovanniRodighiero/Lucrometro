@@ -33,6 +33,11 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             previousClose = meta.optDouble("chartPreviousClose").takeIf { !it.isNaN() },
             priceDecimals = meta.optInt("priceHint", -1).takeIf { it in 0..6 },
             exchangeZone = meta.optString("exchangeTimezoneName").ifEmpty { null },
+            assetType = when (meta.optString("instrumentType")) {
+                "ETF" -> AssetType.ETF
+                "EQUITY" -> AssetType.STOCK
+                else -> null
+            },
         )
     }
 

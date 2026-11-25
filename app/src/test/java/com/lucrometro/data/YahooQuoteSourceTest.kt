@@ -30,6 +30,16 @@ class YahooQuoteSourceTest {
     private val eni = ok("""{"symbol":"ENI.MI","regularMarketPrice":14.86,"currency":"EUR","regularMarketTime":1}""")
 
 
+    // Only ETFs and stocks have a type (decision 0057); anything else must not pass as one of them.
+    @Test fun assetTypeComesFromTheInstrumentType() {
+        fun type(field: String) = YahooQuoteSource(FakeHttp(ok("""{"regularMarketPrice":1,"regularMarketTime":1$field}""")))
+            .quote("X.MI").getOrThrow().assetType
+        assertEquals(AssetType.ETF, type(""","instrumentType":"ETF""""))
+        assertEquals(AssetType.STOCK, type(""","instrumentType":"EQUITY""""))
+        assertEquals(null, type(""","instrumentType":"MUTUALFUND""""))
+        assertEquals(null, type(""))
+    }
+
     @Test fun missingPriceIsNoPrice() {
         val r = YahooQuoteSource(FakeHttp(ok("""{"symbol":"X.MI","regularMarketTime":1}"""))).quote("X.MI")
         assertTrue(r.exceptionOrNull() is NoPriceException)

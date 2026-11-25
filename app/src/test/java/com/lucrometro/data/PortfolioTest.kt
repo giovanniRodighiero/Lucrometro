@@ -47,6 +47,27 @@ class PortfolioTest {
         "B.MI" to TickerYears("B.MI", 2023, 2025, listOf(end(2024, "2024-12-30", 55.0), end(2025, "2025-12-30", 66.0))),
     )
 
+    // Decision 0057: a holding of no known type has no "By type" row, but still counts in the weights' total.
+    @Test fun byTypeSkipsUntypedHoldingsButWeighsAgainstTheWholeTotal() {
+        fun held(code: String, price: Double, type: AssetType?) = PortfolioTicker(
+            WatchlistEntry(code, SavedQuote(Quote(code, price, "EUR", null, 0, assetType = type), 0)),
+            listOf(trade(code, Side.BUY, "2026-01-05", 1.0, 10.0)),
+            null,
+        )
+        val types = portfolio(
+            listOf(
+                held("ETF.MI", 30.0, AssetType.ETF),
+                held("S1.MI", 25.0, AssetType.STOCK),
+                held("S2.MI", 15.0, AssetType.STOCK),
+                held("OTHER.MI", 30.0, null),
+            ),
+            emptyMap(),
+            today,
+        ).types
+        // Stocks first: the larger value.
+        assertEquals(listOf(TypeLine(AssetType.STOCK, 2, 40.0, 40.0), TypeLine(AssetType.ETF, 1, 30.0, 30.0)), types)
+    }
+
     // Decision 0051: the yearly amounts add up to the gain since you bought plus the realized gains.
     @Test fun yearlyGainsAddUpToSinceYouBoughtPlusRealized() {
         val p = portfolio(tickers, years, today)

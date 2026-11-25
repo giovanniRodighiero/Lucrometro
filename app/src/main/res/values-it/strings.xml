@@ -317,4 +317,13 @@
     <string name="pre_market_description_up">Pre-market %1$s, in rialzo del %2$s%%, alle %3$s</string>
     <string name="pre_market_description_down">Pre-market %1$s, in ribasso del %2$s%%, alle %3$s</string>
     <string name="pre_market_description_flat">Pre-market %1$s, invariato, alle %3$s</string>
+
+    <!-- Asset type (decision 0057). -->
+    <string name="asset_etf">ETF</string>
+    <string name="asset_stock">Azione</string>
+    <string name="asset_name">%1$s · %2$s</string>
+    <string name="by_type_title">Per tipo</string>
+    <string name="by_value">per valore</string>
+    <string name="type_etfs">ETF</string>
+    <string name="type_stocks">Azioni</string>
 </resources>

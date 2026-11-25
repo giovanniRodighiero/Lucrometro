@@ -339,4 +339,13 @@
     <string name="pre_market_description_up">Pre-market %1$s, up %2$s%%, at %3$s</string>
     <string name="pre_market_description_down">Pre-market %1$s, down %2$s%%, at %3$s</string>
     <string name="pre_market_description_flat">Pre-market %1$s, unchanged, at %3$s</string>
+
+    <!-- Asset type (decision 0057). -->
+    <string name="asset_etf">ETF</string>
+    <string name="asset_stock">Stock</string>
+    <string name="asset_name">%1$s · %2$s</string>
+    <string name="by_type_title">By type</string>
+    <string name="by_value">by value</string>
+    <string name="type_etfs">ETFs</string>
+    <string name="type_stocks">Stocks</string>
 </resources>

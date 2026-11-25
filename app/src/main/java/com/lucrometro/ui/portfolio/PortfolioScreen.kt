@@ -59,13 +59,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucrometro.R
-import com.lucrometro.data.HoldingLine
+import com.lucrometro.data.AssetType
 import com.lucrometro.data.Portfolio
+import com.lucrometro.data.TypeLine
 import com.lucrometro.data.WatchlistEntry
 import com.lucrometro.data.YearGrowth
 import com.lucrometro.ui.common.AmountChange
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
+import com.lucrometro.ui.common.TickerCode
 import com.lucrometro.ui.common.TimeFormats
 import com.lucrometro.ui.common.WalletButton
 import com.lucrometro.ui.common.changeLabel
@@ -76,8 +78,8 @@ import com.lucrometro.ui.common.signedMoney
 private const val EUR = "EUR"
 
 /**
- * The Portfolio tab (decisions 0049, 0050, 0051): the total card, growth by year, and in private the composition, the
- * tickers not counted and the realized line. Public shows percentages only.
+ * The Portfolio tab (decisions 0049, 0050, 0051): the total card, growth by year, the split by type (0057), and in private the
+ * composition, the tickers not counted and the realized line. Public shows percentages only.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -193,6 +195,7 @@ private fun LazyListScope.content(
         }
         if (portfolio.missingYears.isNotEmpty()) item { MissingYears(portfolio, state.failed) }
     }
+    byType(portfolio.types, private, formats)
     if (!private) {
         item {
             Text(
@@ -206,27 +209,54 @@ private fun LazyListScope.content(
     }
     if (portfolio.holdings.isNotEmpty()) {
         item {
-            Row(
-                Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Text(
-                    stringResource(R.string.composition_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f).semantics { heading() },
-                )
-                Text(
-                    pluralStringResource(R.plurals.composition_count, portfolio.holdings.size, portfolio.holdings.size),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            CountHeader(
+                stringResource(R.string.composition_title),
+                pluralStringResource(R.plurals.composition_count, portfolio.holdings.size, portfolio.holdings.size),
+            )
         }
-        items(portfolio.holdings, key = { "holding-${it.code}" }) { HoldingRow(it, formats, onClick = { onOpenTicker(it.code) }) }
+        items(portfolio.holdings, key = { "holding-${it.code}" }) { holding ->
+            HoldingRow(
+                holding.code,
+                holding.quote.assetType,
+                holding.quote.name.orEmpty(),
+                holding.weight,
+                formats.money(holding.value, EUR),
+                formats,
+                onClick = { onOpenTicker(holding.code) },
+            )
+        }
     }
     notCounted(portfolio, onOpenTicker)
     portfolio.realized?.let { realized -> item { RealizedLine(realized, formats) } }
+}
+
+/** The split between ETFs and stocks (decision 0057); public shows the weights only, which reveal no amounts or tickers. */
+private fun LazyListScope.byType(types: List<TypeLine>, private: Boolean, formats: QuoteFormats) {
+    if (types.isEmpty()) return
+    item { CountHeader(stringResource(R.string.by_type_title), stringResource(R.string.by_value)) }
+    items(types, key = { "type-${it.type}" }) { line ->
+        HoldingRow(
+            stringResource(if (line.type == AssetType.ETF) R.string.type_etfs else R.string.type_stocks),
+            line.type,
+            pluralStringResource(R.plurals.portfolio_holdings, line.count, line.count),
+            line.weight,
+            formats.money(line.value, EUR).takeIf { private },
+            formats,
+        )
+    }
+}
+
+/** A section title with a quiet note on the right. */
+@Composable
+private fun CountHeader(title: String, note: String) {
+    Row(
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f).semantics { heading() })
+        Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
 }
 
 /** Tickers left out of the total: typed average only (0049), or another currency (0049). */
@@ -459,36 +489,47 @@ private fun MissingNote(text: Int, years: Collection<Int>, codes: Collection<Str
     )
 }
 
-/** Doop component HoldingRow: weight in % of the total, value in EUR and a primary bar for the weight. */
+/**
+ * Doop component HoldingRow: weight in % of the total, value in EUR (null in public) and a primary bar for the weight.
+ * A holding in the composition, or a type in "By type" (not tappable: no [onClick]).
+ */
 @Composable
-private fun HoldingRow(holding: HoldingLine, formats: QuoteFormats, onClick: () -> Unit) {
+private fun HoldingRow(
+    title: String,
+    type: AssetType?,
+    subtitle: String,
+    weight: Double,
+    value: String?,
+    formats: QuoteFormats,
+    onClick: (() -> Unit)? = null,
+) {
     val openLabel = stringResource(R.string.open_details)
     val medium = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
     val variant = MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         Modifier
             .fillMaxWidth()
-            .clickable(onClickLabel = openLabel, onClick = onClick)
+            .then(if (onClick != null) Modifier.clickable(onClickLabel = openLabel, onClick = onClick) else Modifier)
             .semantics(mergeDescendants = true) {}
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(holding.code, style = medium, modifier = Modifier.weight(1f))
-            Text(stringResource(R.string.portfolio_weight, formats.weight(holding.weight)), style = medium)
+            TickerCode(title, type, medium, Modifier.weight(1f))
+            Text(stringResource(R.string.portfolio_weight, formats.weight(weight)), style = medium)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
-                holding.quote.name.orEmpty(),
+                subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = variant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
-            Text(formats.money(holding.value, EUR), style = MaterialTheme.typography.bodyMedium, color = variant)
+            value?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = variant) }
         }
         LinearProgressIndicator(
-            progress = { (holding.weight / 100).toFloat() },
+            progress = { (weight / 100).toFloat() },
             modifier = Modifier.padding(top = 8.dp).fillMaxWidth().height(4.dp).clearAndSetSemantics {},
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,

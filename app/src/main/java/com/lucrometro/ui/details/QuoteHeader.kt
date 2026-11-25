@@ -3,6 +3,7 @@ package com.lucrometro.ui.details
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -16,10 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lucrometro.R
+import com.lucrometro.data.AssetType
 import com.lucrometro.data.WatchlistEntry
+import com.lucrometro.ui.common.AssetTypeIcon
 import com.lucrometro.ui.common.ChangeBadge
 import com.lucrometro.ui.common.QuoteFormats
 import com.lucrometro.ui.common.TimeFormats
+import com.lucrometro.ui.common.label
 import com.lucrometro.ui.common.marketZone
 import java.time.ZoneId
 
@@ -58,9 +62,7 @@ fun QuoteHeader(
             return@Column
         }
         val quote = saved.quote
-        quote.name?.let {
-            Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
+        NameLine(quote.name, quote.assetType)
         Text(
             formats.price(quote),
             style = MaterialTheme.typography.displaySmall,
@@ -92,5 +94,20 @@ fun QuoteHeader(
                 maxLines = 1,
             )
         }
+    }
+}
+
+/**
+ * The name line, starting with the type icon and word when known: where the watchlist icon is explained (decision 0057).
+ * It wraps (decision 0058): "ETF · name" is one text, so the next lines start under the word; the icon stays on the first.
+ */
+@Composable
+private fun NameLine(name: String?, type: AssetType?) {
+    val word = type?.let { stringResource(it.label) }
+    val text = if (word != null && name != null) stringResource(R.string.asset_name, word, name) else word ?: name ?: return
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        // 2dp centres the 16dp icon on the first line.
+        if (type != null) AssetTypeIcon(type, Modifier.padding(top = 2.dp), described = false)
+        Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

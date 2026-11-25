@@ -1,5 +1,8 @@
 package com.lucrometro.data
 
+/** What kind of instrument a ticker is (decision 0057). Any other kind the source reports is null. */
+enum class AssetType { ETF, STOCK }
+
 data class Quote(
     val symbol: String,
     val price: Double,
@@ -15,6 +18,8 @@ data class Quote(
     val priceDecimals: Int? = null,
     /** IANA zone of the exchange (Europe/Rome): the clock the trade time is shown in (decision 0031). */
     val exchangeZone: String? = null,
+    /** ETF or stock; null when the source reports another kind, or none (decision 0057). */
+    val assetType: AssetType? = null,
 ) {
     /** Change since the previous close, in price units; null when the source gave no previous close. */
     val dayChange: Double?

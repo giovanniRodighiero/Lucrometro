@@ -3,6 +3,7 @@ package com.lucrometro.data.db
 import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
+import com.lucrometro.data.AssetType
 import com.lucrometro.data.Quote
 import com.lucrometro.data.SavedQuote
 import com.lucrometro.data.StoredTicker
@@ -38,6 +39,8 @@ data class QuoteColumns(
     val fetchedAt: Long,
     /** IANA zone of the exchange; null for quotes saved before schema v3, until the next fetch. */
     val exchangeZone: String?,
+    /** Null for quotes saved before schema v8, until the next fetch, and for other kinds of instrument. */
+    val assetType: AssetType?,
 )
 
 /** Partial update of a row's quote columns (Room `@Update(entity = TickerEntity::class)`). */
@@ -53,6 +56,7 @@ internal fun SavedQuote.toColumns() = QuoteColumns(
     marketTime = quote.marketTimeEpoch,
     fetchedAt = fetchedAt,
     exchangeZone = quote.exchangeZone,
+    assetType = quote.assetType,
 )
 
 internal fun TickerEntity.toStored() = StoredTicker(
@@ -71,6 +75,7 @@ internal fun TickerEntity.toStored() = StoredTicker(
                 previousClose = it.previousClose,
                 priceDecimals = it.priceDecimals,
                 exchangeZone = it.exchangeZone,
+                assetType = it.assetType,
             ),
             it.fetchedAt,
         )

@@ -94,6 +94,27 @@
   - **Milan (13:25 CET, one SMH.MI 1D chart call):** `hasPrePostMarketData: false`, yet `currentTradingPeriod.pre` is
     there (08:00-09:00 CET). `fulldayPrice` is present too (equal to `regularMarketPrice`, market open). So only the
     flag keeps `.MI` from the extra request.
+- **Classification data (2026-11-25, Cronet on the emulator):** cookie, crumb and 9 requests, 10 s apart, all HTTP 200.
+  - **`v7/finance/quote`** (one call, ENI, ISP, RACE, SMH, SWDA, VWCE, AGGH, IPRP, SGLD, all `.MI`): `quoteType` is
+    `EQUITY` for the 3 stocks and `ETF` for the other 6, including the bond ETF (AGGH) and the gold ETC (SGLD). No
+    sector, industry or category field.
+  - **`v10/finance/quoteSummary/{symbol}?modules=quoteType,assetProfile,fundProfile,topHoldings`** (one call per symbol:
+    ENI, SMH, SWDA, AGGH, IPRP, SGLD):
+    - Stock (ENI): `assetProfile.sector` "Energy", `industry` "Oil & Gas Integrated" (also `sectorKey`, `industryKey`), `country`.
+    - ETFs: `fundProfile.categoryName` is **null in all 5**; `legalType` is "Exchange Traded Fund", also for the ETC.
+    - `topHoldings` asset mix: SMH, SWDA, IPRP about 99-100% `stockPosition`; AGGH 99% `bondPosition`; SGLD 100% `otherPosition`.
+    - `topHoldings.sectorWeightings` (11 sectors): SMH technology 100%, IPRP realestate 100%, SWDA spread (largest:
+      technology 30.6%). Empty for AGGH and SGLD. No "semiconductors" or "world" label, and no geography field.
+    - `topHoldings.holdings` has the top 10 for the 3 equity ETFs. AGGH also has `bondRatings` and duration/maturity.
+      Some numbers look wrong (equity P/E 0.03-0.12, AGGH net assets 0): do not rely on them without checking.
+  - **`v1/finance/search`:** `q=ENI.MI` gives `quoteType`, `sector` and `industry`. `q=IT0005436693` (a BTP ISIN) gives
+    no result.
+  - **Not tested:** sector for other stocks, VWCE's summary, distributing/other-issuer coverage beyond these, single bonds
+    beyond that one ISIN search, how often the data changes.
+- **Type in the chart response (2026-11-25, app build on the emulator):** `v8/finance/chart` `meta.instrumentType` gives
+  the type, so the app needs no extra request (decision 0057). Requests came from normal app use during testing
+  (refreshes after several restarts, one add, a details chart, history for the test trades); not counted. Seen: ETF for SMH.MI and SWDA.MI, stock (`EQUITY`) for ENI.MI, NBIS and 0700.HK. The app maps only `ETF` and
+  `EQUITY`. Raw values were not logged, and other kinds (index, fund, currency, ETC) were not seen in the chart.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes

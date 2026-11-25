@@ -17,10 +17,11 @@ import kotlinx.coroutines.Dispatchers
  */
 @Database(
     entities = [TickerEntity::class, PositionEntity::class, TradeEntity::class, YearEndEntity::class, YearEndFetchEntity::class],
-    version = 7,
+    version = 8,
     exportSchema = true,
-    // v4 only adds the position table, v6 the trade table (decision 0042), v7 the year-end tables (decision 0051).
-    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7)],
+    // v4 only adds the position table, v6 the trade table (decision 0042), v7 the year-end tables (decision 0051),
+    // v8 the nullable asset type column (decision 0057).
+    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8)],
 )
 abstract class LucrometroDatabase : RoomDatabase() {
     abstract fun watchlist(): WatchlistDao

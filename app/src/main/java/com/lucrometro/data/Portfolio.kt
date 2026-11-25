@@ -13,6 +13,9 @@ data class PortfolioTicker(val entry: WatchlistEntry, val trades: List<Trade>, v
 /** A held ticker in the composition (decision 0051): [weight] in % of the total value. */
 data class HoldingLine(val code: String, val quote: Quote, val value: Double, val weight: Double)
 
+/** The held tickers of one asset type (decision 0057): [weight] in % of the total value, untyped holdings included. */
+data class TypeLine(val type: AssetType, val count: Int, val value: Double, val weight: Double)
+
 /**
  * A ticker held at some point of a year, for the year detail: [price] is the year-end close (today's price in the current
  * year), [marketReturn] the market's return over the year in %, dividends included; null when a year end is missing (the
@@ -65,6 +68,13 @@ data class Portfolio(
     /** Tickers with trades in another currency (or none known): not counted, no conversion yet (0049). */
     val otherCurrency: List<WatchlistEntry>,
 ) {
+    /** The "By type" rows, largest first; holdings of no known type have no row (decision 0057). */
+    val types: List<TypeLine>
+        get() = holdings.filter { it.quote.assetType != null }
+            .groupBy { it.quote.assetType!! }
+            .map { (type, lines) -> TypeLine(type, lines.size, lines.sumOf { it.value }, lines.sumOf { it.weight }) }
+            .sortedWith(compareByDescending<TypeLine> { it.value }.thenBy { it.type })
+
     val sinceBought: Double get() = value - invested
     val sinceBoughtPercent: Double? get() = if (invested > 0) sinceBought / invested * 100 else null
 }
