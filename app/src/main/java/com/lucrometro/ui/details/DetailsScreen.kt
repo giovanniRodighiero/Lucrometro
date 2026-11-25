@@ -99,6 +99,9 @@ fun DetailsScreen(
             viewModel.onOpened()
         }
     }
+    // Also runs when the chart changes: a load may bring bars older than the header (the session cache).
+    val quoteTime = entry?.saved?.quote?.marketTimeEpoch
+    LaunchedEffect(quoteTime, chart, autoRefresh.on) { quoteTime?.let(viewModel::catchUp) }
     Scaffold(
         topBar = {
             TopAppBar(

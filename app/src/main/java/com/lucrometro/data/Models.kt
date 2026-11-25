@@ -77,6 +77,8 @@ data class History(
     val delayMinutes: Int? = null,
     /** The pre-market hours of the current session, only for tickers the source has pre-market prices for. */
     val preSession: TradingPeriod? = null,
+    /** Epoch seconds of the last trade when this was fetched, for every range: how recent the bars are (decision 0056). */
+    val lastTradeEpoch: Long? = null,
 )
 
 /** The last quote fetched successfully for a ticker, and when (epoch millis). */

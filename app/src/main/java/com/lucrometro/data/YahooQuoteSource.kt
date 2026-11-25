@@ -100,6 +100,7 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             quote = if (range == HistoryRange.DAY_1) runCatching { quoteFrom(symbol, meta) }.getOrNull() else null,
             exchangeName = meta.optString("fullExchangeName").ifEmpty { null },
             delayMinutes = meta.optInt("exchangeDataDelayedBy", -1).takeIf { it > 0 },
+            lastTradeEpoch = meta.optLong("regularMarketTime").takeIf { it > 0 },
         )
     }
 

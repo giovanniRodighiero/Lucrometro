@@ -100,6 +100,19 @@ class DetailsViewModel(
     /** The latest 1D chart shown: a pre-market answer for an earlier one is dropped. */
     private var latestDay: History? = null
 
+    /** What the chart shows, or null: while loading, and after a failed load. */
+    private var shown: History? = null
+
+    /** The wait before a catch-up is sent, and the ranges whose catch-up was sent and has not answered. */
+    private var catchUpWait: Job? = null
+    private val catchingUp = mutableSetOf<HistoryRange>()
+
+    /** The saved quote's time when a poll last failed: no catch-up for it, as that would be a request after a failure. */
+    private var failedPollQuoteTime = 0L
+
+    /** The range and quote time last caught up with: asked once, even if the answer is still behind or fails. */
+    private var caughtUp: Pair<HistoryRange, Long>? = null
+
     /** The wait before a request is sent: a new selection cancels it, so tapping through the bar sends nothing. */
     private var debounce: Job? = null
 
@@ -126,12 +139,40 @@ class DetailsViewModel(
     fun selectRange(range: HistoryRange) {
         if (range == _range.value) return
         _range.value = range
-        pending = null
         load(bypassCache = false)
     }
 
     /** Fetches the selected range again, ignoring the session cache (PRD 5). */
     fun retry() = load(bypassCache = true)
+
+    /**
+     * The header shows a trade at [quoteTime] (epoch seconds): if the chart is from before it, fetches it again
+     * (decision 0056), keeping the old one until the answer, and on failure. The screen calls this while it is shown,
+     * as the quote also changes without it (the watchlist refresh when the app is brought back). Not during
+     * auto-refresh: a poll updates the 1D chart itself, and other ranges must not double its requests.
+     */
+    fun catchUp(quoteTime: Long) {
+        val range = _range.value
+        val chartTime = shown?.lastTradeEpoch ?: return
+        if (chartTime >= quoteTime || _autoRefresh.value.on || quoteTime <= failedPollQuoteTime) return
+        if (range in catchingUp || caughtUp == range to quoteTime) return
+        catchUpWait?.cancel()
+        catchUpWait = viewModelScope.launch {
+            // As for a selection: tapping through ranges that are behind sends nothing until one stays.
+            delay(SWITCH_DEBOUNCE_MILLIS)
+            if (_range.value != range || _autoRefresh.value.on) return@launch
+            caughtUp = range to quoteTime
+            catchingUp += range
+            // Once sent, not cancelled by a later wait.
+            viewModelScope.launch {
+                val result = history.history(code, range, bypassCache = true).getOrNull()
+                catchingUp -= range
+                // Too few bars to draw is a failure too: the old chart stays.
+                if (result == null || result.toChartState(range) == ChartState.Failed || _range.value != range) return@launch
+                if (scrubbing) pending = result else show(range, result)
+            }
+        }
+    }
 
     /**
      * Starts or stops auto-refresh. Each poll is one 1D chart request (bypassing the session cache): its quote refreshes
@@ -150,6 +191,9 @@ class DetailsViewModel(
                 pollWhileOpen(AUTO_REFRESH_MILLIS, ::marketOpen) {
                     val result = history.history(code, HistoryRange.DAY_1, bypassCache = true).getOrNull()
                     if (result == null) {
+                        // Before auto-refresh turns off, which makes the screen ask to catch up.
+                        failedPollQuoteTime = watchlist.currentEntries()
+                            ?.firstOrNull { it.code == code }?.saved?.quote?.marketTimeEpoch ?: 0L
                         watchlist.markFailed(code)
                     } else {
                         _autoRefresh.update { it.copy(checkedAt = clock()) }
@@ -173,7 +217,7 @@ class DetailsViewModel(
         if (active) return
         val waiting = pending ?: return
         pending = null
-        if (_range.value == HistoryRange.DAY_1) show(HistoryRange.DAY_1, waiting)
+        show(_range.value, waiting)
     }
 
     private fun marketOpen(): Boolean =
@@ -181,6 +225,7 @@ class DetailsViewModel(
 
     private fun load(bypassCache: Boolean) {
         debounce?.cancel()
+        pending = null
         val range = _range.value
         val cached = if (bypassCache) null else history.cached(code, range)
         if (cached != null) {
@@ -188,6 +233,7 @@ class DetailsViewModel(
             show(range, cached)
             return
         }
+        shown = null
         _chart.value = ChartState.Loading
         // Shown only when just fetched (decision 0055): not the last one while the 1D chart loads again.
         if (range == HistoryRange.DAY_1) showPreMarket(null)
@@ -204,6 +250,7 @@ class DetailsViewModel(
     }
 
     private fun show(range: HistoryRange, history: History?) {
+        shown = history
         history?.marketInfo()?.let { _market.value = it }
         _chart.value = history.toChartState(range)
         if (range == HistoryRange.DAY_1) showPreMarket(history)
