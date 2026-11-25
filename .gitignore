@@ -7,3 +7,6 @@ local.properties
 
 # Personal broker exports and conversion scripts (never commit)
 broker-exports/
+
+# macOS
+.DS_Store
