@@ -83,7 +83,11 @@ Portfolio track (decision 0040): one branch per milestone, from main
   exploration page was deleted (2026-11-25). Not seen live: the strip going away at the open, an exchange holiday, the Italian strings.
 - To investigate, maybe a milestone between M4 and M5: BTPs (0049). Check Yahoo's data for them first; they are
   quoted per 100 of face value, held as a face value, pay coupons and accrue interest.
-- M5, asset types (0049): type per ticker (ETF, single stock) and breakdown by type.
+- M5, asset types (0049, 0056): ETF or stock read from Yahoo, a pie or building icon after the code (watchlist,
+  details name line, Composition), the piggy bank for the Portfolio tab, and a "By type" section on the Portfolio tab
+  (public: % only). Designed in Doop 2026-11-25 (six frames, snapshot on branch `asset-types`). Next: the owner's spike
+  findings (which Yahoo field) in `docs/research/data-sources.md`, then the build on this branch. Sector, industry and
+  an "Other" type are parked.
 - M6, projection (0049): expected yearly return per ticker, compound growth. Needs its own brainstorm.
 - M7, withdrawal simulation (0049): selling a share each year, net cash out vs. remaining growth.
 

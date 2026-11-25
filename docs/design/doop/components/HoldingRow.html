@@ -1,15 +1,20 @@
 <!--
-  Component: HoldingRow (Doop id c9q6s133py, rev 1)
-  M4 (decision 0049), private only (0050: no composition in public): one held ticker in the Portfolio tab's
-  composition list, sorted by weight, largest first; tap opens its details. Ticker and name on the left (name
-  ellipsized), weight in % of the total on the right, value in EUR under it, and a 4dp bar whose primary fill is the
-  weight out of 100%.
-  Props: view private|public = private (public hides the value; unused since 0050); bar (CSS width, e.g. "34.5%"),
-         ticker, weight, name, value: text.
+  Component: HoldingRow (Doop id c9q6s133py, rev 2)
+  M4 (decision 0049): one held ticker in the Portfolio tab's composition list, sorted by weight, largest first; tap
+  opens its details. Ticker and name on the left (name ellipsized), weight in % of the total on the right, value in
+  EUR under it, and a 4dp bar whose primary fill is the weight out of 100%.
+  M5 (decision 0056): also the rows of the "By type" section (ticker "ETFs" / "Stocks", name "3 holdings"; not
+  tappable), shown in private (with value) and public (view=public, % only).
+  Props: view private|public = private (public hides the value); kind none|etf|stock = none: the 16dp type icon after
+         the ticker, as on the watchlist (pie_chart = ETF, business = stock); bar (CSS width, e.g. "34.5%"), ticker,
+         weight, name, value: text.
   One role colour for every row: a donut with a colour per ticker would need fixed hues and break dynamic colour.
 -->
-<a class="hlr" data-view="private" data-doop-prop="--w:bar" style="--w:34.5%;display:block;padding:12px var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);text-decoration:none;font-variant-numeric:tabular-nums;"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--spacing-md);"><span data-doop-prop="ticker" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);font-weight:var(--font-weight-medium);">VWCE.MI</span><span data-doop-prop="weight" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);font-weight:var(--font-weight-medium);">34.5%</span></div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--spacing-md);"><span data-doop-prop="name" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">Vanguard FTSE All-World UCITS ETF</span><span class="hlr-value" data-doop-prop="value" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">14,803.80 EUR</span></div><div style="margin-top:var(--spacing-sm);height:4px;border-radius:var(--radius-full);background:var(--color-surface-container-highest);overflow:hidden;"><div style="width:var(--w);height:100%;border-radius:var(--radius-full);background:var(--color-primary);"></div></div></a>
+<a class="hlr" data-view="private" data-kind="none" data-doop-prop="--w:bar" style="--w:34.5%;display:block;padding:12px var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);text-decoration:none;font-variant-numeric:tabular-nums;"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--spacing-md);"><span style="display:flex;align-items:center;gap:6px;"><span data-doop-prop="ticker" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);font-weight:var(--font-weight-medium);">VWCE.MI</span><span class="hlr-kind"><svg class="hlr-ic-etf" role="img" aria-label="ETF" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"></path></svg><svg class="hlr-ic-stock" role="img" aria-label="Stock" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"></path></svg></span></span><span data-doop-prop="weight" style="font-size:var(--text-body-large);line-height:var(--leading-body-large);font-weight:var(--font-weight-medium);">34.5%</span></div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--spacing-md);"><span data-doop-prop="name" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">Vanguard FTSE All-World UCITS ETF</span><span class="hlr-value" data-doop-prop="value" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);">14,803.80 EUR</span></div><div style="margin-top:var(--spacing-sm);height:4px;border-radius:var(--radius-full);background:var(--color-surface-container-highest);overflow:hidden;"><div style="width:var(--w);height:100%;border-radius:var(--radius-full);background:var(--color-primary);"></div></div></a>
 <style>
 .hlr .hlr-value { display: inline; }
 .hlr[data-view="public"] .hlr-value { display: none; }
+.hlr .hlr-kind, .hlr .hlr-ic-etf, .hlr .hlr-ic-stock { display: none; }
+.hlr[data-kind="etf"] .hlr-kind, .hlr[data-kind="stock"] .hlr-kind { display: flex; color: var(--color-on-surface-variant); }
+.hlr[data-kind="etf"] .hlr-ic-etf, .hlr[data-kind="stock"] .hlr-ic-stock { display: block; }
 </style>

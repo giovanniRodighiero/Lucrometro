@@ -1,11 +1,14 @@
 <!--
-  Component: QuoteRow (Doop id c5b5wp6o8o, rev 1)
+  Component: QuoteRow (Doop id c5b5wp6o8o, rev 4)
   One watchlist row: ticker code and name on the left, last price and day change on the right.
-  Props: state fresh|stale|error = fresh; ticker; name; note (shown only when stale, e.g. "Stale since 09:12");
+  Props: state fresh|stale|error = fresh; kind none|etf|stock = none (M5, decision 0056); ticker; name;
+         note (shown only when stale, e.g. "Stale since 09:12");
          price (with currency code, or "Couldn't fetch" in the error state)
+  kind: a 16dp on-surface-variant icon right after the code, 6dp gap: pie_chart = ETF, business (building) = stock.
+        Content description "ETF" / "Stock". none = no icon (any other Yahoo type; frames drawn before M5).
   Slot: change (put a ChangeBadge in it; empty in the error state)
 -->
-<div class="row" data-state="fresh" style="display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-md);min-height:72px;padding:var(--spacing-sm) var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);"><div style="min-width:0;display:flex;flex-direction:column;"><span data-doop-prop="ticker" style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">ENI.MI</span><span data-doop-prop="name" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Eni S.p.A.</span><span class="note" data-doop-prop="note" style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-tertiary);font-variant-numeric:tabular-nums;">Stale since 09:12</span></div><div style="display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;"><span class="price" data-doop-prop="price" style="line-height:var(--leading-body-large);font-variant-numeric:tabular-nums;">14.86 EUR</span><div class="change" data-doop-slot="change"></div></div></div>
+<div class="row" data-state="fresh" data-kind="none" style="display:flex;align-items:center;gap:var(--spacing-md);min-height:72px;padding:var(--spacing-sm) var(--spacing-md);font-family:var(--font-sans);color:var(--color-on-surface);"><div style="flex:1;min-width:0;display:flex;flex-direction:column;"><div style="display:flex;align-items:center;gap:6px;"><span data-doop-prop="ticker" style="font-size:var(--text-title-medium);line-height:var(--leading-title-medium);font-weight:var(--font-weight-medium);">ENI.MI</span><span class="kind"><svg class="ic-etf" role="img" aria-label="ETF" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"></path></svg><svg class="ic-stock" role="img" aria-label="Stock" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"></path></svg></span></div><span data-doop-prop="name" style="font-size:var(--text-body-medium);line-height:var(--leading-body-medium);color:var(--color-on-surface-variant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Eni S.p.A.</span><span class="note" data-doop-prop="note" style="font-size:var(--text-body-small);line-height:var(--leading-body-small);color:var(--color-tertiary);font-variant-numeric:tabular-nums;">Stale since 09:12</span></div><div style="display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;"><span class="price" data-doop-prop="price" style="line-height:var(--leading-body-large);font-variant-numeric:tabular-nums;">14.86 EUR</span><div class="change" data-doop-slot="change"></div></div></div>
 <style>
 .row .price { font-size: var(--text-body-large); color: var(--color-on-surface); }
 .row .note { display: none; }
@@ -14,4 +17,7 @@
 .row[data-state="stale"] .price { color: var(--color-on-surface-variant); }
 .row[data-state="error"] .price { font-size: var(--text-body-medium); color: var(--color-error); }
 .row[data-state="error"] .change { display: none; }
+.row .kind, .row .ic-etf, .row .ic-stock { display: none; }
+.row[data-kind="etf"] .kind, .row[data-kind="stock"] .kind { display: flex; color: var(--color-on-surface-variant); }
+.row[data-kind="etf"] .ic-etf, .row[data-kind="stock"] .ic-stock { display: block; }
 </style>

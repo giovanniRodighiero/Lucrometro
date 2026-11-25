@@ -2,7 +2,7 @@
 
 Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following `.claude/skills/doop-sync`
 (`export`), with the deviations listed below; details and position frames re-exported 2026-11-19, and again on
-2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. The pre-market strip added on 2026-11-25 (decision 0055), on branch `premarket`. Re-running the export overwrites this folder.
+2026-11-20 for the auto-refresh design (decision 0035), and the position frames on 2026-11-22 for M1 (decision 0040); the M2 private view added on 2026-11-22 (decision 0042). On 2026-11-23, with M2 built, `TopAppBar` and `DetailsTopBar` default to `privacy="public"`, so every older screen shows the wallet; their PNGs were re-rendered (HTML unchanged), and the M2 frames moved to the "Screens" page. The M3 realized gains added on 2026-11-23 (decisions 0043, 0047), on branch `realized-gains`. The M4 portfolio overview added on 2026-11-24 (decisions 0049, 0050), on branch `portfolio-overview`. The global CSV import added on 2026-11-24 (decision 0054), on branch `global-import`. The pre-market strip added on 2026-11-25 (decision 0055), on branch `premarket`. The M5 asset type added on 2026-11-25 (decision 0056), on branch `asset-types`. Re-running the export overwrites this folder.
 
 ## Frames (app screens)
 
@@ -67,6 +67,12 @@ Canvas: **Lucrometro**, ID `VPv84853nU`. Exported 2026-11-17 by hand, following 
 | `details-premarket-down` | Details · pre-market down (QQQ) | `iEKZ0k377t` | `frames/details-premarket-down.html`, `.png` |
 | `details-premarket-font-130` | Details · pre-market, font 130%, worst case (BKNG, 4-digit price) | `Erlfs5u2Qp` | `frames/details-premarket-font-130.html`, `.png` |
 | `details-premarket-dark` | Details · pre-market (dark) | `BQ2xAJx5AN` | `frames/details-premarket-dark.html`, `.png` |
+| `watchlist-type-icons` | Watchlist · type icon after the code (pie = ETF, building = stock), piggy bank tab | `BZbLjePuME` | `frames/watchlist-type-icons.html`, `.png` |
+| `nav-bar-piggy-bank` | Nav bar · piggy bank for Portfolio, both tabs selected | `WM_EvcwNGO` | `frames/nav-bar-piggy-bank.html`, `.png` |
+| `details-type-etf` | Details · ETF (type in the name line) | `gCyU_z-KH_` | `frames/details-type-etf.html`, `.png` |
+| `details-type-stock` | Details · stock (type in the name line) | `FPAt9DZC7C` | `frames/details-type-stock.html`, `.png` |
+| `portfolio-by-type` | Portfolio · private, full length: By type section + icons in Composition | `aOxCHptl18` | `frames/portfolio-by-type.html`, `.png` |
+| `portfolio-public-by-type` | Portfolio · public, By type as % only | `5cgJ7xMp-_` | `frames/portfolio-public-by-type.html`, `.png` |
 
 The details frames (added 2026-11-17, decision 0023) use made-up prices. `details-worst-case` uses stress values
 (a 4-digit price and a large drop) to check that the header row fits; it is not a real quote for RACE.MI.
@@ -184,3 +190,14 @@ is the full screen, its 1D line the `details-1d` path stretched to the whole ses
 scales the text tokens by 1.3 like `portfolio-font-130`. Prices are invented. The rejected directions (A, a column
 right of the price; B, a tonal block there) and the first C sketch were deleted with the page. The frame HTML was
 written from the markup sent to Doop.
+
+M5, asset type (decision 0056, 2026-11-25): page "M5 · Asset type". All six frames are marked ready for dev, signed
+off by the owner on 2026-11-25. `QuoteRow` rev 4, `QuoteHeader` rev 7 and `HoldingRow` rev 2 have a `kind` prop
+(none|etf|stock, default none: the 16dp pie or building icon; in `QuoteHeader` the icon and the word start the name
+line); `NavBar` rev 6 has `portfolio-icon` (pie|savings, default pie). The defaults leave every older frame as built;
+when M5 merges, the "Screens" frames get their types and the piggy bank, and `portfolio-icon` goes. The two details
+frames are crops of the top of the screen (412x252). `portfolio-by-type` is the whole scrolled screen (412x1420), with
+the new "By type" section; the holdings use the M4 total (42,899.20) split into five invented values that add up to it.
+`nav-bar-piggy-bank` is a reference board. Rejected options (a tonal circle before the code, a text tag, the layers
+glyph; briefcase, banknotes, coins and euro for the tab) were deleted. The frame HTML was written from the markup sent
+to Doop.
