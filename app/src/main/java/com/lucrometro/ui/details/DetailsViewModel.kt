@@ -11,6 +11,7 @@ import com.lucrometro.data.HistoryRange
 import com.lucrometro.data.HistoryRepository
 import com.lucrometro.data.Holding
 import com.lucrometro.data.Position
+import com.lucrometro.data.PreMarket
 import com.lucrometro.data.Replay
 import com.lucrometro.data.Trade
 import com.lucrometro.data.replay
@@ -80,6 +81,11 @@ class DetailsViewModel(
     /** The exchange's session from the latest chart response (every range carries it); null until one arrives. */
     val market: StateFlow<MarketInfo?> = _market.asStateFlow()
 
+    private val _preMarket = MutableStateFlow<PreMarket?>(null)
+
+    /** The pre-market price of the latest 1D load (decision 0055); whether to show it also depends on the clock. */
+    val preMarket: StateFlow<PreMarket?> = _preMarket.asStateFlow()
+
     private val _autoRefresh = MutableStateFlow(AutoRefresh())
 
     /** Auto-refresh (decision 0035): off every time the screen opens, as the screen stops it when it leaves. */
@@ -90,6 +96,9 @@ class DetailsViewModel(
     /** A drag on the chart is running: a poll's chart waits in [pending], so the scrub is not reset under the finger. */
     private var scrubbing = false
     private var pending: History? = null
+
+    /** The latest 1D chart shown: a pre-market answer for an earlier one is dropped. */
+    private var latestDay: History? = null
 
     /** The wait before a request is sent: a new selection cancels it, so tapping through the bar sends nothing. */
     private var debounce: Job? = null
@@ -180,6 +189,8 @@ class DetailsViewModel(
             return
         }
         _chart.value = ChartState.Loading
+        // Shown only when just fetched (decision 0055): not the last one while the 1D chart loads again.
+        if (range == HistoryRange.DAY_1) showPreMarket(null)
         debounce = viewModelScope.launch {
             if (!bypassCache) delay(SWITCH_DEBOUNCE_MILLIS)
             // A request, once sent, is not cancelled by a later selection: it finishes and fills the session cache,
@@ -195,6 +206,20 @@ class DetailsViewModel(
     private fun show(range: HistoryRange, history: History?) {
         history?.marketInfo()?.let { _market.value = it }
         _chart.value = history.toChartState(range)
+        if (range == HistoryRange.DAY_1) showPreMarket(history)
+    }
+
+    /** After the chart, which never waits for it. */
+    private fun showPreMarket(day: History?) {
+        latestDay = day
+        if (day == null) {
+            _preMarket.value = null
+            return
+        }
+        viewModelScope.launch {
+            val price = history.preMarket(code, day)
+            if (latestDay === day) _preMarket.value = price
+        }
     }
 
     companion object {

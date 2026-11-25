@@ -335,4 +335,8 @@
     <string name="global_import_nothing_new">Nothing new: every trade in the file is already saved.</string>
     <!-- "21 trades imported" "for 5 tickers" -->
     <string name="global_import_done">%1$s %2$s</string>
+    <string name="pre_market">Pre-market</string>
+    <string name="pre_market_description_up">Pre-market %1$s, up %2$s%%, at %3$s</string>
+    <string name="pre_market_description_down">Pre-market %1$s, down %2$s%%, at %3$s</string>
+    <string name="pre_market_description_flat">Pre-market %1$s, unchanged, at %3$s</string>
 </resources>

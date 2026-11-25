@@ -80,6 +80,47 @@ class YahooQuoteSourceTest {
         assertEquals(listOf(null, null), bars.map { it.adjClose })
     }
 
+    // Decision 0055: only a PRE market, and never an earlier day's pre-market price.
+    @Test fun preMarketOnlyWhenCurrent() {
+        fun answer(state: String, time: Long) = HttpResult(
+            200,
+            """{"quoteResponse":{"result":[{"marketState":"$state","preMarketPrice":408.95,
+               "preMarketChangePercent":-4.17,"preMarketTime":$time,"regularMarketTime":100}],"error":null}}""",
+            emptyList(),
+        )
+        fun fetch(r: HttpResult) = YahooQuoteSource(FakeHttp(r)).preMarket("SMH").getOrThrow()
+        assertEquals(PreMarket(408.95, -4.17, 200), fetch(answer("PRE", 200)))
+        assertEquals(null, fetch(answer("REGULAR", 200)))
+        assertEquals(null, fetch(answer("PRE", 50)))
+    }
+
+    // A refused pre-market request is one request: no new session, and the chart keeps the one it has.
+    @Test fun refusedPreMarketKeepsTheSessionAndIsNotRetried() {
+        val http = FakeHttp(eni, HttpResult(401, "Unauthorized", emptyList()), eni)
+        val source = YahooQuoteSource(http)
+        source.quote("ENI.MI").getOrThrow()
+        assertTrue(source.preMarket("SMH").isFailure)
+        source.quote("ENI.MI").getOrThrow()
+        assertEquals(1, http.sessions)
+        assertEquals(3, http.chartUrls.size)
+    }
+
+    // Milan answers with a "pre" period too: without the flag it must not lead to a pre-market request.
+    @Test fun preMarketHoursOnlyForTickersWithPreMarketData() {
+        fun hours(flag: Boolean) = YahooQuoteSource(
+            FakeHttp(
+                HttpResult(
+                    200,
+                    """{"chart":{"result":[{"meta":{"hasPrePostMarketData":$flag,
+                       "currentTradingPeriod":{"pre":{"start":100,"end":200}}},"indicators":{"quote":[{}]}}],"error":null}}""",
+                    emptyList(),
+                ),
+            ),
+        ).history("X", HistoryRange.DAY_1).getOrThrow().preSession
+        assertEquals(TradingPeriod(100, 200), hours(true))
+        assertEquals(null, hours(false))
+    }
+
     // Decision 0052: a weekly bar can run past 31 Dec, so the year ends take daily bars or nothing.
     @Test fun dailyHistoryRefusesAnyOtherBarSize() {
         fun chart(granularity: String) = HttpResult(

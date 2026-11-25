@@ -18,7 +18,11 @@ class HistoryRepository(
     private val watchlist: WatchlistRepository,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
-    private class CachedHistory(val history: History, val fetchedAt: Long)
+    private class CachedHistory(val history: History, val fetchedAt: Long) {
+        /** The answer to the pre-market request made for this 1D chart (a failure too); null until one was made. */
+        @Volatile
+        var preMarket: Result<PreMarket?>? = null
+    }
 
     private val cache = ConcurrentHashMap<Pair<String, HistoryRange>, CachedHistory>()
 
@@ -49,6 +53,22 @@ class HistoryRepository(
         val fresh = history?.quote
         if (fetchedNow && range == HistoryRange.DAY_1 && fresh != null) watchlist.saveIfNewer(code, fresh)
         return result
+    }
+
+    /**
+     * The pre-market price that goes with [day], a 1D chart this repository returned, or null. One more request, made
+     * only during the ticker's pre-market hours (decision 0055) and apart from the chart's, which does not wait for it.
+     * Asked once per cached chart, so it is reused as long as the chart is.
+     */
+    suspend fun preMarket(code: String, day: History): PreMarket? {
+        val hours = day.preSession ?: return null
+        if (clock() / 1000 !in hours.startEpoch until hours.endEpoch) return null
+        val cached = cache[code to HistoryRange.DAY_1]?.takeIf { it.history === day }
+        cached?.preMarket?.let { return it.getOrNull() }
+        val (result, _) = gate.requestUnless(reuse = { cached?.preMarket }) {
+            source.preMarket(code).map { it?.copy(opensEpoch = hours.endEpoch) }.also { cached?.preMarket = it }
+        }
+        return result.getOrNull()
     }
 
     /** Usable results only (2+ bars); a 1D with none or one bar yet (before the first trades) is a real answer for 2 minutes. */

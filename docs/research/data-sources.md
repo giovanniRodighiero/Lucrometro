@@ -70,6 +70,30 @@
   high/low and volume), and the last 5m bar equals it. The interval does not change the quote. Prices that differ between
   the list and the details header come from a newer delayed trade arriving between two requests (decision 0029).
   The `interval=5m` meta also has `previousClose` and `tradingPeriods`; the `interval=1d` one does not.
+- **US pre-market spike (2026-11-25, Cronet on the emulator, Wed ~11:37 CET / 05:37 New York):** works. Cookie, crumb,
+  then 2 calls for SMH (NasdaqGM), 8 s apart, no 429.
+  - **Chart (the endpoint the app already uses):** `v8/finance/chart/SMH?range=1d&interval=5m&includePrePost=true`.
+    `meta` has `hasPrePostMarketData: true`, `fulldayPrice` 408.95, `fulldayChange` -17.80 and `fulldayChangePercent`
+    -4.17 (against `regularMarketPrice` 426.75, yesterday's close), plus `currentTradingPeriod.pre` (04:00-09:30
+    New York). 20 bars from 04:00; the last one (05:35:20) closes at 408.95. All pre-market bar volumes are 0, and the
+    first bar's high (420.46) looks like a stray print.
+  - **Quote:** `v7/finance/quote?symbols=SMH` has `marketState: "PRE"`, `preMarketPrice` 408.95, `preMarketChange`,
+    `preMarketChangePercent` and `preMarketTime`, matching the chart. It reports `exchangeDataDelayedBy: 15`.
+  - **Not tested:** `fulldayPrice` during regular and post-market hours or without `includePrePost`; `includePrePost`
+    with `interval=1d` (the app's refresh); weekends and holidays; a thinly traded US stock; the real delay (`preMarketTime` was under 2.5 minutes old, despite the reported 15; one check only); `.MI`.
+- **Which request carries the pre-market price (2026-11-25, Wed 12:36 CET / 06:36 New York):** the build uses
+  `v7/finance/quote` (decision 0055).
+  - The unchanged 1D call (`range=1d&interval=5m`, one SMH request) keeps the 24 Nov session (79 bars, 09:30-16:00;
+    `tradingPeriods` is that day) and already has `fulldayPrice` 408.30, `hasPrePostMarketData: true` and today's
+    `currentTradingPeriod.pre`. It has **no time** for that price and no market state; the design shows the time.
+  - With `includePrePost=true` (the spike above) the same range returned only today's pre-market bars, so the 1D chart
+    would lose the last session. It cannot go on the chart call.
+  - So: one extra quote request after the 1D chart, only when `hasPrePostMarketData` is true and the clock is inside
+    `currentTradingPeriod.pre`.
+  - Checked in the app (NBIS, 06:38 New York): the price was stamped 06:38, so no visible 15-minute delay.
+  - **Milan (13:25 CET, one SMH.MI 1D chart call):** `hasPrePostMarketData: false`, yet `currentTradingPeriod.pre` is
+    there (08:00-09:00 CET). `fulldayPrice` is present too (equal to `regularMarketPrice`, market open). So only the
+    flag keeps `.MI` from the extra request.
 - Unofficial API: it can change or block without notice, hence the `QuoteSource` interface.
 
 ## Licensed APIs checked: none give free Milan quotes

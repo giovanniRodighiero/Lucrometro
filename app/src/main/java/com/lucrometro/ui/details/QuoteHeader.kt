@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lucrometro.R
 import com.lucrometro.data.WatchlistEntry
@@ -37,13 +38,15 @@ fun QuoteHeader(
     modifier: Modifier = Modifier,
     /** The exchange's zone from the chart, for a quote saved before it carried its own (schema v2). */
     fallbackZone: ZoneId? = null,
+    /** Less when the pre-market strip sits right under the header. */
+    bottomPadding: Dp = 16.dp,
 ) {
     val saved = entry.saved
     val stale = entry.stale
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = bottomPadding),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         if (saved == null) {

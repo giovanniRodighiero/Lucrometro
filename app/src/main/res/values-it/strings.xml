@@ -313,4 +313,8 @@
     <string name="global_import_no_rows">Nessuno dei titoli del file è tra i tuoi titoli.</string>
     <string name="global_import_nothing_new">Niente di nuovo: tutte le operazioni del file sono già salvate.</string>
     <string name="global_import_done">%1$s %2$s</string>
+    <string name="pre_market">Pre-market</string>
+    <string name="pre_market_description_up">Pre-market %1$s, in rialzo del %2$s%%, alle %3$s</string>
+    <string name="pre_market_description_down">Pre-market %1$s, in ribasso del %2$s%%, alle %3$s</string>
+    <string name="pre_market_description_flat">Pre-market %1$s, invariato, alle %3$s</string>
 </resources>

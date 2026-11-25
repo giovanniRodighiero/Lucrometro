@@ -37,6 +37,23 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
     }
 
     @Synchronized
+    override fun preMarket(symbol: String): Result<PreMarket?> = runCatching {
+        // The chart has a pre-market price but not its time, and with includePrePost it loses the last session's bars.
+        // No session renewal on a refusal, unlike the chart: an optional price must not multiply requests or drop the
+        // session the chart uses. The chart request just before this one has renewed an expired session.
+        val res = get("v7/finance/quote?symbols=${encode(symbol)}")
+        if (res.status == 429) throw RateLimitedException()
+        if (res.status != 200) error("quote HTTP ${res.status}: ${res.body.take(120)}")
+        val q = JSONObject(res.body).getJSONObject("quoteResponse").optJSONArray("result")?.optJSONObject(0)
+        if (q == null || q.optString("marketState") != "PRE") return@runCatching null
+        val price = q.optDouble("preMarketPrice")
+        val percent = q.optDouble("preMarketChangePercent")
+        val time = q.optLong("preMarketTime")
+        // A time before the last regular trade is an earlier day's pre-market, still in the response.
+        if (price.isNaN() || percent.isNaN() || time <= q.optLong("regularMarketTime")) null else PreMarket(price, percent, time)
+    }
+
+    @Synchronized
     override fun history(symbol: String, range: HistoryRange): Result<History> = runCatching {
         val (yahooRange, interval) = range.yahoo
         parseHistory(symbol, range, chart(symbol, "range=$yahooRange&interval=$interval").getJSONArray("result").getJSONObject(0))
@@ -70,11 +87,14 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
             )
         }
         val meta = result.optJSONObject("meta") ?: JSONObject()
+        val current = meta.optJSONObject("currentTradingPeriod")
         return History(
             candles = candles,
             previousClose = meta.optDouble("chartPreviousClose").takeIf { !it.isNaN() },
             sessions = regularSessions(meta.opt("tradingPeriods")),
-            currentSession = meta.optJSONObject("currentTradingPeriod")?.optJSONObject("regular")?.let(::period),
+            currentSession = current?.optJSONObject("regular")?.let(::period),
+            // Milan has a "pre" period too, with the flag false (docs/research/data-sources.md).
+            preSession = current?.optJSONObject("pre")?.takeIf { meta.optBoolean("hasPrePostMarketData") }?.let(::period),
             exchangeZone = meta.optString("exchangeTimezoneName").ifEmpty { null },
             // Best effort: a malformed quote field must not fail a chart whose bars are fine.
             quote = if (range == HistoryRange.DAY_1) runCatching { quoteFrom(symbol, meta) }.getOrNull() else null,
@@ -103,25 +123,26 @@ class YahooQuoteSource(private val http: HttpClient) : QuoteSource {
     }
 
     /**
-     * Returns the `chart` object of the response; throws on HTTP or API errors. A reused session that
-     * Yahoo rejects (expired cookie or crumb: 401/403) is renewed and the request retried once.
+     * Returns the `chart` object of the response; throws on HTTP or API errors. A reused session that Yahoo rejects
+     * (expired cookie or crumb: 401/403) is renewed and the request retried once. [query]: the bars asked for.
      */
     private fun chart(symbol: String, query: String): JSONObject {
         val reused = cookie != null && crumb != null
-        val res = fetchChart(symbol, query)
+        // Codes may hold ^ or = (indices, currencies).
+        val path = "v8/finance/chart/${encode(symbol)}?$query"
+        var res = get(path)
         if (reused && res.status in AUTH_FAILURES) {
             clearSession()
-            return parseChart(symbol, fetchChart(symbol, query))
+            res = get(path)
         }
         return parseChart(symbol, res)
     }
 
-    /** [query]: the bars asked for, "range=1d&interval=5m" or "period1=...&period2=...&interval=1d". */
-    private fun fetchChart(symbol: String, query: String): HttpResult {
+    /** [pathAndQuery] has its query already; the crumb is appended. */
+    private fun get(pathAndQuery: String): HttpResult {
         ensureSession()
-        // Codes may hold ^ or = (indices, currencies), and the crumb any character: encode both.
-        val url = "https://query1.finance.yahoo.com/v8/finance/chart/${encode(symbol)}" +
-            "?$query&crumb=${encode(crumb.orEmpty())}"
+        // The crumb may hold any character: encode it.
+        val url = "https://query1.finance.yahoo.com/$pathAndQuery&crumb=${encode(crumb.orEmpty())}"
         return http.get(url, mapOf("Cookie" to cookie.orEmpty(), "Accept" to "application/json"))
     }
 

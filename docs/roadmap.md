@@ -78,7 +78,9 @@ Portfolio track (decision 0040): one branch per milestone, from main
   `global-import`). Built and merged into main 2026-11-24; the five frames moved to "Screens" (rows 8 and 9).
 - Pre-market price (before M5): US tickers show the pre-market price in a strip under the details header, only while
   the market is closed; gone once it opens; never for `.MI` (decision 0055). Designed in Doop 2026-11-25 (four frames,
-  snapshot on branch `premarket`). Next: the build on this branch (first, which Yahoo request carries the price).
+  snapshot on branch `premarket`). Built and merged into main 2026-11-25, checked live on the emulator (the price comes from
+  one extra quote request during pre-market, `docs/research/data-sources.md`). Left: move the C frames to
+  "Screens"; not seen live: the strip going away at the open, an exchange holiday, the Italian strings.
 - To investigate, maybe a milestone between M4 and M5: BTPs (0049). Check Yahoo's data for them first; they are
   quoted per 100 of face value, held as a face value, pay coupons and accrue interest.
 - M5, asset types (0049): type per ticker (ETF, single stock) and breakdown by type.

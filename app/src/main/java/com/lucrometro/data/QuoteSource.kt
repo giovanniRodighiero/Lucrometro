@@ -18,6 +18,12 @@ interface QuoteSource {
      */
     fun quote(symbol: String): Result<Quote>
 
+    /**
+     * The pre-market price, or null when the market is not in pre-market or has no price yet (decision 0055). One
+     * request. Blocking; call from a background thread. The default is for test fakes that never ask for it.
+     */
+    fun preMarket(symbol: String): Result<PreMarket?> = Result.success(null)
+
     /** Candles of the range, oldest first. Blocking; call from a background thread. */
     fun history(symbol: String, range: HistoryRange): Result<History>
 

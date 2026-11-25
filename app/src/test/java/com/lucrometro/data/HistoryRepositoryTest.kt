@@ -48,6 +48,42 @@ class HistoryRepositoryTest {
         assertEquals(null, history.cached("ENI.MI", HistoryRange.YEAR_1))
     }
 
+    // Decision 0055: the extra request is made only inside the pre-market hours, and its failure keeps the chart.
+    @Test fun preMarketIsAskedOnlyDuringPreMarketHours() = runBlocking {
+        var asked = 0
+        var answer = Result.success<PreMarket?>(PreMarket(11.0, 1.0, 150))
+        val source = object : QuoteSource {
+            override fun quote(symbol: String) = Result.success(Quote(symbol, 10.0, "USD", null, 0))
+            override fun history(symbol: String, range: HistoryRange) =
+                Result.success(History(listOf(Candle(1, 10.0), Candle(2, 11.0)), preSession = TradingPeriod(100, 200)))
+            override fun preMarket(symbol: String) = answer.also { asked++ }
+        }
+        var now = 99_000L
+        val gate = SourceGate(Dispatchers.Unconfined)
+        val store = FakeWatchlistStore().apply { add("SMH", SavedQuote(Quote("SMH", 10.0, "USD", null, 0), 0)) }
+        val watchlist = WatchlistRepository(source, store, gate) { now }
+        val history = HistoryRepository(source, gate, watchlist) { now }
+        suspend fun load(bypassCache: Boolean = true) = history.history("SMH", HistoryRange.DAY_1, bypassCache).getOrThrow()
+
+        suspend fun price(day: History) = history.preMarket("SMH", day)
+
+        assertEquals(null, price(load()))
+        now = 200_000L // the open
+        assertEquals(null, price(load()))
+        assertEquals(0, asked)
+        now = 150_000L
+        val day = load()
+        assertEquals(0, asked) // the chart does not wait for it
+        assertEquals(PreMarket(11.0, 1.0, 150, opensEpoch = 200), price(day))
+        price(load(bypassCache = false)) // the same cached chart: not asked again
+        assertEquals(1, asked)
+        answer = Result.failure(RateLimitedException())
+        val reloaded = load()
+        assertEquals(null, price(reloaded))
+        assertEquals(null, price(reloaded)) // a refusal is not asked again either
+        assertEquals(2, asked)
+    }
+
     // The 1D chart response carries the current quote: the header's saved quote follows it, without another request.
     @Test fun aFetched1DChartUpdatesTheSavedQuote() = runBlocking {
         val newer = Quote("ENI.MI", 12.5, "EUR", null, marketTimeEpoch = 200)

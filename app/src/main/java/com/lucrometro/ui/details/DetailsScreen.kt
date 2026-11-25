@@ -53,6 +53,7 @@ import com.lucrometro.ui.common.WalletButton
 import com.lucrometro.ui.common.changeDirection
 import com.lucrometro.ui.common.changeLabel
 import com.lucrometro.ui.common.color
+import com.lucrometro.ui.common.marketZone
 import com.lucrometro.ui.common.rememberQuoteFormats
 import com.lucrometro.ui.common.rememberTimeFormats
 import kotlin.math.pow
@@ -75,6 +76,7 @@ fun DetailsScreen(
     val chart by viewModel.chart.collectAsStateWithLifecycle()
     val range by viewModel.range.collectAsStateWithLifecycle()
     val market by viewModel.market.collectAsStateWithLifecycle()
+    val preMarket by viewModel.preMarket.collectAsStateWithLifecycle()
     val positionState by viewModel.position.collectAsStateWithLifecycle()
     val position = positionState?.average
     var editingPosition by rememberSaveable { mutableStateOf(false) }
@@ -122,7 +124,17 @@ fun DetailsScreen(
         // Scrolls: at a large font scale the header, chart and range bar do not fit on one screen.
         Column(Modifier.padding(padding).verticalScroll(rememberScrollState())) {
             val quote = entry?.saved?.quote
-            entry?.let { QuoteHeader(it, formats, times, fallbackZone = market?.zone) }
+            // Only while the market is closed, until the opening it comes before (decision 0055).
+            val shownPreMarket = preMarket?.takeIf { quote != null && it.isShown(now, status, quote) }
+            entry?.let {
+                QuoteHeader(
+                    it, formats, times, fallbackZone = market?.zone,
+                    bottomPadding = if (shownPreMarket != null) 8.dp else 16.dp,
+                )
+            }
+            if (quote != null && shownPreMarket != null) {
+                PreMarketStrip(shownPreMarket, quote, marketZone(quote.exchangeZone, market?.zone), formats, times)
+            }
             // The chart needs the ticker's currency and decimals, so it waits for the saved quote.
             if (quote != null) {
                 // The halo: polling runs and the 1D chart (what a poll refreshes) is shown.

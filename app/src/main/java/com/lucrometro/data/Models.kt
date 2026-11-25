@@ -47,6 +47,17 @@ val HistoryRange.isIntraday: Boolean
 /** A regular trading session of the exchange, in epoch seconds. */
 data class TradingPeriod(val startEpoch: Long, val endEpoch: Long)
 
+/** The price before the regular session opens (decision 0055). Never saved. */
+data class PreMarket(
+    val price: Double,
+    /** Change from the last regular close, in percent. */
+    val changePercent: Double,
+    /** Epoch seconds of the pre-market price. */
+    val timeEpoch: Long,
+    /** When the regular session it comes before opens: not shown from then on. */
+    val opensEpoch: Long = 0,
+)
+
 /** The bars of a range, with what the details screen needs besides them. */
 data class History(
     val candles: List<Candle>,
@@ -64,6 +75,8 @@ data class History(
     val exchangeName: String? = null,
     /** How many minutes the source's quotes lag the exchange, when it says. */
     val delayMinutes: Int? = null,
+    /** The pre-market hours of the current session, only for tickers the source has pre-market prices for. */
+    val preSession: TradingPeriod? = null,
 )
 
 /** The last quote fetched successfully for a ticker, and when (epoch millis). */
